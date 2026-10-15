@@ -172,9 +172,10 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
             });
           }
         },
-        cancelOnError: true,
-        pauseFor: const Duration(seconds: 10),
-        listenFor: const Duration(seconds: 30),
+        listenOptions: stt.SpeechListenOptions(
+          cancelOnError: true,
+          partialResults: true,
+        ),
       );
     } else if (!available && mounted) {
       Navigator.pop(context);

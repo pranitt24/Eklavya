@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/design_system/nova_colors.dart';
 import '../../core/design_system/nova_typography.dart';
 import '../../core/design_system/nova_spacing.dart';
@@ -9,20 +10,23 @@ import '../../core/widgets/nova/nova_button.dart';
 import '../../core/widgets/nova/nova_speaker_button.dart';
 import '../../nova_main/demo/demo_controls.dart';
 import '../../nova_main/services/app_state.dart';
+import '../../core/models/nova_schema_models.dart';
+import '../../core/services/llm_game_master_service.dart';
 import 'story_adventure_screen.dart';
 
 /// Screen 4: Level road (`assets/Potrait screens/Level road.png`).
 /// Displays vertical winding village road ('गावाची सफर') with interactive level nodes,
 /// locked/unlocked states, and bottom 'माझी सकाळ' start adventure card.
-class LevelRoadScreen extends StatefulWidget {
+class LevelRoadScreen extends ConsumerStatefulWidget {
   const LevelRoadScreen({super.key});
 
   @override
-  State<LevelRoadScreen> createState() => _LevelRoadScreenState();
+  ConsumerState<LevelRoadScreen> createState() => _LevelRoadScreenState();
 }
 
-class _LevelRoadScreenState extends State<LevelRoadScreen> {
+class _LevelRoadScreenState extends ConsumerState<LevelRoadScreen> {
   int _selectedLevel = 1;
+  bool _isStartingAdventure = false;
   NovaSpeakerState _speakerState = NovaSpeakerState.listen;
 
   @override
@@ -52,12 +56,30 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
     NovaAudioService.instance.speak("चिंटूसोबत साहसाला तयार? Start at the sunshine stop!");
   }
 
-  void _startStoryAdventure() {
-    // Show Screen 5 Rotate Phone Modal and launch story adventure
+  Future<void> _startStoryAdventure() async {
+    if (_isStartingAdventure) return;
+    setState(() => _isStartingAdventure = true);
+
+    GeneratedLevelContract? contract;
+    try {
+      final llmService = ref.read(llmGameMasterProvider);
+      contract = await llmService
+          .generateLevel(levelNumber: _selectedLevel)
+          .timeout(const Duration(milliseconds: 3000));
+    } catch (e) {
+      debugPrint('Level generation fallback: $e');
+    } finally {
+      if (mounted) setState(() => _isStartingAdventure = false);
+    }
+
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => StoryAdventureScreen(initialLevelId: _selectedLevel),
+        builder: (_) => StoryAdventureScreen(
+          initialLevelId: _selectedLevel,
+          generatedLevelContract: contract,
+        ),
       ),
     );
   }
@@ -199,18 +221,30 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
                           ),
 
                           // Interactive Level Nodes
-                          // Node 1: Sunshine Node (Active/Selected)
+                          // Node 1: Sunshine Node (Level 1 - Unlocked & Tappable)
                           Positioned(
                             left: 36,
                             bottom: 60,
-                            child: _buildSunshineNode(1),
+                            child: _buildInteractiveNode(
+                              levelNum: 1,
+                              label: 'Level 1',
+                              icon: Icons.wb_sunny_rounded,
+                              activeColor: NovaColors.gold,
+                              audioPhrase: "पातळी एक. माझी सकाळ.",
+                            ),
                           ),
 
-                          // Node 2: Locked
+                          // Node 2: Banyan Grove Node (Level 2 - Unlocked & Tappable)
                           Positioned(
                             right: 70,
                             bottom: 120,
-                            child: _buildLockedNode(2, 'Level 2'),
+                            child: _buildInteractiveNode(
+                              levelNum: 2,
+                              label: 'Level 2',
+                              icon: Icons.park_rounded,
+                              activeColor: const Color(0xFF10B981),
+                              audioPhrase: "पातळी दोन. वडाचे झाड आणि डेअरी.",
+                            ),
                           ),
 
                           // Node 3: Locked
@@ -258,14 +292,16 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
-                                'माझी सकाळ',
+                                _selectedLevel == 1 ? 'माझी सकाळ' : 'वडाचे झाड आणि डेअरी',
                                 style: NovaTypography.headingMedium,
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
-                                'My morning • Level 1',
+                                _selectedLevel == 1
+                                    ? 'My morning • Level 1'
+                                    : 'Banyan Grove & Dairy • Level 2',
                                 style: NovaTypography.bodySecondary,
                               ),
                             ],
@@ -287,7 +323,7 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
 
                   // Bottom CTA
                   NovaButton(
-                    label: 'साहस सुरू करा! 🚀',
+                    label: _isStartingAdventure ? 'तयार करत आहे... 🚀' : 'साहस सुरू करा! 🚀',
                     variant: NovaButtonVariant.primary,
                     height: 56,
                     onPressed: _startStoryAdventure,
@@ -302,36 +338,46 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
     );
   }
 
-  Widget _buildSunshineNode(int levelNum) {
+  Widget _buildInteractiveNode({
+    required int levelNum,
+    required String label,
+    required IconData icon,
+    required Color activeColor,
+    required String audioPhrase,
+  }) {
+    final bool isSelected = _selectedLevel == levelNum;
     return GestureDetector(
       onTap: () {
         setState(() => _selectedLevel = levelNum);
-        NovaAudioService.instance.speak("पातळी एक. माझी सकाळ.");
+        NovaAudioService.instance.speak(audioPhrase);
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 68,
-            height: 68,
+            width: isSelected ? 68 : 54,
+            height: isSelected ? 68 : 54,
             decoration: BoxDecoration(
-              color: NovaColors.gold,
+              color: isSelected ? activeColor : Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4.0),
-              boxShadow: const [
+              border: Border.all(
+                color: isSelected ? Colors.white : activeColor,
+                width: isSelected ? 4.0 : 2.5,
+              ),
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x3DFBBF24),
-                  blurRadius: 16,
-                  spreadRadius: 4,
-                  offset: Offset(0, 4),
+                  color: activeColor.withValues(alpha: isSelected ? 0.45 : 0.2),
+                  blurRadius: isSelected ? 16 : 8,
+                  spreadRadius: isSelected ? 4 : 1,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: const Center(
+            child: Center(
               child: Icon(
-                Icons.wb_sunny_rounded,
-                size: 34,
-                color: NovaColors.ink,
+                icon,
+                size: isSelected ? 34 : 26,
+                color: isSelected ? NovaColors.ink : activeColor,
               ),
             ),
           ),
@@ -339,7 +385,7 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isSelected ? NovaColors.purple : Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
@@ -349,12 +395,12 @@ class _LevelRoadScreenState extends State<LevelRoadScreen> {
                 ),
               ],
             ),
-            child: const Text(
-              'Level 1',
+            child: Text(
+              label,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: NovaColors.purple,
+                color: isSelected ? Colors.white : NovaColors.purple,
               ),
             ),
           ),

@@ -127,7 +127,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         });
       },
       child: Card(
-        color: isSelected ? colorScheme.secondary.withOpacity(0.1) : Colors.white,
+        color: isSelected ? colorScheme.secondary.withValues(alpha: 0.1) : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(
@@ -152,7 +152,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 englishText,
                 style: TextStyle(
                   fontSize: 16,
-                  color: isSelected ? colorScheme.secondary.withOpacity(0.8) : Colors.black54,
+                  color: isSelected ? colorScheme.secondary.withValues(alpha: 0.8) : Colors.black54,
                 ),
               ),
             ],

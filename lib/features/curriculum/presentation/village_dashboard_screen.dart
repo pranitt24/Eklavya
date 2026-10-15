@@ -80,7 +80,7 @@ class VillageDashboardScreen extends ConsumerWidget {
                                 // Fallback placeholder if Rive fails to load
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.purple.withOpacity(0.2),
+                                    color: Colors.purple.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Center(
@@ -130,12 +130,12 @@ class VillageDashboardScreen extends ConsumerWidget {
                       children: [
                         Chip(
                           label: Text('🌱 ${student.seedsBalance}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          backgroundColor: Colors.white.withOpacity(0.9),
+                          backgroundColor: Colors.white.withValues(alpha: 0.9),
                         ),
                         const SizedBox(width: 8),
                         Chip(
                           label: Text('🔥 ${student.streakCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          backgroundColor: Colors.white.withOpacity(0.9),
+                          backgroundColor: Colors.white.withValues(alpha: 0.9),
                         ),
                       ],
                     ).animate().fadeIn(delay: 400.ms),

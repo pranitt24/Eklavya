@@ -5,6 +5,7 @@ import '../../core/design_system/nova_spacing.dart';
 import '../../core/routing/orientation_helper.dart';
 import '../../core/services/nova_audio_service.dart';
 import '../../core/widgets/nova/nova_button.dart';
+import '../../core/widgets/nova/nova_robot_mascot.dart';
 import '../../core/widgets/nova/nova_speaker_button.dart';
 import '../../nova_main/demo/demo_controls.dart';
 import '../../nova_main/services/app_state.dart';
@@ -275,6 +276,96 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
     );
   }
 
+  void _showComingSoonModal(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+            decoration: BoxDecoration(
+              color: NovaColors.cream,
+              borderRadius: NovaSpacing.roundedModal,
+              border: Border.all(color: Colors.white, width: 3.5),
+              boxShadow: NovaSpacing.modalShadow,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Mascot Header
+                Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 86,
+                        height: 86,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFEF3C7),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const NovaRobotMascot(size: 70),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Title
+                const Text(
+                  'लवकरच येत आहे! • Coming Soon! 🚧',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: NovaColors.ink,
+                    height: 1.25,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+
+                // Subtitle
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: NovaColors.purpleLight,
+                    borderRadius: NovaSpacing.roundedMd,
+                  ),
+                  child: const Text(
+                    'इयत्ता २ री ते ४ थी चे नवीन धडे आणि गोष्टी तयार होत आहेत (In Progress). सध्या इयत्ता पहिली (Standard 1) चे २ लेव्हल्स खेळा!',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: NovaColors.ink,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Action Button
+                NovaButton(
+                  label: 'ठीक आहे! (Play Std 1) ->',
+                  variant: NovaButtonVariant.primary,
+                  height: 48,
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildClassCard({
     required int classId,
     required String marathiLabel,
@@ -292,6 +383,13 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
       label: '$marathiLabel, $englishLabel',
       child: GestureDetector(
         onTap: () {
+          if (classId > 1) {
+            NovaAudioService.instance.speakCleanText(
+              "ही इयत्ता लवकरच येत आहे! तोपर्यंत इयत्ता पहिलीचा सराव करूया!",
+            );
+            _showComingSoonModal(context);
+            return;
+          }
           setState(() {
             _selectedClass = classId;
           });
@@ -338,7 +436,7 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
                 ),
               ),
 
-              // Selection Checkmark Badge
+              // Selection Checkmark Badge (Standard 1)
               if (isSelected)
                 Positioned(
                   top: 10,
@@ -354,6 +452,51 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
                       Icons.check_rounded,
                       size: 18,
                       color: Colors.white,
+                    ),
+                  ),
+                ),
+
+              // Small, neat pill badge ("लवकरच • Coming Soon") for Standard 2, 3, 4
+              if (classId > 1)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: NovaColors.goldDark.withValues(alpha: 0.35),
+                        width: 1.0,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x10271C44),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 11,
+                          color: NovaColors.goldDark,
+                        ),
+                        SizedBox(width: 3),
+                        Text(
+                          'लवकरच • Coming Soon',
+                          style: TextStyle(
+                            fontSize: 9.0,
+                            fontWeight: FontWeight.w800,
+                            color: NovaColors.goldDark,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

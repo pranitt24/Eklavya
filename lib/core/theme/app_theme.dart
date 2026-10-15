@@ -16,7 +16,6 @@ class AppTheme {
         secondary: leafGreen,
         tertiary: earthyBrown,
         surface: backgroundOffWhite,
-        background: backgroundOffWhite,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

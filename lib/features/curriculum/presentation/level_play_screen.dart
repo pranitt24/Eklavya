@@ -301,7 +301,7 @@ class _LevelPlayScreenState extends State<LevelPlayScreen> with SingleTickerProv
             child: Material(
               color: Colors.transparent,
               child: Container(
-                color: Colors.green.withOpacity(0.9),
+                color: Colors.green.withValues(alpha: 0.9),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [

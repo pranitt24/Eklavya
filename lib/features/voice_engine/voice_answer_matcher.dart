@@ -2,13 +2,67 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 class VoiceAnswerMatcher {
+  static const Map<String, List<String>> _phraseSynonyms = {
+    'शुभ प्रभात': [
+      'शुभ प्रभात',
+      'shubh prabhat',
+      'shubha prabhat',
+      'good morning',
+      'morning',
+      'नमस्कार',
+      'namaskar',
+      'सुप्रभात',
+      'suprabhat',
+      'प्रभात',
+      'prabhat',
+      'hello',
+    ],
+    'दूध': [
+      'दूध',
+      'doodh',
+      'dudh',
+      'milk',
+      'गोड दूध',
+      'दूध हवे',
+    ],
+    'वाघोबा': [
+      'वाघोबा',
+      'वाघ',
+      'vagh',
+      'wagh',
+      'tiger',
+    ],
+    'चिवताई': [
+      'चिवताई',
+      'चिमणी',
+      'चिऊ',
+      'chimani',
+      'bird',
+      'sparrow',
+    ],
+    'ट्रॅक्टर': [
+      'ट्रॅक्टर',
+      'tractor',
+      'मोठा',
+      'motha',
+      'big',
+    ],
+  };
+
   /// Evaluates if the spoken string is numerically equal to the expected string
-  /// after normalizing number words to digits.
+  /// after normalizing number words to digits, or satisfies string similarity / synonym sets.
   static bool evaluateAnswer(String spoken, String expected) {
     debugPrint('🎤 Heard: "$spoken" | 🎯 Expected: "$expected"');
-    
-    final int? parsedSpoken = _extractInteger(spoken);
-    final int? parsedExpected = _extractInteger(expected);
+
+    final cleanSpoken = spoken.trim();
+    final cleanExpected = expected.trim();
+
+    // Reject empty input or single-character noise
+    if (cleanSpoken.isEmpty || cleanSpoken.length < 2) return false;
+    if (cleanExpected.isEmpty) return false;
+
+    final int? parsedSpoken = _extractInteger(cleanSpoken);
+    final int? parsedExpected = _extractInteger(cleanExpected);
 
     debugPrint('🎤 Parsed Spoken Value: $parsedSpoken | 🎯 Parsed Expected Value: $parsedExpected');
 
@@ -16,22 +70,93 @@ class VoiceAnswerMatcher {
       if (parsedSpoken == parsedExpected) return true;
     }
 
-    // Fallback to strict string match (or substring) in case it's not a pure number
-    final processedSpoken = _preprocessString(spoken);
-    final processedExpected = _preprocessString(expected);
+    final processedSpoken = _preprocessString(cleanSpoken);
+    final processedExpected = _preprocessString(cleanExpected);
 
-    if (processedSpoken.isEmpty && processedExpected.isEmpty) return true;
     if (processedSpoken.isEmpty || processedExpected.isEmpty) return false;
+    if (processedSpoken.length < 2) return false;
 
-    if (processedSpoken == processedExpected || processedSpoken.contains(processedExpected)) {
+    // Direct match or child saying full phrase containing expected word
+    if (processedSpoken == processedExpected ||
+        processedSpoken.contains(processedExpected)) {
       return true;
+    }
+
+    // Only allow expected contains spoken if length is at least 85% of expected
+    if (processedExpected.contains(processedSpoken) &&
+        processedSpoken.length >= (processedExpected.length * 0.85).toInt()) {
+      return true;
+    }
+
+    // Check synonym map match
+    for (final entry in _phraseSynonyms.entries) {
+      final keyProcessed = _preprocessString(entry.key);
+      if (processedExpected == keyProcessed || processedExpected.contains(keyProcessed)) {
+        for (final syn in entry.value) {
+          final synProcessed = _preprocessString(syn);
+          if (processedSpoken == synProcessed ||
+              processedSpoken.contains(synProcessed)) {
+            return true;
+          }
+        }
+      }
     }
 
     final distance = _levenshteinDistance(processedSpoken, processedExpected);
     final maxLength = max(processedSpoken.length, processedExpected.length);
 
     final similarity = 1.0 - (distance / maxLength);
-    return similarity >= 0.75;
+    return similarity >= 0.72;
+  }
+
+  /// Evaluates spoken input against an array of valid synonyms/translations
+  static bool evaluateAnswerAgainstVariants(String spoken, List<String> variants) {
+    for (final variant in variants) {
+      if (evaluateAnswer(spoken, variant)) return true;
+    }
+    return false;
+  }
+
+  /// Returns expanded variants for expected answer, e.g. for numbers or greetings
+  static List<String> getVariantsForExpected(String expected) {
+    final processed = _preprocessString(expected);
+
+    for (final entry in _phraseSynonyms.entries) {
+      final keyProcessed = _preprocessString(entry.key);
+      if (processed == keyProcessed || processed.contains(keyProcessed)) {
+        return entry.value;
+      }
+    }
+
+    final int? numVal = _extractInteger(expected);
+    if (numVal != null) {
+      switch (numVal) {
+        case 1:
+          return ['1', 'एक', 'ek', 'one'];
+        case 2:
+          return ['2', 'दोन', 'don', 'do', 'two'];
+        case 3:
+          return ['3', 'तीन', 'teen', 'tin', 'three'];
+        case 4:
+          return ['4', 'चार', 'chaar', 'char', 'four'];
+        case 5:
+          return ['5', 'पाच', 'paach', 'pach', 'five'];
+        case 6:
+          return ['6', 'सहा', 'saha', 'six'];
+        case 7:
+          return ['7', 'सात', 'saat', 'sat', 'seven'];
+        case 8:
+          return ['8', 'आठ', 'aath', 'ath', 'eight'];
+        case 9:
+          return ['9', 'नऊ', 'nau', 'nine'];
+        case 10:
+          return ['10', 'दहा', 'daha', 'ten'];
+        default:
+          return ['$numVal', expected];
+      }
+    }
+
+    return [expected];
   }
 
   static int? _extractInteger(String input) {

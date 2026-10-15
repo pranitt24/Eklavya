@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/services/bkt_game_master_engine.dart';
+import '../../core/services/llm_game_master_service.dart';
+import '../../core/services/nova_schema_repository.dart';
 import '../../features/screens/story_adventure_screen.dart';
 import '../models/assessment_question.dart';
 import '../models/emotion_state.dart';
@@ -10,7 +14,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
 /// Modal bottom sheet providing comprehensive testing controls for evaluators.
-class DemoControlsSheet extends StatefulWidget {
+class DemoControlsSheet extends ConsumerStatefulWidget {
   const DemoControlsSheet({super.key});
 
   static void show(BuildContext context) {
@@ -23,10 +27,10 @@ class DemoControlsSheet extends StatefulWidget {
   }
 
   @override
-  State<DemoControlsSheet> createState() => _DemoControlsSheetState();
+  ConsumerState<DemoControlsSheet> createState() => _DemoControlsSheetState();
 }
 
-class _DemoControlsSheetState extends State<DemoControlsSheet> {
+class _DemoControlsSheetState extends ConsumerState<DemoControlsSheet> {
   void _toast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -42,6 +46,11 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
   @override
   Widget build(BuildContext context) {
     final appState = AppStateScope.of(context);
+    final repo = ref.watch(novaSchemaRepositoryProvider);
+    final llmService = ref.watch(llmGameMasterProvider);
+    final int currentLevelNumber = repo.currentUser.currentLevel > 0
+        ? repo.currentUser.currentLevel
+        : (appState.student.currentLevel > 0 ? appState.student.currentLevel : 1);
 
     return Material(
       color: Colors.white,
@@ -352,6 +361,274 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
                     style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.5),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // GROUP 8: AI GAME MASTER & BKT ENGINE
+                _buildSectionHeader('8. 🤖 AI Game Master & BKT Engine'),
+
+                // 8.1 Live LLM Provider Selector
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    'LLM Provider (Live Swappable)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: AppColors.navy,
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ChoiceChip(
+                      avatar: const Icon(Icons.bolt, size: 16, color: Colors.amber),
+                      label: const Text('Gemini 2.5 Flash (Primary)'),
+                      selected: llmService.activeProvider == LlmBackendProvider.gemini25Flash,
+                      selectedColor: AppColors.purple.withValues(alpha: 0.18),
+                      labelStyle: TextStyle(
+                        color: llmService.activeProvider == LlmBackendProvider.gemini25Flash
+                            ? AppColors.purple
+                            : AppColors.navy,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                      onSelected: (_) {
+                        ref.read(llmGameMasterProvider).setProvider(LlmBackendProvider.gemini25Flash);
+                        setState(() {});
+                        _toast('LLM Switched to Gemini 2.5 Flash');
+                      },
+                    ),
+                    ChoiceChip(
+                      avatar: const Icon(Icons.speed, size: 16, color: Colors.deepOrange),
+                      label: const Text('Groq LPU (Ultra-Fast)'),
+                      selected: llmService.activeProvider == LlmBackendProvider.groqUltraFast,
+                      selectedColor: Colors.deepOrange.withValues(alpha: 0.18),
+                      labelStyle: TextStyle(
+                        color: llmService.activeProvider == LlmBackendProvider.groqUltraFast
+                            ? Colors.deepOrange
+                            : AppColors.navy,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                      onSelected: (_) {
+                        ref.read(llmGameMasterProvider).setProvider(LlmBackendProvider.groqUltraFast);
+                        setState(() {});
+                        _toast('LLM Switched to Groq LPU');
+                      },
+                    ),
+                    ChoiceChip(
+                      avatar: const Icon(Icons.offline_bolt, size: 16, color: Colors.teal),
+                      label: const Text('Dynamic Offline (Instant)'),
+                      selected: llmService.activeProvider == LlmBackendProvider.dynamicLocalOffline,
+                      selectedColor: Colors.teal.withValues(alpha: 0.18),
+                      labelStyle: TextStyle(
+                        color: llmService.activeProvider == LlmBackendProvider.dynamicLocalOffline
+                            ? Colors.teal
+                            : AppColors.navy,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                      onSelected: (_) {
+                        ref.read(llmGameMasterProvider).setProvider(LlmBackendProvider.dynamicLocalOffline);
+                        setState(() {});
+                        _toast('LLM Switched to Dynamic Offline');
+                      },
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, bottom: 12),
+                  child: Text(
+                    'Active: ${_getProviderLabel(llmService.activeProvider)} • Last: ${llmService.lastUsedAdapter}',
+                    style: const TextStyle(fontSize: 11, color: AppColors.inkSoft, fontWeight: FontWeight.w600),
+                  ),
+                ),
+
+                // 8.2 Live Action Shortcuts
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    'Live Action Shortcuts',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: AppColors.navy,
+                    ),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.purple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.sync_rounded, size: 20),
+                      label: Text(
+                        '🔄 Regenerate Dynamic Story & Questions (L$currentLevelNumber)',
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                      ),
+                      onPressed: () => _generateAndLaunch(currentLevelNumber),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.navy,
+                        side: const BorderSide(color: AppColors.purple, width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Text('🐯', style: TextStyle(fontSize: 18)),
+                      label: const Text(
+                        'Jump to Level 2 (Banyan Grove & Dairy)',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                      ),
+                      onPressed: () => _generateAndLaunch(2),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // 8.3 Live BKT Mastery (p_learned) Readout & DDA Simulator
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    'Live BKT Latent Mastery & DDA Simulator',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: AppColors.navy,
+                    ),
+                  ),
+                ),
+                ListenableBuilder(
+                  listenable: repo,
+                  builder: (context, _) {
+                    final user = repo.currentUser;
+                    final compareState = repo.getBktState('MATH_COMPARE_01');
+                    final marathiState = repo.getBktState('LANG_MARATHI_01');
+                    final countState = repo.getBktState('MATH_COUNT_01');
+                    final addState = repo.getBktState('MATH_ADD_01');
+
+                    return Container(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Player: ${user.username} (L${user.currentLevel})',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                  color: AppColors.navy,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF3C7),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Text('🪙 ', style: TextStyle(fontSize: 12)),
+                                    Text(
+                                      '${user.coinsBalance} coins',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 12,
+                                        color: Color(0xFF92400E),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 18),
+                          _buildBktSkillRow('MATH_COMPARE_01', 'Size Comparison (मोठे / छोटे)', compareState.pLearned),
+                          const SizedBox(height: 8),
+                          _buildBktSkillRow('LANG_MARATHI_01', 'Marathi Vocab (मराठी संवाद)', marathiState.pLearned),
+                          const SizedBox(height: 8),
+                          _buildBktSkillRow('MATH_COUNT_01', 'Counting 1-10 (मोजणे)', countState.pLearned),
+                          const SizedBox(height: 8),
+                          _buildBktSkillRow('MATH_ADD_01', 'Single Addition (बेरीज)', addState.pLearned),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          backgroundColor: const Color(0xFFEFF6FF),
+                        ),
+                        onPressed: () {
+                          repo.setAllBktMastery(0.15);
+                          setState(() {});
+                          _toast('BKT set to 15% (Tier 1 Easy)! Regenerate pulls Easy.');
+                        },
+                        child: const Text(
+                          'Set Struggling\n(p = 0.15 -> Tier 1 Easy)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D4ED8),
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          backgroundColor: const Color(0xFFECFDF5),
+                        ),
+                        onPressed: () {
+                          repo.setAllBktMastery(0.85);
+                          setState(() {});
+                          _toast('BKT set to 85% (Tier 3 Hard)! Regenerate pulls Hard.');
+                        },
+                        child: const Text(
+                          'Set Mastered\n(p = 0.85 -> Tier 3 Hard)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF047857),
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
               ],
             ),
           ),
@@ -360,6 +637,135 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
     ),
   );
 }
+
+  String _getProviderLabel(LlmBackendProvider provider) {
+    switch (provider) {
+      case LlmBackendProvider.gemini25Flash:
+        return 'Gemini 2.5 Flash (Primary)';
+      case LlmBackendProvider.groqUltraFast:
+        return 'Groq LPU (Ultra-Fast)';
+      case LlmBackendProvider.dynamicLocalOffline:
+        return 'Dynamic Offline (Instant)';
+    }
+  }
+
+  Widget _buildBktSkillRow(String id, String label, double pLearned) {
+    final int tier = GameMasterContextAssembler.selectDifficultyTier(pLearned);
+    final Color tierColor = tier == 1
+        ? const Color(0xFF3B82F6)
+        : tier == 2
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF10B981);
+
+    final String tierText = tier == 1 ? 'Tier 1 (Easy)' : tier == 2 ? 'Tier 2 (Medium)' : 'Tier 3 (Hard)';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.navy),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: tierColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                tierText,
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: tierColor),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${(pLearned * 100).toStringAsFixed(0)}%',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'monospace',
+                color: AppColors.navy,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: pLearned.clamp(0.01, 0.99),
+            minHeight: 5,
+            backgroundColor: const Color(0xFFE2E8F0),
+            valueColor: AlwaysStoppedAnimation<Color>(tierColor),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _generateAndLaunch(int levelNumber) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final llmService = ref.read(llmGameMasterProvider);
+    final providerName = _getProviderLabel(llmService.activeProvider);
+
+    navigator.pop();
+
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Generating Level $levelNumber via $providerName...',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 4),
+        backgroundColor: AppColors.navy,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+
+    try {
+      final contract = await llmService.generateLevel(levelNumber: levelNumber);
+      scaffoldMessenger.hideCurrentSnackBar();
+      if (!mounted) return;
+      navigator.push(
+        MaterialPageRoute(
+          builder: (_) => StoryAdventureScreen(
+            initialLevelId: levelNumber,
+            generatedLevelContract: contract,
+          ),
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Level generation failed: $e'),
+          backgroundColor: AppColors.coral,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
 
   void _forceAssessment(AppState appState, List<int> answers) {
     final outcome = AssessmentService.evaluate(

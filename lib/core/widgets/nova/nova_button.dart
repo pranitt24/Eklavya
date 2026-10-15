@@ -113,13 +113,15 @@ class _NovaButtonState extends State<NovaButton> {
       enabled: isEnabled,
       label: widget.label,
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
-        onTapUp: isEnabled
-            ? (_) {
+        onTap: isEnabled
+            ? () {
                 setState(() => _isPressed = false);
                 widget.onPressed?.call();
               }
             : null,
+        onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
         onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 60),

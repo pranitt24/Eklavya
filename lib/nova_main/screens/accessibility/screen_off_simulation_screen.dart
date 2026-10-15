@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../constants/app_strings.dart';
 import '../../models/story_beat.dart';

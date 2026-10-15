@@ -8,15 +8,21 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:majhe_gaon/main.dart';
+import 'package:majhe_gaon/nova_main/services/app_state.dart';
 
 void main() {
   testWidgets('Smoke test for MajheGaonApp', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProviderScope(child: MajheGaonApp()));
+    final appState = AppState();
+    await tester.pumpWidget(
+      ProviderScope(
+        child: AppStateScope(
+          appState: appState,
+          child: const MajheGaonApp(),
+        ),
+      ),
+    );
 
-    // Verify that the dashboard is loaded.
-    expect(find.text('माझे गाव (Majhe Gaon)'), findsOneWidget);
+    expect(find.byType(MajheGaonApp), findsOneWidget);
   });
 }

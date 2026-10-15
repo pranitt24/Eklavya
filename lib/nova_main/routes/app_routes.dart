@@ -15,4 +15,7 @@ class AppRoutes {
   static const String levelComplete = '/level-complete';
   static const String accessibilitySettings = '/accessibility-settings';
   static const String screenOffSimulation = '/screen-off-simulation';
+  static const String classSelection = '/class-selection';
+  static const String levelRoad = '/level-road';
+  static const String profile = '/profile';
 }

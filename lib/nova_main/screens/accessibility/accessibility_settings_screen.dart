@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_strings.dart';
 import '../../demo/demo_fab.dart';
-import '../../models/accessibility_settings.dart';
 import '../../routes/app_routes.dart';
 import '../../services/app_state.dart';
 import '../../services/haptics_service.dart';
@@ -10,7 +9,6 @@ import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/accessibility_toggle.dart';
 import '../../widgets/primary_button.dart';
-import '../../widgets/secondary_button.dart';
 
 /// Full-featured Accessibility Settings with live app-wide theme and text scale switching.
 class AccessibilitySettingsScreen extends StatelessWidget {

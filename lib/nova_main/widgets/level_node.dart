@@ -265,7 +265,6 @@ class _LevelNodeState extends State<LevelNode> with TickerProviderStateMixin {
       case LevelState.available:
         return const Color(0xFFF0F8FF);
       case LevelState.locked:
-      default:
         return const Color(0xFFECEEF5);
     }
   }
@@ -279,7 +278,6 @@ class _LevelNodeState extends State<LevelNode> with TickerProviderStateMixin {
       case LevelState.available:
         return AppColors.sky;
       case LevelState.locked:
-      default:
         return AppColors.borderLight;
     }
   }

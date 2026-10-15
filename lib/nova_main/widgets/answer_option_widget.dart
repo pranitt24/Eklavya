@@ -111,7 +111,6 @@ class _AnswerOptionWidgetState extends State<AnswerOptionWidget> with SingleTick
         break;
 
       case OptionState.idle:
-      default:
         borderColor = AppColors.borderLight;
         backgroundColor = Colors.white;
         statusIcon = Container(

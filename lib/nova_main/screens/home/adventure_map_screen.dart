@@ -2,14 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../constants/app_strings.dart';
 import '../../models/level_model.dart';
-import '../../models/story_beat.dart';
-import '../../routes/app_routes.dart';
 import '../../services/app_state.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/level_node.dart';
-import '../../widgets/mascot_widget.dart';
 import '../../widgets/offline_badge.dart';
 import '../levels/level_detail_screen.dart';
 

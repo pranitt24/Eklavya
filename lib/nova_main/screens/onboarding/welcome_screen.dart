@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:majhe_gaon/core/routing/boot_logic.dart';
-import 'package:majhe_gaon/features/curriculum/presentation/class_selection_screen.dart';
+import 'package:majhe_gaon/features/screens/class_selection_screen.dart';
 import 'package:majhe_gaon/features/duel/duel_lobby_screen.dart';
-import '../home/adventure_map_screen.dart'; // Fallback for LevelMapScreen
 
-import '../../constants/app_strings.dart';
 import '../../demo/demo_fab.dart';
 import '../../models/accessibility_settings.dart';
 import '../../models/story_beat.dart';

@@ -68,7 +68,6 @@ class _VoiceButtonState extends State<VoiceButton> with TickerProviderStateMixin
         caption = 'Let\'s try again';
         break;
       case VoiceRecognitionState.idle:
-      default:
         caption = 'Tap and say your answer';
         break;
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/accessibility_settings.dart';
+import '../../features/screens/story_adventure_screen.dart';
 import '../models/assessment_question.dart';
 import '../models/emotion_state.dart';
 import '../routes/app_routes.dart';
@@ -43,16 +43,16 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
   Widget build(BuildContext context) {
     final appState = AppStateScope.of(context);
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.82,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        children: [
-          // Drag handle and header
-          Container(
+    return Material(
+      color: Colors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.82,
+        child: Column(
+          children: [
+            // Drag handle and header
+            Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Column(
               children: [
@@ -107,10 +107,29 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, AppRoutes.levelDetail);
                     }),
-                    _buildChip('Story (Level 4)', () {
-                      appState.startLevel(4);
+                    _buildChip('Story (Screen 6)', () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, AppRoutes.story);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 6, startWithRotateModal: false)));
+                    }),
+                    _buildChip('Quiz (Screen 7)', () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 7, startWithRotateModal: false)));
+                    }),
+                    _buildChip('Chiu (Screen 8)', () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 8, startWithRotateModal: false)));
+                    }),
+                    _buildChip('Voice (Screen 9)', () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 9, startWithRotateModal: false)));
+                    }),
+                    _buildChip('Match (Screen 10)', () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 10, startWithRotateModal: false)));
+                    }),
+                    _buildChip('Celebration (Screen 11)', () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryAdventureScreen(initialScreen: 11, startWithRotateModal: false)));
                     }),
                     _buildChip('Level Complete', () {
                       appState.startLevel(4);
@@ -338,8 +357,9 @@ class _DemoControlsSheetState extends State<DemoControlsSheet> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _forceAssessment(AppState appState, List<int> answers) {
     final outcome = AssessmentService.evaluate(

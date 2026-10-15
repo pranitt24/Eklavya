@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
@@ -70,7 +71,14 @@ class _StarRewardState extends State<StarReward> with SingleTickerProviderStateM
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_rounded, color: AppColors.sunYellow, size: 36),
+              Lottie.asset(
+                'assets/lottie/Animated Star Gold 3D Icon Loop.json',
+                width: 36,
+                height: 36,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.star_rounded, color: AppColors.sunYellow, size: 36),
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 '+$currentCount Stars',

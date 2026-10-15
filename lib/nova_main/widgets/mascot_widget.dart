@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../models/story_beat.dart';
 import '../theme/app_colors.dart';
 
@@ -98,46 +99,58 @@ class _MascotWidgetState extends State<MascotWidget> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([
-        _floatController,
-        _blinkController,
-        _mouthController,
-        _bounceController,
-      ]),
-      builder: (context, child) {
-        // Calculate float offset
-        double floatOffset = sin(_floatController.value * 2 * pi) * 6.0;
-        if (widget.mood == NovaMood.excited) {
-          floatOffset -= _bounceController.value * 12.0;
-        }
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Lottie.asset(
+        'assets/lottie/Robot says hello.json',
+        width: widget.size,
+        height: widget.size,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return AnimatedBuilder(
+            animation: Listenable.merge([
+              _floatController,
+              _blinkController,
+              _mouthController,
+              _bounceController,
+            ]),
+            builder: (context, child) {
+              // Calculate float offset
+              double floatOffset = sin(_floatController.value * 2 * pi) * 6.0;
+              if (widget.mood == NovaMood.excited) {
+                floatOffset -= _bounceController.value * 12.0;
+              }
 
-        // Calculate blink factor (1.0 = open, 0.0 = closed)
-        final blinkProgress = _blinkController.value;
-        double eyeOpenFactor = 1.0;
-        if (widget.mood == NovaMood.sleepy) {
-          eyeOpenFactor = 0.35;
-        } else if (blinkProgress > 0.95) {
-          eyeOpenFactor = (1.0 - (blinkProgress - 0.95) / 0.05).clamp(0.0, 1.0);
-        }
+              // Calculate blink factor (1.0 = open, 0.0 = closed)
+              final blinkProgress = _blinkController.value;
+              double eyeOpenFactor = 1.0;
+              if (widget.mood == NovaMood.sleepy) {
+                eyeOpenFactor = 0.35;
+              } else if (blinkProgress > 0.95) {
+                eyeOpenFactor = (1.0 - (blinkProgress - 0.95) / 0.05).clamp(0.0, 1.0);
+              }
 
-        return Transform.translate(
-          offset: Offset(0, floatOffset),
-          child: SizedBox(
-            width: widget.size,
-            height: widget.size,
-            child: CustomPaint(
-              painter: _NovaMascotPainter(
-                mood: widget.mood,
-                eyeOpenFactor: eyeOpenFactor,
-                mouthOpenFactor: widget.speaking ? _mouthController.value : 0.0,
-                showGlow: widget.showGlow,
-                animationProgress: _floatController.value,
-              ),
-            ),
-          ),
-        );
-      },
+              return Transform.translate(
+                offset: Offset(0, floatOffset),
+                child: SizedBox(
+                  width: widget.size,
+                  height: widget.size,
+                  child: CustomPaint(
+                    painter: _NovaMascotPainter(
+                      mood: widget.mood,
+                      eyeOpenFactor: eyeOpenFactor,
+                      mouthOpenFactor: widget.speaking ? _mouthController.value : 0.0,
+                      showGlow: widget.showGlow,
+                      animationProgress: _floatController.value,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

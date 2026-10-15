@@ -1,7 +1,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sb_project/app.dart';
-import 'package:sb_project/services/app_state.dart';
+import 'package:majhe_gaon/nova_main/app.dart';
+import 'package:majhe_gaon/nova_main/services/app_state.dart';
 
 void main() {
   testWidgets('NOVA app starts on the splash screen', (WidgetTester tester) async {

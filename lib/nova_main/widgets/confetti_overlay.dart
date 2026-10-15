@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../theme/app_colors.dart';
 
 /// Lightweight CustomPainter confetti burst (<= 60 particles) honoring Reduce Motion.
@@ -82,17 +83,28 @@ class _ConfettiOverlayState extends State<ConfettiOverlay> with SingleTickerProv
         if (widget.child != null) widget.child!,
         if (widget.play)
           IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return CustomPaint(
-                  size: Size.infinite,
-                  painter: _ConfettiPainter(
-                    particles: _particles,
-                    progress: _controller.value,
-                  ),
-                );
-              },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Lottie.asset(
+                  'assets/lottie/Confetti Effects Lottie Animation.json',
+                  fit: BoxFit.cover,
+                  repeat: false,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                ),
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      size: Size.infinite,
+                      painter: _ConfettiPainter(
+                        particles: _particles,
+                        progress: _controller.value,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
       ],

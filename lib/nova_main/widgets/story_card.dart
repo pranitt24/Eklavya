@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/story_beat.dart';
 import '../services/haptics_service.dart';
@@ -142,7 +141,6 @@ class _StoryCardState extends State<StoryCard> {
           end: Alignment.bottomCenter,
         );
       case SceneType.general:
-      default:
         return const LinearGradient(
           colors: [Color(0xFFF3F8FF), Color(0xFFE0EDFD)],
           begin: Alignment.topCenter,

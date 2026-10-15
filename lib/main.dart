@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/theme/app_theme.dart';
-import 'features/onboarding/presentation/onboarding_screen.dart';
-import 'features/curriculum/presentation/village_dashboard_screen.dart';
+import 'core/design_system/nova_theme.dart';
 import 'core/routing/boot_logic.dart';
+import 'features/screens/home_hub_screen.dart';
+import 'features/screens/profile_screen.dart';
 import 'nova_main/services/app_state.dart';
-import 'nova_main/screens/onboarding/welcome_screen.dart';
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   final appState = AppState();
   runApp(
     ProviderScope(
@@ -25,7 +26,8 @@ class MajheGaonApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Majhe Gaon',
-      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      theme: NovaTheme.lightTheme,
       home: const BootRouter(),
     );
   }
@@ -41,9 +43,9 @@ class BootRouter extends ConsumerWidget {
     return bootState.when(
       data: (hasProfiles) {
         if (hasProfiles) {
-          return const WelcomeScreen();
+          return const HomeHubScreen();
         } else {
-          return const OnboardingScreen();
+          return const ProfileScreen();
         }
       },
       loading: () => const Scaffold(

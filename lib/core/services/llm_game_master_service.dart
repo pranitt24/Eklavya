@@ -259,8 +259,16 @@ class LlmGameMasterService {
     final int targetTier = context.targetDifficultyTier;
     final String levelTitle = levelNum == 1
         ? 'पातळी १ • माझी सकाळ • My Morning'
-        : 'पातळी २ • वडाचे झाड आणि डेअरी • Banyan Grove & Dairy';
-    final String theme = levelNum == 1 ? 'village_morning' : 'banyan_grove_dairy';
+        : (levelNum == 2
+            ? 'पातळी २ • वडाचे झाड आणि डेअरी • Banyan Grove & Dairy'
+            : (levelNum == 3
+                ? 'पातळी ३ • गावाचा आठवडी बाजार • Village Weekly Market'
+                : 'पातळी ४ • गावाची शाळा आणि जत्रा • Village School & Fair 🏆'));
+    final String theme = levelNum == 1
+        ? 'village_morning'
+        : (levelNum == 2
+            ? 'banyan_grove_dairy'
+            : (levelNum == 3 ? 'village_weekly_market' : 'village_school_and_fair'));
 
     // Map screen indices 0..4 to story beats:
     // Screen 6 (idx 0): Beat 1 intro
@@ -288,11 +296,19 @@ class LlmGameMasterService {
 
       final String backdrop = q.requiredBackdropId.isNotEmpty
           ? q.requiredBackdropId
-          : (levelNum == 1 ? 'bg_village_morning' : 'bg_banyan_grove');
+          : (levelNum == 1
+              ? 'bg_village_morning'
+              : (levelNum == 2
+                  ? 'bg_banyan_grove'
+                  : (levelNum == 3 ? 'bg_village_market' : 'bg_village_school')));
 
       final String character = levelNum == 1
           ? (i % 2 == 0 ? 'char_chintu' : 'char_nova')
-          : (i % 2 == 0 ? 'char_tiger' : 'char_nova');
+          : (levelNum == 2
+              ? (i % 2 == 0 ? 'char_tiger' : 'char_nova')
+              : (levelNum == 3
+                  ? (i % 2 == 0 ? 'char_farmer' : 'char_nova')
+                  : (i % 2 == 0 ? 'char_chintu' : 'char_nova')));
 
       final List<String>? options = q.payloadData['options'] != null
           ? List<String>.from(q.payloadData['options'])
@@ -320,7 +336,9 @@ class LlmGameMasterService {
                     )
                   : (levelNum == 1
                       ? 'सूर्याची सोनेरी किरणे आली... गाव जागे झाले! चिवताई छतावर गाऊ लागली!'
-                      : 'वडाच्या झाडाखाली वाघोबा आणि नोव्हा भेटले आहेत! चला डेअरीकडे जाऊया.')),
+                      : (levelNum == 2
+                          ? 'वडाच्या झाडाखाली वाघोबा आणि नोव्हा भेटले आहेत! चला डेअरीकडे जाऊया.'
+                          : 'आज गावात आठवडी बाजार भरला आहे! शेतकरी दादांनी ताज्या फळांचे आणि खाऊचे दुकान लावले आहे.'))),
           environment: SceneEnvironmentContract(
             backdrop: backdrop,
             character: character,

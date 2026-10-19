@@ -31,6 +31,21 @@ class NovaPropAnimationBox extends StatelessWidget {
     if (assetPath.contains('Cute Tiger')) return 1.30;
     if (assetPath.contains('cow')) return 1.35;
     if (assetPath.contains('Blue Bird')) return 1.20;
+    if (assetPath.contains('weighing_scale')) return 1.30;
+    if (assetPath.contains('farmer_waving')) return 1.25;
+    if (assetPath.contains('bicycle')) return isBigVsSmall ? 1.40 : 1.20;
+    if (assetPath.contains('piggy_bank')) return 1.30;
+    if (assetPath.contains('fruit_basket')) return 1.25;
+    if (assetPath.contains('food stall')) return 1.15;
+    if (assetPath.contains('bus')) return isBigVsSmall ? 1.50 : 1.25;
+    if (assetPath.contains('school_bag')) return 1.20;
+    if (assetPath.contains('triangle')) return 1.20;
+    if (assetPath.contains('square')) return 1.20;
+    if (assetPath.contains('rectangle')) return 1.20;
+    if (assetPath.contains('circle')) return 1.20;
+    if (assetPath.contains('ferris_wheel')) return 1.15;
+    if (assetPath.contains('balloons')) return 1.20;
+    if (assetPath.contains('trophy')) return 1.25;
     return 1.0;
   }
 

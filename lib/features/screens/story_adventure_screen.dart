@@ -25,6 +25,8 @@ import '../../core/models/nova_schema_models.dart';
 import '../../core/data/nova_seed_catalog.dart';
 import '../../core/services/bkt_game_master_engine.dart';
 import '../../core/widgets/nova/banyan_grove_stage_widget.dart';
+import '../../core/widgets/nova/village_market_stage_widget.dart';
+import '../../core/widgets/nova/village_school_fair_stage_widget.dart';
 import '../../core/widgets/nova/nova_prop_animation_box.dart';
 import 'level_road_screen.dart';
 
@@ -195,9 +197,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
     )..repeat(reverse: true);
 
     _levelContract = widget.generatedLevelContract ??
-        (widget.initialLevelId == 2
-            ? NovaSeedCatalog.level2BanyanGroveContract
-            : NovaSeedCatalog.level1VillageMorningContract);
+        (widget.initialLevelId == 4
+            ? NovaSeedCatalog.level4SchoolFairContract
+            : (widget.initialLevelId == 3
+                ? NovaSeedCatalog.level3VillageMarketContract
+                : (widget.initialLevelId == 2
+                    ? NovaSeedCatalog.level2BanyanGroveContract
+                    : NovaSeedCatalog.level1VillageMorningContract)));
 
     NovaAudioService.instance.isPlayingNotifier.addListener(_onTtsStateChanged);
   }
@@ -236,21 +242,47 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
     if (intro != null && intro.trim().isNotEmpty) {
       return intro;
     }
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
     final isLevel2 = widget.initialLevelId == 2;
     switch (screenNumber) {
       case 7:
+        if (isLevel4) {
+          return "चिंटू आणि नोव्हा वर्गात पोहोचले! आज गुरुजी फळ्यावर विविध आकार शिकवत आहेत — वर्तुळ, त्रिकोण, चौकोन आणि आयत! चला योग्य आकार ओळखूया!";
+        }
+        if (isLevel3) {
+          return "शेतकरी दादांनी तराजू काढला आहे! आता आपण फळांची टोपली आणि दुधाचे डबे मोजूया आणि कोणती वस्तू जड किंवा जास्त आहे ते पाहूया!";
+        }
         return isLevel2
             ? "वाघोबाला मदत केल्यावर चिंटू गावातील डेअरीमध्ये पोहोचला. तिथे कपिला गाय उभी आहे आणि ताजे दूध तयार आहे!"
             : "चिवताईचे गाणे ऐकून चिंटू अंगणात आला. आता शेतात जाण्यासाठी ट्रॅक्टर आणि सायकल तयार आहेत!";
       case 8:
+        if (isLevel4) {
+          return "बाजारानंतर आता शाळेची वेळ झाली आहे! चिंटूने दप्तर पाठीवर घेतले आहे आणि पिवळी शाळेची बस आली आहे. चला, शाळेची बस शोधूया!";
+        }
+        if (isLevel3) {
+          return "आज गावात आठवडी बाजार भरला आहे! शेतकरी दादांनी ताज्या फळांचे आणि खाऊचे दुकान लावले आहे. चला, बाजारातील मुख्य दुकान शोधूया!";
+        }
         return isLevel2
             ? "डेअरीमध्ये गोड दूध पाहिले! आता वडाच्या झाडाखाली सावलीत कोण विश्रांती घेत आहे ते शोधूया!"
             : "ट्रॅक्टर आणि सायकल पाहून झाली! आता छतावर कोण गोड गाणे गात आहे ते शोधूया!";
       case 9:
+        if (isLevel4) {
+          return "शाळा सुटल्यावर संध्याकाळी गावात जत्रा भरली आहे! तिथे मोठा आकाशपाळणा फिरत आहे आणि रंगीबेरंगी फुगे उडत आहेत! चला माईकमध्ये उत्तर बोलून सांगूया!";
+        }
+        if (isLevel3) {
+          return "फळे विकून मिळालेली नाणी शेतकरी दादांनी पिगी बँकेत साठवली आहेत. किती नाणी आहेत? माईकमध्ये बोलून सांगा!";
+        }
         return isLevel2
             ? "वाघोबाने शेपूट हलवली! आता डेअरी काका विचारत आहेत आपल्याला किती दूध हवे आहे. माईकमध्ये सांगूया!"
             : "चिवताईने पंख फडफडवले! वाटेत चिंटूला त्याचा मित्र नोव्हा भेटला. चला, त्याला प्रेमाने नमस्कार करूया!";
       case 10:
+        if (isLevel4) {
+          return "अप्रतिम! तुम्ही इयत्ता पहिलीचा शेवटचा टप्पा पूर्ण करत आहात! आता शाळा, आकार आणि जत्रेतील गोष्टींच्या योग्य जोड्या जुळवा आणि विजेता चषक जिंका!";
+        }
+        if (isLevel3) {
+          return "छान बोललास! आजचा आठवडी बाजार खूप छान झाला. आता बाजारातील वस्तू आणि हिशोबाच्या योग्य जोड्या जुळवूया!";
+        }
         return isLevel2
             ? "छान बोललास! आता शेतातील, बागेतील आणि डेअरीतील सर्व वस्तूंच्या योग्य जोड्या लावूया!"
             : "वाह! खूप छान आवाज! सकाळची सर्व कामे झाली. आता आपण पाहिलेल्या सर्व गोष्टींच्या जोड्या जुळवूया!";
@@ -260,21 +292,47 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   }
 
   String _getStoryBridgeEnglish(int screenNumber) {
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
     final isLevel2 = widget.initialLevelId == 2;
     switch (screenNumber) {
       case 7:
+        if (isLevel4) {
+          return "Chintu and NOVA reached the classroom! Today we are learning shapes — Circle, Triangle, Square, and Rectangle!";
+        }
+        if (isLevel3) {
+          return "The farmer took out the weighing scale! Let's weigh and count the fruit basket and milk cartons!";
+        }
         return isLevel2
             ? "After helping tiger friend, Chintu reached the village dairy. The cow has fresh milk!"
             : "Hearing Chiu sing, Chintu came to the yard. Tractor and bicycle are ready!";
       case 8:
+        if (isLevel4) {
+          return "After the market, it is time for school! Chintu has his school bag ready and the yellow school bus has arrived!";
+        }
+        if (isLevel3) {
+          return "Today is the weekly village market! Our farmer friend has set up a fresh fruit and food stall. Let's find the stall first!";
+        }
         return isLevel2
             ? "We checked the fresh milk! Now let us find who is resting under the shady banyan tree!"
             : "We inspected the vehicles! Now let us find who is singing sweetly on the rooftop!";
       case 9:
+        if (isLevel4) {
+          return "After school, it's time for the evening village fair! Look at the giant Ferris wheel and colorful balloons! Speak your answer into the mic!";
+        }
+        if (isLevel3) {
+          return "The farmer saved the market coins in the piggy bank! Speak your answer into the mic!";
+        }
         return isLevel2
             ? "Tiger wagged his tail! Now dairy uncle asks how much milk we need. Say it into the mic!"
             : "Chiu flapped her wings! On the path, Chintu met Nova. Let us say good morning!";
       case 10:
+        if (isLevel4) {
+          return "Amazing! You are completing the final stage of Class 1! Match the shapes, school, and fair items to win the Champion Trophy!";
+        }
+        if (isLevel3) {
+          return "Great voice! The village market was so fun. Now let us match the market items together!";
+        }
         return isLevel2
             ? "Superb! Now let us match each farm, garden, and dairy item to its place!"
             : "Wonderful voice! Now let us match the morning items together!";
@@ -298,9 +356,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       case 6:
         final text = (scene?.narrativeText.isNotEmpty == true)
             ? scene!.narrativeText
-            : (widget.initialLevelId == 2
-                ? "वडाच्या झाडाखाली चिंटू आणि नोव्हा भेटले आहेत"
-                : "सूर्याची सोनेरी किरणे आली गाव जागे झाले चिवताई छतावर गाऊ लागली");
+            : (widget.initialLevelId == 4
+                ? "बाजारानंतर आता शाळेची वेळ झाली आहे चिंटूचे दप्तर तयार आहे आणि पिवळी शाळेची बस आली आहे"
+                : (widget.initialLevelId == 3
+                    ? "आज गावात आठवडी बाजार भरला आहे शेतकरी दादांनी ताज्या फळांचे आणि खाऊचे दुकान लावले आहे"
+                    : (widget.initialLevelId == 2
+                        ? "वडाच्या झाडाखाली चिंटू आणि नोव्हा भेटले आहेत"
+                        : "सूर्याची सोनेरी किरणे आली गाव जागे झाले चिवताई छतावर गाऊ लागली")));
         NovaAudioService.instance.speakCleanText(
           text,
           dedicatedMarathiText: scene?.questionData.ttsMarathiText,
@@ -309,9 +371,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       case 7:
         final text = (scene?.questionData.storyQuestionText.isNotEmpty == true)
             ? scene!.questionData.storyQuestionText
-            : (widget.initialLevelId == 2
-                ? "यातील मोठी वस्तू कोणती गाय की दुधाचा डबा"
-                : "यातील मोठी वस्तू कोणती ट्रॅक्टर की सायकल");
+            : (widget.initialLevelId == 4
+                ? "बसच्या चाकासारखा पूर्ण गोल असलेला वर्तुळ आकार कोणता आहे योग्य कार्डावर टॅप कर"
+                : (widget.initialLevelId == 3
+                    ? "तराजूवर कोणती वस्तू जड भरेल फळांची टोपली की दुधाचा डबा"
+                    : (widget.initialLevelId == 2
+                        ? "यातील मोठी वस्तू कोणती गाय की दुधाचा डबा"
+                        : "यातील मोठी वस्तू कोणती ट्रॅक्टर की सायकल")));
         NovaAudioService.instance.speakCleanText(
           text,
           dedicatedMarathiText: scene?.questionData.ttsMarathiText,
@@ -320,9 +386,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       case 8:
         final text = (scene?.questionData.storyQuestionText.isNotEmpty == true)
             ? scene!.questionData.storyQuestionText
-            : (widget.initialLevelId == 2
-                ? "झाडाखाली कोण बसले आहे वाघोबाला टॅप करा"
-                : "छतावर कोण बसले आहे चिवताईला टॅप करा");
+            : (widget.initialLevelId == 4
+                ? "शाळेत नेणारी पिवळी बस कुठे आहे चमकणाऱ्या बसवर टॅप कर"
+                : (widget.initialLevelId == 3
+                    ? "बाजारातील खाऊचे दुकान कुठे आहे चमकणाऱ्या दुकानावर टॅप कर"
+                    : (widget.initialLevelId == 2
+                        ? "झाडाखाली कोण बसले आहे वाघोबाला टॅप करा"
+                        : "छतावर कोण बसले आहे चिवताईला टॅप करा")));
         NovaAudioService.instance.speakCleanText(
           text,
           dedicatedMarathiText: scene?.questionData.ttsMarathiText,
@@ -331,9 +401,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       case 9:
         final text = (scene?.questionData.storyQuestionText.isNotEmpty == true)
             ? scene!.questionData.storyQuestionText
-            : (widget.initialLevelId == 2
-                ? "आपल्याला तीन दुधाचे डबे हवे आहेत माईकमध्ये तीन बोला"
-                : "मित्राला भेटल्यावर काय म्हणायचे माईकमध्ये शुभ प्रभात बोला");
+            : (widget.initialLevelId == 4
+                ? "आकाशपाळण्याजवळ दहा रंगीबेरंगी फुगे आहेत माईकमध्ये दहा बोला"
+                : (widget.initialLevelId == 3
+                    ? "पिगी बँकेत किती नाणी आहेत माईकमध्ये दोन बोला"
+                    : (widget.initialLevelId == 2
+                        ? "आपल्याला तीन दुधाचे डबे हवे आहेत माईकमध्ये तीन बोला"
+                        : "मित्राला भेटल्यावर काय म्हणायचे माईकमध्ये शुभ प्रभात बोला")));
         NovaAudioService.instance.speakCleanText(
           text,
           dedicatedMarathiText: scene?.questionData.ttsMarathiText,
@@ -342,9 +416,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       case 10:
         final text = (scene?.questionData.storyQuestionText.isNotEmpty == true)
             ? scene!.questionData.storyQuestionText
-            : (widget.initialLevelId == 2
-                ? "बागेतील आणि डेअरीतील योग्य जोड्या जुळवा"
-                : "सकाळच्या गोष्टींच्या योग्य जोड्या जुळवा");
+            : (widget.initialLevelId == 4
+                ? "शाळा आकार आणि जत्रेतील गोष्टींच्या योग्य जोड्या जुळवा"
+                : (widget.initialLevelId == 3
+                    ? "बाजारातील वस्तू आणि हिशोबाच्या योग्य जोड्या जुळवा"
+                    : (widget.initialLevelId == 2
+                        ? "बागेतील आणि डेअरीतील योग्य जोड्या जुळवा"
+                        : "सकाळच्या गोष्टींच्या योग्य जोड्या जुळवा")));
         NovaAudioService.instance.speakCleanText(
           text,
           dedicatedMarathiText: scene?.questionData.ttsMarathiText,
@@ -352,9 +430,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
         break;
       case 11:
         NovaAudioService.instance.speakCleanText(
-          widget.initialLevelId == 2
-              ? "खूप छान तू दुसरी पातळी जिंकलीस अभिनंदन"
-              : "खूप छान तू पहिली पातळी जिंकलीस अभिनंदन",
+          widget.initialLevelId == 4
+              ? "अभिनंदन तू चौथी पातळी जिंकून इयत्ता पहिली पूर्ण केलीस"
+              : (widget.initialLevelId == 3
+                  ? "खूप छान तू तिसरी पातळी जिंकलीस अभिनंदन"
+                  : (widget.initialLevelId == 2
+                      ? "खूप छान तू दुसरी पातळी जिंकलीस अभिनंदन"
+                      : "खूप छान तू पहिली पातळी जिंकलीस अभिनंदन")),
         );
         break;
     }
@@ -441,11 +523,17 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // --- Step 7 Quiz Handlers ---
   void _onOptionSelected(int selectedIndex) {
     final scene = _getScene(1);
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
     final isLevel2 = widget.initialLevelId == 2;
     final List<String> options = (scene?.questionData.options != null &&
             scene!.questionData.options!.length >= 2)
         ? scene.questionData.options!
-        : (isLevel2 ? ['गाय', 'दुधाचा डबा'] : ['ट्रॅक्टर', 'सायकल']);
+        : (isLevel4
+            ? ['वर्तुळ / Circle', 'त्रिकोण / Triangle']
+            : (isLevel3
+                ? ['फळांची टोपली / Fruit Basket', 'दुधाचा डबा / Milk Carton']
+                : (isLevel2 ? ['गाय', 'दुधाचा डबा'] : ['ट्रॅक्टर', 'सायकल'])));
 
     final String correctAnswer = (scene?.questionData.correctAnswer != null &&
             scene!.questionData.correctAnswer.isNotEmpty)
@@ -462,7 +550,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
     final qId = scene?.questionData.originalQuestionId.isNotEmpty == true
         ? scene!.questionData.originalQuestionId
-        : (isLevel2 ? 'Q_GROVE_02_T1' : 'Q_VILL_02_T1');
+        : (isLevel4
+            ? 'Q_SCH_02_T1'
+            : (isLevel3
+                ? 'Q_MKT_02_T1'
+                : (isLevel2 ? 'Q_GROVE_02_T1' : 'Q_VILL_02_T1')));
 
     _recordStepLog(
       defaultQuestionId: qId,
@@ -475,7 +567,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       currentBeat: 2,
       nextBeat: 1,
       nextScreenIndex: 2,
-      skillId: 'MATH_COMPARE_01',
+      skillId: isLevel4
+          ? 'MATH_SHAPES_ZERO_01'
+          : (isLevel3
+              ? 'MATH_MARKET_SUB_01'
+              : (isLevel2 ? 'MATH_COMPARE_01' : 'MATH_COMPARE_01')),
       isCorrect: isCorrect,
     );
 
@@ -489,15 +585,23 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       final String correctFeedback = scene?.questionData.payloadData?['correct_feedback_marathi'] ??
           (scene?.questionData.explanationHint?.isNotEmpty == true
               ? 'शाब्बास! ${scene!.questionData.explanationHint}'
-              : (isLevel2
-                  ? "शाब्बास! गाय मोठी आहे!"
-                  : "शाब्बास! ट्रॅक्टर मोठा आहे!"));
+              : (isLevel4
+                  ? "शाब्बास! योग्य आकार ओळखला!"
+                  : (isLevel3
+                      ? "शाब्बास! फळांची टोपली जड आहे!"
+                      : (isLevel2
+                          ? "शाब्बास! गाय मोठी आहे!"
+                          : "शाब्बास! ट्रॅक्टर मोठा आहे!"))));
       NovaAudioService.instance.speakCleanText(correctFeedback);
     } else {
       final String wrongFeedback = scene?.questionData.payloadData?['wrong_feedback_marathi'] ??
-          (isLevel2
-              ? "दुधाचा डबा लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!"
-              : "सायकल लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!");
+          (isLevel4
+              ? "हा आकार वेगळा आहे! योग्य आकारावर पुन्हा टॅप कर!"
+              : (isLevel3
+                  ? "दुधाचा डबा लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!"
+                  : (isLevel2
+                      ? "दुधाचा डबा लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!"
+                      : "सायकल लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!")));
       NovaAudioService.instance.speakCleanText(wrongFeedback);
     }
   }
@@ -510,10 +614,16 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       _wrongSpotFeedback = true;
     });
 
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
     final isLevel2 = widget.initialLevelId == 2;
-    final hint = isLevel2
-        ? "तिथे नाही! तो वाघोबा नाही. झाडाखाली चमकणाऱ्या वर्तुळात बघ!"
-        : "तिथे नाही! ती चिवताई नाही. छतावर चमकणाऱ्या वर्तुळात बघ!";
+    final hint = isLevel4
+        ? "तिथे नाही! ती शाळेची बस नाही. रस्त्यावर उभ्या असलेल्या पिवळ्या बसवर टॅप कर!"
+        : (isLevel3
+            ? "तिथे नाही! ते खाऊचे दुकान नाही. समोर दिसणाऱ्या दुकानावर टॅप कर!"
+            : (isLevel2
+                ? "तिथे नाही! तो वाघोबा नाही. झाडाखाली चमकणाऱ्या वर्तुळात बघ!"
+                : "तिथे नाही! ती चिवताई नाही. छतावर चमकणाऱ्या वर्तुळात बघ!"));
 
     NovaAudioService.instance.speakCleanText(hint);
   }
@@ -527,9 +637,16 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
     });
 
     final scene = _getScene(2);
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
+    final isLevel2 = widget.initialLevelId == 2;
     final qId = scene?.questionData.originalQuestionId.isNotEmpty == true
         ? scene!.questionData.originalQuestionId
-        : (widget.initialLevelId == 2 ? 'Q_GROVE_01_T1' : 'Q_VILL_01_T1');
+        : (isLevel4
+            ? 'Q_SCH_01_T1'
+            : (isLevel3
+                ? 'Q_MKT_01_T1'
+                : (isLevel2 ? 'Q_GROVE_01_T1' : 'Q_VILL_01_T1')));
 
     _recordStepLog(
       defaultQuestionId: qId,
@@ -543,14 +660,22 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       currentBeat: 1,
       nextBeat: 3,
       nextScreenIndex: 3,
-      skillId: 'MATH_COUNT_01',
+      skillId: isLevel4
+          ? 'MATH_SHAPES_ZERO_01'
+          : (isLevel3
+              ? 'MATH_MARKET_SUB_01'
+              : (isLevel2 ? 'MATH_COUNT_01' : 'MATH_COUNT_01')),
       isCorrect: true,
     );
 
     NovaAudioService.instance.speakCleanText(
-      widget.initialLevelId == 2
-          ? "शाब्बास! वाघोबा झाडाखाली बसला आहे!"
-          : "शाब्बास! वर! चिवताई छतावर बसली आहे!",
+      isLevel4
+          ? "शाब्बास! शाळेची पिवळी बस सापडली!"
+          : (isLevel3
+              ? "शाब्बास! खाऊचे आणि फळांचे दुकान सापडले!"
+              : (isLevel2
+                  ? "शाब्बास! वाघोबा झाडाखाली बसला आहे!"
+                  : "शाब्बास! वर! चिवताई छतावर बसली आहे!")),
     );
   }
 
@@ -616,7 +741,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
     final scene = _getScene(3);
     final expectedPhrase = scene?.questionData.correctAnswer ??
-        (widget.initialLevelId == 2 ? "तीन" : "शुभ प्रभात");
+        (widget.initialLevelId == 4
+            ? "दहा"
+            : (widget.initialLevelId == 3
+                ? "दोन"
+                : (widget.initialLevelId == 2 ? "तीन" : "शुभ प्रभात")));
 
     await _initSpeechIfNeeded();
 
@@ -700,9 +829,16 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
     _speech.stop();
 
     final scene = _getScene(3);
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
+    final isLevel2 = widget.initialLevelId == 2;
     final qId = scene?.questionData.originalQuestionId.isNotEmpty == true
         ? scene!.questionData.originalQuestionId
-        : (widget.initialLevelId == 2 ? 'Q_GROVE_03_T1' : 'Q_VILL_03_T1');
+        : (isLevel4
+            ? 'Q_SCH_03_T1'
+            : (isLevel3
+                ? 'Q_MKT_03_T1'
+                : (isLevel2 ? 'Q_GROVE_03_T1' : 'Q_VILL_03_T1')));
 
     _recordStepLog(
       defaultQuestionId: qId,
@@ -725,7 +861,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       currentBeat: 3,
       nextBeat: 4,
       nextScreenIndex: 4,
-      skillId: widget.initialLevelId == 2 ? 'MATH_ADD_01' : 'LANG_MARATHI_01',
+      skillId: isLevel4
+          ? 'MATH_SHAPES_ZERO_01'
+          : (isLevel3
+              ? 'MATH_MARKET_SUB_01'
+              : (isLevel2 ? 'MATH_ADD_01' : 'LANG_MARATHI_01')),
       isCorrect: true,
     );
 
@@ -742,7 +882,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   void _handleVoiceFallbackTap() {
     final scene = _getScene(3);
     final expectedPhrase = scene?.questionData.correctAnswer ??
-        (widget.initialLevelId == 2 ? "तीन" : "शुभ प्रभात");
+        (widget.initialLevelId == 4
+            ? "दहा"
+            : (widget.initialLevelId == 3
+                ? "दोन"
+                : (widget.initialLevelId == 2 ? "तीन" : "शुभ प्रभात")));
     _handleVoiceSuccess(expectedPhrase);
   }
 
@@ -794,9 +938,16 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
       if (_establishedConnections.length == 3) {
         final scene = _getScene(4);
+        final isLevel4 = widget.initialLevelId == 4;
+        final isLevel3 = widget.initialLevelId == 3;
+        final isLevel2 = widget.initialLevelId == 2;
         final qId = scene?.questionData.originalQuestionId.isNotEmpty == true
             ? scene!.questionData.originalQuestionId
-            : (widget.initialLevelId == 2 ? 'Q_GROVE_04_T1' : 'Q_VILL_04_T1');
+            : (isLevel4
+                ? 'Q_SCH_04_T1'
+                : (isLevel3
+                    ? 'Q_MKT_04_T1'
+                    : (isLevel2 ? 'Q_GROVE_04_T1' : 'Q_VILL_04_T1')));
 
         _recordStepLog(
           defaultQuestionId: qId,
@@ -805,7 +956,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
         );
         try {
           ref.read(bktMasteryEvaluatorProvider).evaluateSingleAnswerAndGetNextTier(
-            skillId: widget.initialLevelId == 2 ? 'MATH_ADD_01' : 'LANG_MARATHI_01',
+            skillId: isLevel4
+                ? 'MATH_SHAPES_ZERO_01'
+                : (isLevel3
+                    ? 'MATH_MARKET_SUB_01'
+                    : (isLevel2 ? 'MATH_ADD_01' : 'LANG_MARATHI_01')),
             isCorrectFirstTry: true,
           );
         } catch (_) {}
@@ -1000,9 +1155,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.initialLevelId == 2
-                              ? 'NOVA • BANYAN GROVE & DAIRY • LEVEL 2'
-                              : 'NOVA • MAJHE GAON • LEVEL 1',
+                          widget.initialLevelId == 4
+                              ? 'NOVA • VILLAGE SCHOOL & FAIR • LEVEL 4 🏆'
+                              : (widget.initialLevelId == 3
+                                  ? 'NOVA • VILLAGE MARKET • LEVEL 3'
+                                  : (widget.initialLevelId == 2
+                                      ? 'NOVA • BANYAN GROVE & DAIRY • LEVEL 2'
+                                      : 'NOVA • MAJHE GAON • LEVEL 1')),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -1046,9 +1205,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            widget.initialLevelId == 2
-                                ? 'चिंटू, वाघोबा आणि NOVA तयार आहेत!'
-                                : 'चिंटू आणि NOVA तयार आहेत!',
+                            widget.initialLevelId == 4
+                                ? 'चिंटू, गुरुजी आणि NOVA तयार आहेत!'
+                                : (widget.initialLevelId == 3
+                                    ? 'चिंटू, शेतकरी दादा आणि NOVA तयार आहेत!'
+                                    : (widget.initialLevelId == 2
+                                        ? 'चिंटू, वाघोबा आणि NOVA तयार आहेत!'
+                                        : 'चिंटू आणि NOVA तयार आहेत!')),
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
@@ -1080,9 +1243,19 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // GLOBAL LANDSCAPE HEADER
   // ===========================================================================
   Widget _buildLandscapeHeader(AppState appState) {
+    final bool isLevel4 = widget.initialLevelId == 4;
+    final bool isLevel3 = widget.initialLevelId == 3;
     final bool isLevel2 = widget.initialLevelId == 2;
-    String title = isLevel2 ? 'वडाचे झाड आणि डेअरी' : 'गावाची सफर';
-    String subtitle = isLevel2 ? 'NOVA • BANYAN GROVE / Dairy story' : 'NOVA • MAJHE GAON / Village story';
+    String title = isLevel4
+        ? 'गावाची शाळा आणि जत्रा 🏆'
+        : (isLevel3
+            ? 'गावाचा आठवडी बाजार'
+            : (isLevel2 ? 'वडाचे झाड आणि डेअरी' : 'गावाची सफर'));
+    String subtitle = isLevel4
+        ? 'NOVA • SCHOOL & FAIR / Grand Finale 🏆'
+        : (isLevel3
+            ? 'NOVA • VILLAGE MARKET / Weekly market'
+            : (isLevel2 ? 'NOVA • BANYAN GROVE / Dairy story' : 'NOVA • MAJHE GAON / Village story'));
     int progressStep = 1;
     String? statusBadge;
     Color statusBadgeColor = NovaColors.goldLight;
@@ -1090,13 +1263,29 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
     switch (_activeScreen) {
       case 6:
-        title = isLevel2 ? 'वडाचे झाड आणि डेअरी' : 'गावाची सफर';
-        subtitle = isLevel2 ? 'NOVA • BANYAN GROVE / Story' : 'NOVA • MAJHE GAON / Village story';
+        title = isLevel4
+            ? 'शाळा आणि जत्रा'
+            : (isLevel3
+                ? 'गावाचा आठवडी बाजार'
+                : (isLevel2 ? 'वडाचे झाड आणि डेअरी' : 'गावाची सफर'));
+        subtitle = isLevel4
+            ? 'NOVA • SCHOOL & FAIR / Story'
+            : (isLevel3
+                ? 'NOVA • VILLAGE MARKET / Story'
+                : (isLevel2 ? 'NOVA • BANYAN GROVE / Story' : 'NOVA • MAJHE GAON / Village story'));
         progressStep = 1;
         break;
       case 7:
-        title = isLevel2 ? 'आंबे मोजणी' : 'मोठे आणि छोटे';
-        subtitle = isLevel2 ? 'NOVA • BANYAN GROVE / Counting' : 'NOVA • MAJHE GAON / Big & small';
+        title = isLevel4
+            ? 'सुंदर आकार'
+            : (isLevel3
+                ? 'तराजू आणि वजन'
+                : (isLevel2 ? 'आंबे मोजणी' : 'मोठे आणि छोटे'));
+        subtitle = isLevel4
+            ? 'NOVA • SCHOOL / Shapes'
+            : (isLevel3
+                ? 'NOVA • MARKET / Weighing'
+                : (isLevel2 ? 'NOVA • BANYAN GROVE / Counting' : 'NOVA • MAJHE GAON / Big & small'));
         progressStep = 2;
         if (_quizAnswerOutcome == true) {
           statusBadge = 'QUIZ • CORRECT';
@@ -1109,18 +1298,38 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
         }
         break;
       case 8:
-        title = isLevel2 ? 'वाघोबा कुठे आहे?' : 'चिवताई कुठे आहे?';
-        subtitle = isLevel2 ? 'NOVA • BANYAN GROVE / Find Tiger' : 'NOVA • MAJHE GAON / Find Chiu';
+        title = isLevel4
+            ? 'शाळेची बस कुठे आहे?'
+            : (isLevel3
+                ? 'खाऊचे दुकान कुठे आहे?'
+                : (isLevel2 ? 'वाघोबा कुठे आहे?' : 'चिवताई कुठे आहे?'));
+        subtitle = isLevel4
+            ? 'NOVA • SCHOOL / Find Bus'
+            : (isLevel3
+                ? 'NOVA • MARKET / Find Stall'
+                : (isLevel2 ? 'NOVA • BANYAN GROVE / Find Tiger' : 'NOVA • MAJHE GAON / Find Chiu'));
         progressStep = 3;
         if (_birdTapped) {
-          statusBadge = isLevel2 ? 'TIGER • CELEBRATION' : 'BIRD • CELEBRATION';
+          statusBadge = isLevel4
+              ? 'BUS • CELEBRATION'
+              : (isLevel3
+                  ? 'STALL • CELEBRATION'
+                  : (isLevel2 ? 'TIGER • CELEBRATION' : 'BIRD • CELEBRATION'));
           statusBadgeColor = const Color(0xFFFEF3C7);
           statusTextColor = const Color(0xFFB45309);
         }
         break;
       case 9:
-        title = isLevel2 ? 'गाईचे दूध' : 'सकाळचा नमस्कार';
-        subtitle = isLevel2 ? 'NOVA • DAIRY / Fresh milk' : 'NOVA • MAJHE GAON / Good morning';
+        title = isLevel4
+            ? 'जत्रेतील फुगे'
+            : (isLevel3
+                ? 'पिगी बँक'
+                : (isLevel2 ? 'गाईचे दूध' : 'सकाळचा नमस्कार'));
+        subtitle = isLevel4
+            ? 'NOVA • FAIR / Balloon count'
+            : (isLevel3
+                ? 'NOVA • MARKET / Coin savings'
+                : (isLevel2 ? 'NOVA • DAIRY / Fresh milk' : 'NOVA • MAJHE GAON / Good morning'));
         progressStep = 4;
         if (_voiceSuccess) {
           statusBadge = 'VOICE • SUCCESS';
@@ -1130,7 +1339,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
         break;
       case 10:
         title = 'जोड्या जुळवा!';
-        subtitle = isLevel2 ? 'NOVA • DAIRY / Match the following' : 'NOVA • MAJHE GAON / Match the following';
+        subtitle = isLevel4
+            ? 'NOVA • FINALE / Match shapes & fair 🏆'
+            : (isLevel3
+                ? 'NOVA • MARKET / Match market items'
+                : (isLevel2 ? 'NOVA • DAIRY / Match the following' : 'NOVA • MAJHE GAON / Match the following'));
         progressStep = 5;
         if (_establishedConnections.length == 3) {
           statusBadge = 'MATCH • COMPLETED';
@@ -1147,8 +1360,16 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
         }
         break;
       case 11:
-        title = isLevel2 ? 'वडाचे झाड • शाब्बास!' : 'माझे गाव • शाब्बास!';
-        subtitle = isLevel2 ? 'NOVA • BANYAN GROVE / Level 2 complete' : 'NOVA • MAJHE GAON / Level 1 complete';
+        title = isLevel4
+            ? 'शाळा आणि जत्रा • शाब्बास!'
+            : (isLevel3
+                ? 'आठवडी बाजार • शाब्बास!'
+                : (isLevel2 ? 'वडाचे झाड • शाब्बास!' : 'माझे गाव • शाब्बास!'));
+        subtitle = isLevel4
+            ? 'NOVA • FINALE / Level 4 complete 🏆'
+            : (isLevel3
+                ? 'NOVA • MARKET / Level 3 complete'
+                : (isLevel2 ? 'NOVA • BANYAN GROVE / Level 2 complete' : 'NOVA • MAJHE GAON / Level 1 complete'));
         progressStep = 5;
         break;
     }
@@ -1481,6 +1702,32 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   }
 
   Widget _buildVisualPanel({bool isInteractive = false}) {
+    final sceneIndex = (_activeScreen - 6).clamp(0, 4);
+    final scene = _getScene(sceneIndex);
+    if (widget.initialLevelId == 4) {
+      return VillageSchoolFairStageWidget(
+        isInteractiveTarget: isInteractive,
+        targetTapped: _birdTapped,
+        onTargetTap: _tapBird,
+        onWrongSpotTap: _onWrongSpotTapped,
+        character: scene?.environment.character,
+        prop: scene?.environment.prop,
+        sceneIndex: sceneIndex,
+        title: 'गावाची शाळा आणि जत्रा • School & Fair',
+      );
+    }
+    if (widget.initialLevelId == 3) {
+      return VillageMarketStageWidget(
+        isInteractiveTarget: isInteractive,
+        targetTapped: _birdTapped,
+        onTargetTap: _tapBird,
+        onWrongSpotTap: _onWrongSpotTapped,
+        character: scene?.environment.character,
+        prop: scene?.environment.prop,
+        sceneIndex: sceneIndex,
+        title: 'गावाचा आठवडी बाजार • Village Market',
+      );
+    }
     if (widget.initialLevelId == 2) {
       return _buildBanyanGroveCanvas(isInteractiveTarget: isInteractive);
     }
@@ -1590,14 +1837,25 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // ===========================================================================
   Widget _buildScreen6VillageStory() {
     final scene = _getScene(0);
+    final isLevel4 = widget.initialLevelId == 4;
+    final isLevel3 = widget.initialLevelId == 3;
+    final isLevel2 = widget.initialLevelId == 2;
     final String marathiText = scene?.narrativeText.isNotEmpty == true
         ? scene!.narrativeText
-        : (widget.initialLevelId == 2
-            ? 'वडाच्या झाडाखाली वाघोबा आणि नोव्हा भेटले आहेत! चला डेअरीकडे जाऊया.'
-            : 'सूर्याची सोनेरी किरणे आली... गाव जागे झाले! चिवताई छतावर गाऊ लागली!');
-    final String englishText = widget.initialLevelId == 2
-        ? 'Nova and tiger friend meet under the banyan tree! Let us head to the dairy.'
-        : 'Golden rays arrive... the village wakes! Chiu sings on the roof.';
+        : (isLevel4
+            ? 'बाजारानंतर आता शाळेची वेळ झाली आहे! चिंटूने दप्तर पाठीवर घेतले आहे आणि पिवळी शाळेची बस आली आहे. चला शाळेत जाऊया!'
+            : (isLevel3
+                ? 'आज गावात आठवडी बाजार भरला आहे! शेतकरी दादांनी ताज्या फळांचे आणि खाऊचे दुकान लावले आहे. चला बाजारात जाऊया!'
+                : (isLevel2
+                    ? 'वडाच्या झाडाखाली वाघोबा आणि नोव्हा भेटले आहेत! चला डेअरीकडे जाऊया.'
+                    : 'सूर्याची सोनेरी किरणे आली... गाव जागे झाले! चिवताई छतावर गाऊ लागली!')));
+    final String englishText = isLevel4
+        ? 'After the market, it is time for school! Chintu packed his bag and the school bus arrived!'
+        : (isLevel3
+            ? 'Today is the weekly village market! Our farmer friend set up a fruit stall. Let us explore!'
+            : (isLevel2
+                ? 'Nova and tiger friend meet under the banyan tree! Let us head to the dairy.'
+                : 'Golden rays arrive... the village wakes! Chiu sings on the roof.'));
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1716,10 +1974,79 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
     );
   }
 
+  Widget _buildOptionVisual(String optionLabel, int optionIndex) {
+    final lower = optionLabel.toLowerCase();
+    if (lower.contains('वर्तुळ') || lower.contains('गोल') || lower.contains('circle')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/circle.json', height: 110);
+    }
+    if (lower.contains('त्रिकोण') || lower.contains('triangle') || lower.contains('३ कोपरे')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/triangle.json', height: 110);
+    }
+    if (lower.contains('चौकोन') || lower.contains('square') || lower.contains('४ कोपरे') || lower.contains('४ समान')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/square.json', height: 110);
+    }
+    if (lower.contains('आयत') || lower.contains('rectangle') || lower.contains('४ बाजू')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/rectangle.json', height: 110);
+    }
+    if (lower.contains('फळ') || lower.contains('टोपली') || lower.contains('fruit')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/fruit_basket.json', height: 110);
+    }
+    if (lower.contains('दूध') || lower.contains('डबा') || lower.contains('milk')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/Eda region 1.json', height: 100);
+    }
+    if (lower.contains('पिगी') || lower.contains('बँक') || lower.contains('piggy') || lower.contains('नाणी')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/piggy_bank.json', height: 100);
+    }
+    if (lower.contains('गाय') || lower.contains('cow')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/cow.json', height: 115);
+    }
+    if (lower.contains('ट्रॅक्टर') || lower.contains('tractor')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/tractor.json', height: 120, isBigVsSmall: true);
+    }
+    if (lower.contains('सायकल') || lower.contains('bicycle')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/bicycle.json', height: 100, isBigVsSmall: true);
+    }
+    if (lower.contains('बस') || lower.contains('bus')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/bus.json', height: 115);
+    }
+    if (lower.contains('दप्तर') || lower.contains('bag')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/school_bag.json', height: 100);
+    }
+    if (lower.contains('तराजू') || lower.contains('scale') || lower.contains('वजन')) {
+      return const NovaPropAnimationBox(assetPath: 'assets/lottie/weighing_scale.json', height: 100);
+    }
+
+    if (widget.initialLevelId == 4) {
+      return NovaPropAnimationBox(
+        assetPath: optionIndex == 0 ? 'assets/lottie/circle.json' : 'assets/lottie/triangle.json',
+        height: 110,
+      );
+    }
+    if (widget.initialLevelId == 3) {
+      return NovaPropAnimationBox(
+        assetPath: optionIndex == 0 ? 'assets/lottie/fruit_basket.json' : 'assets/lottie/Eda region 1.json',
+        height: 105,
+      );
+    }
+    if (widget.initialLevelId == 2) {
+      return NovaPropAnimationBox(
+        assetPath: optionIndex == 0 ? 'assets/lottie/cow.json' : 'assets/lottie/Eda region 1.json',
+        height: 105,
+      );
+    }
+    return NovaPropAnimationBox(
+      assetPath: optionIndex == 0 ? 'assets/lottie/tractor.json' : 'assets/lottie/bicycle.json',
+      height: 110,
+      isBigVsSmall: true,
+    );
+  }
+
   // ===========================================================================
   // SCREEN 7: BIG VS SMALL QUIZ
   // ===========================================================================
   Widget _buildScreen7BigVsSmallQuiz() {
+    final bool isLevel4 = widget.initialLevelId == 4;
+    final bool isLevel3 = widget.initialLevelId == 3;
     final bool isLevel2 = widget.initialLevelId == 2;
     final scene = _getScene(1);
 
@@ -1744,15 +2071,31 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
     final String promptMarathi = scene?.questionData.storyQuestionText.isNotEmpty == true
         ? scene!.questionData.storyQuestionText
-        : (isLevel2 ? 'यातील मोठी वस्तू कोणती? (गाय की दुधाचा डबा?)' : 'यातील मोठी वस्तू कोणती? (ट्रॅक्टर की सायकल?)');
+        : (isLevel4
+            ? 'बसच्या चाकासारखा पूर्ण गोल असलेला वर्तुळ आकार कोणता? योग्य कार्डावर टॅप कर!'
+            : (isLevel3
+                ? 'तराजूवर ठेवल्यास कोणती वस्तू जास्त जड भरेल — फळांची टोपली की दुधाचा डबा?'
+                : (isLevel2
+                    ? 'यातील मोठी वस्तू कोणती? (गाय की दुधाचा डबा?)'
+                    : 'यातील मोठी वस्तू कोणती? (ट्रॅक्टर की सायकल?)')));
     final String promptEnglish = scene?.questionData.payloadData?['english_text'] ??
         scene?.questionData.explanationHint ??
-        (isLevel2 ? 'Which object is big? Tap your answer.' : 'Which object is big? Tap your answer.');
+        (isLevel4
+            ? 'Which shape is round like a wheel — Circle or Triangle?'
+            : (isLevel3
+                ? 'On the scale, which is heavier — Fruit Basket or Milk Carton?'
+                : (isLevel2
+                    ? 'Which object is big? Tap your answer.'
+                    : 'Which object is big? Tap your answer.')));
 
     final List<String> options = (scene?.questionData.options != null &&
             scene!.questionData.options!.length >= 2)
         ? scene.questionData.options!
-        : (isLevel2 ? ['गाय', 'दुधाचा डबा'] : ['ट्रॅक्टर', 'सायकल']);
+        : (isLevel4
+            ? ['वर्तुळ / Circle', 'त्रिकोण / Triangle']
+            : (isLevel3
+                ? ['फळांची टोपली / Fruit Basket', 'दुधाचा डबा / Milk Carton']
+                : (isLevel2 ? ['गाय', 'दुधाचा डबा'] : ['ट्रॅक्टर', 'सायकल'])));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1804,53 +2147,34 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Card 1: Red Tractor (Level 1) or Cow (Level 2)
+              // Card 1
               Expanded(
                 flex: 7,
                 child: _buildQuizSelectionCard(
                   imageAsset: isLevel2 ? 'assets/images/generated/cow.png' : 'assets/images/generated/tractor.png',
                   label: options[0],
-                  fallbackIcon: isLevel2 ? Icons.pets_rounded : Icons.agriculture_rounded,
+                  fallbackIcon: Icons.category_rounded,
                   isTargetBig: true,
                   isSelected: _selectedOptionIndex == 0 && _quizAnswerOutcome == true,
                   isGentleRetry: _selectedOptionIndex == 0 && _quizAnswerOutcome == false,
                   onTap: () => _onOptionSelected(0),
-                  customVisual: isLevel2
-                      ? const NovaPropAnimationBox(
-                          assetPath: 'assets/lottie/cow.json',
-                          height: 115,
-                        )
-                      : const NovaPropAnimationBox(
-                          assetPath: 'assets/lottie/tractor.json',
-                          height: 120,
-                          isBigVsSmall: true,
-                        ),
+                  customVisual: _buildOptionVisual(options[0], 0),
                 ),
               ),
               const SizedBox(width: 12),
 
-              // Card 2: Blue Bicycle (Level 1) or Milk Can (Level 2)
+              // Card 2
               Expanded(
                 flex: 7,
                 child: _buildQuizSelectionCard(
                   imageAsset: isLevel2 ? 'assets/images/generated/milk.png' : 'assets/images/generated/bicycle.png',
                   label: options[1],
-                  fallbackIcon: isLevel2 ? Icons.local_drink_rounded : Icons.pedal_bike_rounded,
+                  fallbackIcon: Icons.category_rounded,
                   isTargetBig: false,
                   isSelected: _selectedOptionIndex == 1 && _quizAnswerOutcome == true,
                   isGentleRetry: _selectedOptionIndex == 1 && _quizAnswerOutcome == false,
                   onTap: () => _onOptionSelected(1),
-                  customVisual: isLevel2
-                      ? const NovaPropAnimationBox(
-                          assetPath: 'assets/lottie/Eda region 1.json',
-                          height: 95,
-                        )
-                      : const SizedBox(
-                          height: 90,
-                          child: Center(
-                            child: BicycleVectorArt(size: 78),
-                          ),
-                        ),
+                  customVisual: _buildOptionVisual(options[1], 1),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1985,16 +2309,24 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   }
 
   Widget _buildQuizSidebarFeedback() {
-    final bool isLevel2 = widget.initialLevelId == 2;
+    final int levelId = widget.initialLevelId;
     final scene = _getScene(1);
 
     if (_quizAnswerOutcome == true) {
       final String correctMarathi = scene?.questionData.payloadData?['correct_feedback_marathi'] ??
           (scene?.questionData.explanationHint?.isNotEmpty == true
               ? scene!.questionData.explanationHint!
-              : (isLevel2 ? 'गाय मोठी आहे!' : 'ट्रॅक्टर मोठा आहे!'));
+              : (levelId == 4
+                  ? 'शाब्बास! वर्तुळ बसच्या चाकासारखे गोल असते!'
+                  : (levelId == 3
+                      ? 'फळांची टोपली जड आहे!'
+                      : (levelId == 2 ? 'गाय मोठी आहे!' : 'ट्रॅक्टर मोठा आहे!'))));
       final String correctEnglish = scene?.questionData.payloadData?['correct_feedback_english'] ??
-          (isLevel2 ? 'Yes! The cow is big.' : 'Yes! The tractor is big.');
+          (levelId == 4
+              ? 'Awesome! The circle is round like a wheel!'
+              : (levelId == 3
+                  ? 'Yes! The fruit basket is heavier.'
+                  : (levelId == 2 ? 'Yes! The cow is big.' : 'Yes! The tractor is big.')));
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -2067,13 +2399,21 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
     if (_quizAnswerOutcome == false) {
       final String wrongMarathi = scene?.questionData.payloadData?['wrong_feedback_marathi'] ??
-          (isLevel2
-              ? 'दुधाचा डबा लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!'
-              : 'सायकल लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!');
+          (levelId == 4
+              ? 'त्रिकोणाला ३ कोपरे असतात! गोल वर्तुळावर टॅप कर!'
+              : (levelId == 3
+                  ? 'दुधाचा डबा हलका आहे! जड वस्तू कोणती ते पुन्हा निवड!'
+                  : (levelId == 2
+                      ? 'दुधाचा डबा लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!'
+                      : 'सायकल लहान आहे! मोठी वस्तू कोणती ते पुन्हा निवड!')));
       final String wrongEnglish = scene?.questionData.payloadData?['wrong_feedback_english'] ??
-          (isLevel2
-              ? 'The milk can is smaller. Tap the cow!'
-              : 'That bicycle is smaller. Tap the tractor!');
+          (levelId == 4
+              ? 'A triangle has 3 corners! Tap the round circle!'
+              : (levelId == 3
+                  ? 'The milk can is lighter. Tap the fruit basket!'
+                  : (levelId == 2
+                      ? 'The milk can is smaller. Tap the cow!'
+                      : 'That bicycle is smaller. Tap the tractor!')));
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -2164,7 +2504,9 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
               ),
               const SizedBox(height: 2),
               Text(
-                isLevel2 ? 'कोणती वस्तू मोठी?' : 'कोणती वस्तू मोठी?',
+                levelId == 4
+                    ? 'कोणता आकार वर्तुळ?'
+                    : (levelId == 3 ? 'कोणती वस्तू जड?' : 'कोणती वस्तू मोठी?'),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -2173,7 +2515,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
               ),
               const SizedBox(height: 2),
               Text(
-                isLevel2 ? 'Look at both items.' : 'Look at both objects.',
+                levelId == 4
+                    ? 'Find the round circle.'
+                    : (levelId == 3
+                        ? 'Which item is heavier?'
+                        : (levelId == 2 ? 'Look at both items.' : 'Look at both objects.')),
                 style: NovaTypography.caption,
               ),
               const SizedBox(height: 10),
@@ -2194,16 +2540,28 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // SCREEN 8: TOUCH THE BIRD
   // ===========================================================================
   Widget _buildScreen8TouchBird() {
-    final bool isLevel2 = widget.initialLevelId == 2;
+    final int levelId = widget.initialLevelId;
     final scene = _getScene(2);
     final String promptQuestion = scene?.questionData.storyQuestionText.isNotEmpty == true
         ? scene!.questionData.storyQuestionText
-        : (isLevel2 ? 'झाडाखाली कोण बसले आहे?' : 'छतावर कोण बसले आहे?');
-    final String promptAction = isLevel2 ? 'वाघोबाला टॅप कर!' : 'चिवताईला टॅप कर!';
+        : (levelId == 4
+            ? 'आपल्याला शाळेत नेणारी पिवळी बस कुठे आहे?'
+            : (levelId == 3
+                ? 'बाजारातील खाऊचे आणि फळांचे दुकान कुठे आहे?'
+                : (levelId == 2 ? 'झाडाखाली कोण बसले आहे?' : 'छतावर कोण बसले आहे?')));
+    final String promptAction = levelId == 4
+        ? 'शाळेच्या बसवर टॅप कर!'
+        : (levelId == 3
+            ? 'खाऊच्या दुकानावर टॅप कर!'
+            : (levelId == 2 ? 'वाघोबाला टॅप कर!' : 'चिवताईला टॅप कर!'));
     final String promptEnglish = scene?.questionData.payloadData?['english_text'] ??
-        (isLevel2
-            ? 'Who is under the tree? Tap the cute tiger.'
-            : 'Who is on the roof? Tap the glowing bird.');
+        (levelId == 4
+            ? 'Where is the school bus taking us to school? Tap on the glowing bus!'
+            : (levelId == 3
+                ? 'Where is the village food stall? Tap on the glowing stall!'
+                : (levelId == 2
+                    ? 'Who is under the tree? Tap the cute tiger.'
+                    : 'Who is on the roof? Tap the glowing bird.')));
 
     if (_showingStoryBridge) {
       return Row(
@@ -2265,7 +2623,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            isLevel2 ? 'शाब्बास! झाडाखाली!' : 'शाब्बास! वर!',
+                            levelId == 4
+                                ? 'शाब्बास! पिवळी बस सापडली!'
+                                : (levelId == 3
+                                    ? 'शाब्बास! खाऊचे दुकान सापडले!'
+                                    : (levelId == 2 ? 'शाब्बास! झाडाखाली!' : 'शाब्बास! वर!')),
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -2274,7 +2636,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            isLevel2 ? 'Cute Tiger is resting! Hooray!' : 'Chiu is on TOP! Hooray!',
+                            levelId == 4
+                                ? 'School bus is ready to roll! Hooray!'
+                                : (levelId == 3
+                                    ? 'You found the village food stall! Hooray!'
+                                    : (levelId == 2 ? 'Cute Tiger is resting! Hooray!' : 'Chiu is on TOP! Hooray!')),
                             style: NovaTypography.bodySecondary,
                           ),
                           const SizedBox(height: 12),
@@ -2325,9 +2691,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            isLevel2
-                                                ? 'तो वाघोबा नाही! झाडाखाली चमकणाऱ्या वर्तुळात बघ!'
-                                                : 'ती चिवताई नाही! छतावर चमकणाऱ्या वर्तुळात बघ!',
+                                            levelId == 4
+                                                ? 'ती शाळेची बस नाही! रस्त्यावरील पिवळ्या बसवर बघ!'
+                                                : (levelId == 3
+                                                    ? 'ते खाऊचे दुकान नाही! बाजारातील चमकणाऱ्या दुकानावर बघ!'
+                                                    : (levelId == 2
+                                                        ? 'तो वाघोबा नाही! झाडाखाली चमकणाऱ्या वर्तुळात बघ!'
+                                                        : 'ती चिवताई नाही! छतावर चमकणाऱ्या वर्तुळात बघ!')),
                                             style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w800,
@@ -2338,9 +2708,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            isLevel2
-                                                ? 'Not there! Look at the glowing circle under the tree!'
-                                                : 'Not there! Look at the glowing circle on the roof!',
+                                            levelId == 4
+                                                ? 'Not the school bus! Look at the yellow bus on the road!'
+                                                : (levelId == 3
+                                                    ? 'Not the food stall! Look at the glowing market stall!'
+                                                    : (levelId == 2
+                                                        ? 'Not there! Look at the glowing circle under the tree!'
+                                                        : 'Not there! Look at the glowing circle on the roof!')),
                                             style: NovaTypography.caption,
                                             maxLines: 2,
                                           ),
@@ -2452,16 +2826,28 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // SCREEN 9: VOICE ACTIVITY
   // ===========================================================================
   Widget _buildScreen9VoiceActivity() {
-    final bool isLevel2 = widget.initialLevelId == 2;
+    final int levelId = widget.initialLevelId;
     final scene = _getScene(3);
     final String targetPhrase = scene?.questionData.correctAnswer.isNotEmpty == true
         ? scene!.questionData.correctAnswer
-        : (isLevel2 ? 'दूध' : 'शुभ प्रभात');
+        : (levelId == 4
+            ? 'दहा'
+            : (levelId == 3
+                ? 'चार'
+                : (levelId == 2 ? 'दूध' : 'शुभ प्रभात')));
     final String promptIntro = scene?.questionData.storyQuestionText.isNotEmpty == true
         ? scene!.questionData.storyQuestionText
-        : (isLevel2 ? 'गाईपासून काय मिळते? म्हणा:' : 'म्हणून बघ...');
+        : (levelId == 4
+            ? 'जत्रेत किती रंगीबेरंगी फुगे आहेत? म्हणा:'
+            : (levelId == 3
+                ? 'पिगी बँकेत किती नाणी आहेत? म्हणा:'
+                : (levelId == 2 ? 'गाईपासून काय मिळते? म्हणा:' : 'म्हणून बघ...')));
     final String promptEnglish = scene?.questionData.payloadData?['english_text'] ??
-        (isLevel2 ? '(Fresh Milk!)' : '(Good Morning!)');
+        (levelId == 4
+            ? '(Ten / Daha Balloons!)'
+            : (levelId == 3
+                ? '(Four / Char Coins!)'
+                : (levelId == 2 ? '(Fresh Milk!)' : '(Good Morning!)')));
 
     if (_showingStoryBridge) {
       return Row(
@@ -2716,7 +3102,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                 children: [
                                   Text(
                                     _voiceSuccess
-                                        ? (isLevel2 ? 'शाब्बास! गाईचे गोड दूध!' : 'शाब्बास! शुभ प्रभात!')
+                                        ? (levelId == 4
+                                            ? 'शाब्बास! दहा रंगीबेरंगी फुगे!'
+                                            : (levelId == 3
+                                                ? 'शाब्बास! चार नाणी बरोबर!'
+                                                : (levelId == 2 ? 'शाब्बास! गाईचे गोड दूध!' : 'शाब्बास! शुभ प्रभात!')))
                                         : 'बोल किंवा खालील बटण दाब!',
                                     style: TextStyle(
                                       fontSize: 14,
@@ -2726,7 +3116,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   ),
                                   Text(
                                     _voiceSuccess
-                                        ? (isLevel2 ? 'Superb! Cows give fresh milk.' : 'You did it! Your greeting was heard.')
+                                        ? (levelId == 4
+                                            ? 'Superb! 10 colorful balloons!'
+                                            : (levelId == 3
+                                                ? 'Superb! 4 coins counted accurately!'
+                                                : (levelId == 2 ? 'Superb! Cows give fresh milk.' : 'You did it! Your greeting was heard.')))
                                         : 'Say it into the mic or use the skip button below.',
                                     style: NovaTypography.caption,
                                   ),
@@ -2787,7 +3181,7 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // ===========================================================================
   Widget _buildScreen10MatchFollowing() {
     final int matchedCount = _establishedConnections.length;
-    final bool isLevel2 = widget.initialLevelId == 2;
+    final int levelId = widget.initialLevelId;
 
     if (_showingStoryBridge) {
       return Row(
@@ -2808,12 +3202,20 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
       );
     }
 
-    final String promptMarathi = isLevel2
-        ? 'बागेतील आणि डेअरीतील योग्य जोड्या जुळवा!'
-        : 'सकाळच्या गोष्टींच्या योग्य जोड्या जुळवा!';
-    final String promptEnglish = isLevel2
-        ? 'Match each farm and dairy friend to its home.'
-        : 'Drag to match • Or tap a picture, then its word.';
+    final String promptMarathi = levelId == 4
+        ? 'शाळा, आकार आणि जत्रेतील गोष्टींच्या योग्य जोड्या जुळवा!'
+        : (levelId == 3
+            ? 'आठवडी बाजारातील वस्तू आणि कामांच्या जोड्या जुळवा!'
+            : (levelId == 2
+                ? 'बागेतील आणि डेअरीतील योग्य जोड्या जुळवा!'
+                : 'सकाळच्या गोष्टींच्या योग्य जोड्या जुळवा!'));
+    final String promptEnglish = levelId == 4
+        ? 'Match school, shapes and fair attractions to finish Class 1!'
+        : (levelId == 3
+            ? 'Match each village market item with its function.'
+            : (levelId == 2
+                ? 'Match each farm and dairy friend to its home.'
+                : 'Drag to match • Or tap a picture, then its word.'));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2933,7 +3335,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   _buildLeftMatchingChip(
                                     index: 0,
                                     text: pairs[0]['a'].toString(),
-                                    subtitle: isLevel2 ? 'जोडी १ • Pair 1' : 'सकाळ • Morning',
+                                    subtitle: levelId == 4
+                                        ? 'शाळा • School'
+                                        : (levelId == 3
+                                            ? 'बाजार १ • Market 1'
+                                            : (levelId == 2 ? 'जोडी १ • Pair 1' : 'सकाळ • Morning')),
                                     leadingWidget: buildIconForMatchPair(
                                       pairs[0]['a'].toString(),
                                       pairs[0]['b'].toString(),
@@ -2942,7 +3348,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   _buildLeftMatchingChip(
                                     index: 1,
                                     text: pairs[1]['a'].toString(),
-                                    subtitle: isLevel2 ? 'जोडी २ • Pair 2' : 'साथीदार • Friend',
+                                    subtitle: levelId == 4
+                                        ? 'जत्रा • Fair'
+                                        : (levelId == 3
+                                            ? 'बाजार २ • Market 2'
+                                            : (levelId == 2 ? 'जोडी २ • Pair 2' : 'साथीदार • Friend')),
                                     leadingWidget: buildIconForMatchPair(
                                       pairs[1]['a'].toString(),
                                       pairs[1]['b'].toString(),
@@ -2951,7 +3361,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   _buildLeftMatchingChip(
                                     index: 2,
                                     text: pairs[2]['a'].toString(),
-                                    subtitle: isLevel2 ? 'जोडी ३ • Pair 3' : 'काम • Action',
+                                    subtitle: levelId == 4
+                                        ? 'मजा • Fun'
+                                        : (levelId == 3
+                                            ? 'बाजार ३ • Market 3'
+                                            : (levelId == 2 ? 'जोडी ३ • Pair 3' : 'काम • Action')),
                                     leadingWidget: buildIconForMatchPair(
                                       pairs[2]['a'].toString(),
                                       pairs[2]['b'].toString(),
@@ -2959,47 +3373,91 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   ),
                                 ];
                               }
-                              return isLevel2
-                                  ? [
-                                      _buildLeftMatchingChip(
-                                        index: 0,
-                                        text: 'गाय',
-                                        subtitle: 'Cow',
-                                        leadingWidget: buildIconForMatchPair('गाय', 'दूध'),
-                                      ),
-                                      _buildLeftMatchingChip(
-                                        index: 1,
-                                        text: 'आंबा',
-                                        subtitle: 'Mango',
-                                        leadingWidget: buildIconForMatchPair('आंबा', 'झाड'),
-                                      ),
-                                      _buildLeftMatchingChip(
-                                        index: 2,
-                                        text: 'वाघ',
-                                        subtitle: 'Tiger',
-                                        leadingWidget: buildIconForMatchPair('वाघ', 'जंगल'),
-                                      ),
-                                    ]
-                                  : [
-                                      _buildLeftMatchingChip(
-                                        index: 0,
-                                        text: 'सूर्य',
-                                        subtitle: 'Sun',
-                                        leadingWidget: buildIconForMatchPair('सूर्य', 'सकाळ'),
-                                      ),
-                                      _buildLeftMatchingChip(
-                                        index: 1,
-                                        text: 'ट्रॅक्टर',
-                                        subtitle: 'Tractor',
-                                        leadingWidget: buildIconForMatchPair('ट्रॅक्टर', 'मोठा'),
-                                      ),
-                                      _buildLeftMatchingChip(
-                                        index: 2,
-                                        text: 'चिवताई',
-                                        subtitle: 'Chiu',
-                                        leadingWidget: buildIconForMatchPair('चिवताई', 'छत'),
-                                      ),
-                                    ];
+                              if (levelId == 4) {
+                                return [
+                                  _buildLeftMatchingChip(
+                                    index: 0,
+                                    text: 'शाळेची बस',
+                                    subtitle: 'School Bus',
+                                    leadingWidget: buildIconForMatchPair('शाळेची बस', 'शाळा'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 1,
+                                    text: 'आकाशपाळणा',
+                                    subtitle: 'Ferris Wheel',
+                                    leadingWidget: buildIconForMatchPair('आकाशपाळणा', 'जत्रा'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 2,
+                                    text: 'रंगीबेरंगी फुगे',
+                                    subtitle: 'Balloons',
+                                    leadingWidget: buildIconForMatchPair('रंगीबेरंगी फुगे', 'आकाश'),
+                                  ),
+                                ];
+                              } else if (levelId == 3) {
+                                return [
+                                  _buildLeftMatchingChip(
+                                    index: 0,
+                                    text: 'फळांची टोपली',
+                                    subtitle: 'Fruit Basket',
+                                    leadingWidget: buildIconForMatchPair('फळांची टोपली', 'ताजी फळे'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 1,
+                                    text: 'तराजू',
+                                    subtitle: 'Scale',
+                                    leadingWidget: buildIconForMatchPair('तराजू', 'वजन मोजणे'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 2,
+                                    text: 'पिगी बँक',
+                                    subtitle: 'Piggy Bank',
+                                    leadingWidget: buildIconForMatchPair('पिगी बँक', 'पैसे वाचवणे'),
+                                  ),
+                                ];
+                              } else if (levelId == 2) {
+                                return [
+                                  _buildLeftMatchingChip(
+                                    index: 0,
+                                    text: 'गाय',
+                                    subtitle: 'Cow',
+                                    leadingWidget: buildIconForMatchPair('गाय', 'दूध'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 1,
+                                    text: 'आंबा',
+                                    subtitle: 'Mango',
+                                    leadingWidget: buildIconForMatchPair('आंबा', 'झाड'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 2,
+                                    text: 'वाघ',
+                                    subtitle: 'Tiger',
+                                    leadingWidget: buildIconForMatchPair('वाघ', 'जंगल'),
+                                  ),
+                                ];
+                              } else {
+                                return [
+                                  _buildLeftMatchingChip(
+                                    index: 0,
+                                    text: 'सूर्य',
+                                    subtitle: 'Sun',
+                                    leadingWidget: buildIconForMatchPair('सूर्य', 'सकाळ'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 1,
+                                    text: 'ट्रॅक्टर',
+                                    subtitle: 'Tractor',
+                                    leadingWidget: buildIconForMatchPair('ट्रॅक्टर', 'मोठा'),
+                                  ),
+                                  _buildLeftMatchingChip(
+                                    index: 2,
+                                    text: 'चिवताई',
+                                    subtitle: 'Chiu',
+                                    leadingWidget: buildIconForMatchPair('चिवताई', 'छत'),
+                                  ),
+                                ];
+                              }
                             }(),
                           ),
                         ),
@@ -3046,41 +3504,79 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                                   ),
                                 ];
                               }
-                              return isLevel2
-                                  ? [
-                                      _buildRightMatchingChip(
-                                        index: 0,
-                                        text: 'दूध',
-                                        subtitle: 'Milk',
-                                      ),
-                                      _buildRightMatchingChip(
-                                        index: 1,
-                                        text: 'झाड',
-                                        subtitle: 'Tree',
-                                      ),
-                                      _buildRightMatchingChip(
-                                        index: 2,
-                                        text: 'जंगल',
-                                        subtitle: 'Jungle',
-                                      ),
-                                    ]
-                                  : [
-                                      _buildRightMatchingChip(
-                                        index: 0,
-                                        text: 'सकाळ',
-                                        subtitle: 'Morning',
-                                      ),
-                                      _buildRightMatchingChip(
-                                        index: 1,
-                                        text: 'मोठा',
-                                        subtitle: 'Big',
-                                      ),
-                                      _buildRightMatchingChip(
-                                        index: 2,
-                                        text: 'छत',
-                                        subtitle: 'Roof',
-                                      ),
-                                    ];
+                              if (levelId == 4) {
+                                return [
+                                  _buildRightMatchingChip(
+                                    index: 0,
+                                    text: 'शाळा',
+                                    subtitle: 'School',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 1,
+                                    text: 'जत्रा',
+                                    subtitle: 'Fair',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 2,
+                                    text: 'आकाश',
+                                    subtitle: 'Sky',
+                                  ),
+                                ];
+                              } else if (levelId == 3) {
+                                return [
+                                  _buildRightMatchingChip(
+                                    index: 0,
+                                    text: 'ताजी फळे',
+                                    subtitle: 'Fresh Fruits',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 1,
+                                    text: 'वजन मोजणे',
+                                    subtitle: 'Weighing',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 2,
+                                    text: 'पैसे वाचवणे',
+                                    subtitle: 'Saving Money',
+                                  ),
+                                ];
+                              } else if (levelId == 2) {
+                                return [
+                                  _buildRightMatchingChip(
+                                    index: 0,
+                                    text: 'दूध',
+                                    subtitle: 'Milk',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 1,
+                                    text: 'झाड',
+                                    subtitle: 'Tree',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 2,
+                                    text: 'जंगल',
+                                    subtitle: 'Jungle',
+                                  ),
+                                ];
+                              } else {
+                                return [
+                                  _buildRightMatchingChip(
+                                    index: 0,
+                                    text: 'सकाळ',
+                                    subtitle: 'Morning',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 1,
+                                    text: 'मोठा',
+                                    subtitle: 'Big',
+                                  ),
+                                  _buildRightMatchingChip(
+                                    index: 2,
+                                    text: 'छत',
+                                    subtitle: 'Roof',
+                                  ),
+                                ];
+                              }
                             }(),
                           ),
                         ),
@@ -3175,6 +3671,128 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
             fit: BoxFit.cover,
           ),
         ),
+      );
+    } else if (combined.contains('टोपली') ||
+        combined.contains('basket') ||
+        combined.contains('फळे') ||
+        combined.contains('fruit')) {
+      return Lottie.asset(
+        'assets/lottie/fruit_basket.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('तराजू') ||
+        combined.contains('scale') ||
+        combined.contains('weighing') ||
+        combined.contains('वजन')) {
+      return Lottie.asset(
+        'assets/lottie/weighing_scale.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('पिगी') ||
+        combined.contains('piggy') ||
+        combined.contains('नाणी') ||
+        combined.contains('बँक') ||
+        combined.contains('पैसे') ||
+        combined.contains('coin')) {
+      return Lottie.asset(
+        'assets/lottie/piggy_bank.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('खाऊ') ||
+        combined.contains('food') ||
+        combined.contains('दुकान') ||
+        combined.contains('stall') ||
+        combined.contains('शेतकरी') ||
+        combined.contains('farmer')) {
+      return Lottie.asset(
+        'assets/lottie/food stall.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('बस') ||
+        combined.contains('bus') ||
+        combined.contains('शाळा') ||
+        combined.contains('school')) {
+      return Lottie.asset(
+        'assets/lottie/bus.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('दप्तर') || combined.contains('bag')) {
+      return Lottie.asset(
+        'assets/lottie/school_bag.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('आकाशपाळणा') ||
+        combined.contains('ferris') ||
+        combined.contains('wheel') ||
+        combined.contains('जत्रा') ||
+        combined.contains('fair')) {
+      return Lottie.asset(
+        'assets/lottie/ferris_wheel.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('फुगे') ||
+        combined.contains('फुगा') ||
+        combined.contains('balloon') ||
+        combined.contains('balloons') ||
+        combined.contains('आकाश') ||
+        combined.contains('sky')) {
+      return Lottie.asset(
+        'assets/lottie/balloons.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('वर्तुळ') || combined.contains('circle') || combined.contains('गोल')) {
+      return Lottie.asset(
+        'assets/lottie/circle.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('त्रिकोण') || combined.contains('triangle')) {
+      return Lottie.asset(
+        'assets/lottie/triangle.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('चौकोन') || combined.contains('square')) {
+      return Lottie.asset(
+        'assets/lottie/square.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('आयत') || combined.contains('rectangle')) {
+      return Lottie.asset(
+        'assets/lottie/rectangle.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
+      );
+    } else if (combined.contains('चषक') ||
+        combined.contains('trophy') ||
+        combined.contains('विजेता') ||
+        combined.contains('बक्षीस')) {
+      return Lottie.asset(
+        'assets/lottie/trophy.json',
+        width: 30,
+        height: 30,
+        fit: BoxFit.contain,
       );
     } else if (combined.contains('+') || combined.contains('बेरीज')) {
       return const Icon(
@@ -3276,7 +3894,7 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   }
 
   Widget _buildMatchingSidebar(int matchedCount) {
-    final bool isLevel2 = widget.initialLevelId == 2;
+    final int levelId = widget.initialLevelId;
 
     if (matchedCount == 3) {
       // Completed state matching Matching feedback · Completed.png
@@ -3357,7 +3975,11 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                   ),
                 ),
                 Text(
-                  isLevel2 ? 'दूध डेअरीतून मिळते.' : 'सूर्य सकाळी उगवतो.',
+                  levelId == 4
+                      ? 'शाळेची बस शाळेत नेते.'
+                      : (levelId == 3
+                          ? 'फळांची टोपली फळे ठेवण्यासाठी असते.'
+                          : (levelId == 2 ? 'दूध डेअरीतून मिळते.' : 'सूर्य सकाळी उगवतो.')),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -3365,9 +3987,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                   ),
                 ),
                 Text(
-                  isLevel2
-                      ? 'Milk comes from the dairy. Try another pair.'
-                      : 'The sun rises in the morning. Try another pair.',
+                  levelId == 4
+                      ? 'The school bus takes us to school. Try another pair.'
+                      : (levelId == 3
+                          ? 'The fruit basket holds fresh fruit. Try another pair.'
+                          : (levelId == 2
+                              ? 'Milk comes from the dairy. Try another pair.'
+                              : 'The sun rises in the morning. Try another pair.')),
                   style: NovaTypography.caption,
                   textAlign: TextAlign.center,
                 ),
@@ -3453,6 +4079,8 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
   // SCREEN 11: CELEBRATION
   // ===========================================================================
   Widget _buildScreen11Celebration(AppState appState) {
+    final int levelId = widget.initialLevelId;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -3495,24 +4123,49 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                     ),
                   ),
 
-                  // Chintu and Nova celebrating right next to each other in the center
+                  // Chintu and Nova / Trophy celebrating in the center
                   Positioned.fill(
                     child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Lottie.asset(
-                            'assets/lottie/Hand Waving Animation.json',
-                            height: 170,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(width: 12),
-                          const NovaRobotMascot(
-                            size: 140,
-                          ),
-                        ],
-                      ),
+                      child: levelId == 4
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Lottie.asset(
+                                  'assets/lottie/trophy.json',
+                                  height: 160,
+                                  width: 160,
+                                  fit: BoxFit.contain,
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Lottie.asset(
+                                      'assets/lottie/Hand Waving Animation.json',
+                                      height: 90,
+                                      fit: BoxFit.contain,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const NovaRobotMascot(size: 80),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Lottie.asset(
+                                  'assets/lottie/Hand Waving Animation.json',
+                                  height: 170,
+                                  fit: BoxFit.contain,
+                                ),
+                                const SizedBox(width: 12),
+                                const NovaRobotMascot(
+                                  size: 140,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
 
@@ -3553,9 +4206,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                           ],
                         ),
                         child: Text(
-                          widget.initialLevelId == 2
-                              ? 'वाघोबा + NOVA • High five!'
-                              : 'चिंटू + NOVA • High five!',
+                          levelId == 4
+                              ? '🏆 इयत्ता पहिली पूर्ण! (Class 1 Champion!)'
+                              : (levelId == 3
+                                  ? 'शेतकरी दादा + NOVA • High five!'
+                                  : (levelId == 2
+                                      ? 'वाघोबा + NOVA • High five!'
+                                      : 'चिंटू + NOVA • High five!')),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -3586,9 +4243,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.initialLevelId == 2
-                          ? 'LEVEL 2 • COMPLETE ✓'
-                          : 'LEVEL 1 • COMPLETE ✓',
+                      levelId == 4
+                          ? '🏆 GRAND FINALE • CLASS 1 COMPLETE ✓'
+                          : (levelId == 3
+                              ? 'LEVEL 3 • COMPLETE ✓'
+                              : (levelId == 2
+                                  ? 'LEVEL 2 • COMPLETE ✓'
+                                  : 'LEVEL 1 • COMPLETE ✓')),
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -3598,9 +4259,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      widget.initialLevelId == 2
-                          ? 'खूप छान!\nतू २ री पातळी जिंकलीस!'
-                          : 'खूप छान!\nतू १ ली पातळी जिंकलीस!',
+                      levelId == 4
+                          ? 'अभिनंदन!\nतू ४ थी पातळी व इयत्ता १ ली जिंकलीस!'
+                          : (levelId == 3
+                              ? 'खूप छान!\nतू ३ री पातळी जिंकलीस!'
+                              : (levelId == 2
+                                  ? 'खूप छान!\nतू २ री पातळी जिंकलीस!'
+                                  : 'खूप छान!\nतू १ ली पातळी जिंकलीस!')),
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -3610,9 +4275,13 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      widget.initialLevelId == 2
-                          ? 'Awesome! You completed Level 2!'
-                          : 'Awesome! You completed Level 1!',
+                      levelId == 4
+                          ? 'Hooray! You completed all 4 levels of Class 1!'
+                          : (levelId == 3
+                              ? 'Awesome! You conquered the Village Market!'
+                              : (levelId == 2
+                                  ? 'Awesome! You completed Level 2!'
+                                  : 'Awesome! You completed Level 1!')),
                       style: NovaTypography.bodySecondary,
                     ),
                     const SizedBox(height: 8),
@@ -3631,21 +4300,41 @@ class _StoryAdventureScreenState extends ConsumerState<StoryAdventureScreen> wit
 
                     // 5 Badges Row
                     Row(
-                      children: widget.initialLevelId == 2
-                          ? [
-                              _buildCelebrationBadge(Icons.park_rounded, const Color(0xFF10B981), 'वडाचे झाड', 'Banyan Tree'),
-                              _buildCelebrationBadge(Icons.calculate_rounded, const Color(0xFFF59E0B), 'आंबे मोजणी', 'Mango Count'),
-                              _buildCelebrationBadge(Icons.storefront_rounded, NovaColors.purple, 'डेअरी सफर', 'Dairy Trip'),
-                              _buildCelebrationBadge(Icons.local_drink_rounded, const Color(0xFF0284C7), 'गोड दूध', 'Fresh Milk'),
-                              _buildCelebrationBadge(Icons.pets_rounded, const Color(0xFFEA580C), 'वाघोबा मित्र', 'Tiger Friend'),
-                            ]
-                          : [
-                              _buildCelebrationBadge(Icons.wb_sunny_rounded, const Color(0xFFF59E0B), 'सकाळ • रात्र', 'Morning/Night'),
-                              _buildCelebrationBadge(Icons.agriculture_rounded, const Color(0xFFDC2626), 'मोठे • छोटे', 'Big vs Small'),
-                              _buildCelebrationBadge(Icons.arrow_upward_rounded, NovaColors.purple, 'वर • खाली', 'Top vs Bottom'),
-                              _buildCelebrationBadge(Icons.flutter_dash_rounded, const Color(0xFF0284C7), 'छतावर चिऊ', 'Chiu on Roof'),
-                              _buildCelebrationBadge(Icons.cruelty_free_rounded, const Color(0xFF16A34A), 'जमिनीवर गण्या', 'Ganya Ground'),
-                            ],
+                      children: () {
+                        if (levelId == 4) {
+                          return [
+                            _buildCelebrationBadge(Icons.directions_bus_rounded, const Color(0xFFF59E0B), 'शाळेची बस', 'School Bus'),
+                            _buildCelebrationBadge(Icons.category_rounded, const Color(0xFF8B5CF6), 'विविध आकार', 'Shapes Master'),
+                            _buildCelebrationBadge(Icons.attractions_rounded, const Color(0xFFEC4899), 'आकाशपाळणा', 'Ferris Wheel'),
+                            _buildCelebrationBadge(Icons.celebration_rounded, const Color(0xFF06B6D4), 'रंगीबेरंगी फुगे', 'Party Balloons'),
+                            _buildCelebrationBadge(Icons.emoji_events_rounded, NovaColors.goldDark, 'सुवर्ण चषक', 'Class 1 Trophy'),
+                          ];
+                        } else if (levelId == 3) {
+                          return [
+                            _buildCelebrationBadge(Icons.shopping_basket_rounded, const Color(0xFF10B981), 'फळांची टोपली', 'Fruit Basket'),
+                            _buildCelebrationBadge(Icons.balance_rounded, const Color(0xFFF59E0B), 'वजन मोजणी', 'Weighing Scale'),
+                            _buildCelebrationBadge(Icons.storefront_rounded, NovaColors.purple, 'खाऊचे दुकान', 'Food Stall'),
+                            _buildCelebrationBadge(Icons.savings_rounded, const Color(0xFF0284C7), 'नाणी मोजणे', 'Piggy Bank'),
+                            _buildCelebrationBadge(Icons.handshake_rounded, const Color(0xFFEA580C), 'शेतकरी मित्र', 'Farmer Friend'),
+                          ];
+                        } else if (levelId == 2) {
+                          return [
+                            _buildCelebrationBadge(Icons.park_rounded, const Color(0xFF10B981), 'वडाचे झाड', 'Banyan Tree'),
+                            _buildCelebrationBadge(Icons.calculate_rounded, const Color(0xFFF59E0B), 'आंबे मोजणी', 'Mango Count'),
+                            _buildCelebrationBadge(Icons.storefront_rounded, NovaColors.purple, 'डेअरी सफर', 'Dairy Trip'),
+                            _buildCelebrationBadge(Icons.local_drink_rounded, const Color(0xFF0284C7), 'गोड दूध', 'Fresh Milk'),
+                            _buildCelebrationBadge(Icons.pets_rounded, const Color(0xFFEA580C), 'वाघोबा मित्र', 'Tiger Friend'),
+                          ];
+                        } else {
+                          return [
+                            _buildCelebrationBadge(Icons.wb_sunny_rounded, const Color(0xFFF59E0B), 'सकाळ • रात्र', 'Morning/Night'),
+                            _buildCelebrationBadge(Icons.agriculture_rounded, const Color(0xFFDC2626), 'मोठे • छोटे', 'Big vs Small'),
+                            _buildCelebrationBadge(Icons.arrow_upward_rounded, NovaColors.purple, 'वर • खाली', 'Top vs Bottom'),
+                            _buildCelebrationBadge(Icons.flutter_dash_rounded, const Color(0xFF0284C7), 'छतावर चिऊ', 'Chiu on Roof'),
+                            _buildCelebrationBadge(Icons.cruelty_free_rounded, const Color(0xFF16A34A), 'जमिनीवर गण्या', 'Ganya Ground'),
+                          ];
+                        }
+                      }(),
                     ),
                     const SizedBox(height: 12),
 

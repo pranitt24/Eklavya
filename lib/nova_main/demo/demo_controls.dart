@@ -491,6 +491,36 @@ class _DemoControlsSheetState extends ConsumerState<DemoControlsSheet> {
                       ),
                       onPressed: () => _generateAndLaunch(2),
                     ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.navy,
+                        side: const BorderSide(color: Color(0xFFF97316), width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Text('🛒', style: TextStyle(fontSize: 18)),
+                      label: const Text(
+                        '🛒 Jump to Level 3 (Village Market)',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                      ),
+                      onPressed: () => _generateAndLaunch(3),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.navy,
+                        side: const BorderSide(color: Color(0xFF8B5CF6), width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Text('🎡', style: TextStyle(fontSize: 18)),
+                      label: const Text(
+                        '🎡 Jump to Level 4 (School & Fair Finale)',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                      ),
+                      onPressed: () => _generateAndLaunch(4),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -515,6 +545,7 @@ class _DemoControlsSheetState extends ConsumerState<DemoControlsSheet> {
                     final marathiState = repo.getBktState('LANG_MARATHI_01');
                     final countState = repo.getBktState('MATH_COUNT_01');
                     final addState = repo.getBktState('MATH_ADD_01');
+                    final marketState = repo.getBktState('MATH_MARKET_SUB_01');
 
                     return Container(
                       padding: const EdgeInsets.all(AppSpacing.md),
@@ -567,6 +598,8 @@ class _DemoControlsSheetState extends ConsumerState<DemoControlsSheet> {
                           _buildBktSkillRow('MATH_COUNT_01', 'Counting 1-10 (मोजणे)', countState.pLearned),
                           const SizedBox(height: 8),
                           _buildBktSkillRow('MATH_ADD_01', 'Single Addition (बेरीज)', addState.pLearned),
+                          const SizedBox(height: 8),
+                          _buildBktSkillRow('MATH_MARKET_SUB_01', 'Market Math (वजाबाकी व मोजणी)', marketState.pLearned),
                         ],
                       ),
                     );

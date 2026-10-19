@@ -232,10 +232,20 @@ class GameMasterContextAssembler {
         .toList();
 
     // 4. Level theme & title
-    final String theme = levelNumber == 1 ? 'village_morning' : 'banyan_grove_dairy';
+    final String theme = levelNumber == 1
+        ? 'village_morning'
+        : (levelNumber == 2
+            ? 'banyan_grove_dairy'
+            : (levelNumber == 3
+                ? 'village_weekly_market'
+                : 'village_school_and_fair'));
     final String levelTitle = levelNumber == 1
         ? 'पातळी १ • माझी सकाळ (Village Morning)'
-        : 'पातळी २ • वडाचे झाड आणि डेअरी (Banyan Grove & Dairy)';
+        : (levelNumber == 2
+            ? 'पातळी २ • वडाचे झाड आणि डेअरी (Banyan Grove & Dairy)'
+            : (levelNumber == 3
+                ? 'पातळी ३ • गावाचा आठवडी बाजार (Village Weekly Market)'
+                : 'पातळी ४ • गावाची शाळा आणि जत्रा (Village School & Fair 🏆)'));
 
     // 5. Build structured system prompt for LLM Game Master
     final String prompt = _buildSystemPrompt(

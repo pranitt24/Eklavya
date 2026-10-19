@@ -1,0 +1,13 @@
+/// Example template for local API keys configuration.
+/// Copy this file to `local_api_keys.dart` and fill in your keys if needed.
+class LocalApiKeys {
+  static const String geminiApiKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+    defaultValue: '',
+  );
+
+  static const String groqApiKey = String.fromEnvironment(
+    'GROQ_API_KEY',
+    defaultValue: '',
+  );
+}

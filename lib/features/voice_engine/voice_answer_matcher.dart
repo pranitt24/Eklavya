@@ -47,6 +47,22 @@ class VoiceAnswerMatcher {
       'motha',
       'big',
     ],
+    'दहा': [
+      'दहा',
+      '१०',
+      '10',
+      'daha',
+      'das',
+      'ten',
+    ],
+    'शून्य': [
+      'शून्य',
+      '०',
+      '0',
+      'shunya',
+      'shoonya',
+      'zero',
+    ],
   };
 
   /// Evaluates if the spoken string is numerically equal to the expected string
@@ -131,6 +147,8 @@ class VoiceAnswerMatcher {
     final int? numVal = _extractInteger(expected);
     if (numVal != null) {
       switch (numVal) {
+        case 0:
+          return ['0', '०', 'शून्य', 'shunya', 'shoonya', 'zero'];
         case 1:
           return ['1', 'एक', 'ek', 'one'];
         case 2:
@@ -138,11 +156,11 @@ class VoiceAnswerMatcher {
         case 3:
           return ['3', 'तीन', 'teen', 'tin', 'three'];
         case 4:
-          return ['4', 'चार', 'chaar', 'char', 'four'];
+          return ['4', '४', 'चार', 'chaar', 'char', 'four'];
         case 5:
-          return ['5', 'पाच', 'paach', 'pach', 'five'];
+          return ['5', '५', 'पाच', 'paach', 'pach', 'five'];
         case 6:
-          return ['6', 'सहा', 'saha', 'six'];
+          return ['6', '६', 'सहा', 'saha', 'chhah', 'six'];
         case 7:
           return ['7', 'सात', 'saat', 'sat', 'seven'];
         case 8:
@@ -150,7 +168,7 @@ class VoiceAnswerMatcher {
         case 9:
           return ['9', 'नऊ', 'nau', 'nine'];
         case 10:
-          return ['10', 'दहा', 'daha', 'ten'];
+          return ['10', '१०', 'दहा', 'daha', 'das', 'ten'];
         default:
           return ['$numVal', expected];
       }
@@ -165,6 +183,7 @@ class VoiceAnswerMatcher {
     // Map common number words across languages (English, Marathi, Hindi)
     // Ordered from longest phrases to shortest to avoid partial replacement bugs
     final wordToNum = {
+      '०': '0', '४': '4', '५': '5', '६': '6', '१०': '10',
       'twenty five': '25', 'पंचवीस': '25', 'panchvis': '25',
       'twenty four': '24', 'चोवीस': '24', 'chovis': '24',
       'twenty three': '23', 'तेवीस': '23', 'tevis': '23',
@@ -184,7 +203,7 @@ class VoiceAnswerMatcher {
       'nine': '9', 'नऊ': '9', 'nau': '9', 'नौ': '9',
       'eight': '8', 'आठ': '8', 'aath': '8', 'ath': '8',
       'seven': '7', 'सात': '7', 'saat': '7', 'sat': '7',
-      'six': '6', 'सहा': '6', 'saha': '6', 'छह': '6', 'che': '6',
+      'six': '6', 'सहा': '6', 'saha': '6', 'छह': '6', 'chhah': '6', 'che': '6',
       'five': '5', 'पाच': '5', 'paach': '5', 'pach': '5', 'पांच': '5',
       'four': '4', 'चार': '4', 'chaar': '4', 'char': '4',
       'three': '3', 'तीन': '3', 'teen': '3', 'tin': '3',

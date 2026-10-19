@@ -247,18 +247,30 @@ class _LevelRoadScreenState extends ConsumerState<LevelRoadScreen> {
                             ),
                           ),
 
-                          // Node 3: Locked
+                          // Node 3: Village Market Node (Level 3 - Unlocked & Tappable)
                           Positioned(
                             left: 100,
                             top: 175,
-                            child: _buildLockedNode(3, 'Level 3'),
+                            child: _buildInteractiveNode(
+                              levelNum: 3,
+                              label: 'Level 3',
+                              icon: Icons.storefront_rounded,
+                              activeColor: const Color(0xFFF97316),
+                              audioPhrase: "पातळी तीन. गावाचा आठवडी बाजार.",
+                            ),
                           ),
 
-                          // Node 4: Locked
+                          // Node 4: Village School & Fair Grand Finale (Level 4 - Unlocked & Tappable 🏆)
                           Positioned(
                             right: 60,
                             top: 110,
-                            child: _buildLockedNode(4, 'Level 4'),
+                            child: _buildInteractiveNode(
+                              levelNum: 4,
+                              label: 'Level 4 🏆',
+                              icon: Icons.school_rounded,
+                              activeColor: const Color(0xFF8B5CF6),
+                              audioPhrase: "पातळी चार. गावाची शाळा आणि जत्रा.",
+                            ),
                           ),
 
                           // Node 5: Locked
@@ -294,14 +306,24 @@ class _LevelRoadScreenState extends ConsumerState<LevelRoadScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _selectedLevel == 1 ? 'माझी सकाळ' : 'वडाचे झाड आणि डेअरी',
+                                _selectedLevel == 1
+                                    ? 'माझी सकाळ'
+                                    : (_selectedLevel == 2
+                                        ? 'वडाचे झाड आणि डेअरी'
+                                        : (_selectedLevel == 3
+                                            ? 'गावाचा आठवडी बाजार'
+                                            : 'गावाची शाळा आणि जत्रा 🏆')),
                                 style: NovaTypography.headingMedium,
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 _selectedLevel == 1
                                     ? 'My morning • Level 1'
-                                    : 'Banyan Grove & Dairy • Level 2',
+                                    : (_selectedLevel == 2
+                                        ? 'Banyan Grove & Dairy • Level 2'
+                                        : (_selectedLevel == 3
+                                            ? 'Village Weekly Market • Level 3'
+                                            : 'Village School & Fair Finale • Level 4 🏆')),
                                 style: NovaTypography.bodySecondary,
                               ),
                             ],

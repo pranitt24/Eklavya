@@ -237,6 +237,10 @@ class NovaSchemaRepository extends ChangeNotifier {
         return NovaSeedCatalog.level1VillageMorningContract;
       case 2:
         return NovaSeedCatalog.level2BanyanGroveContract;
+      case 3:
+        return NovaSeedCatalog.level3VillageMarketContract;
+      case 4:
+        return NovaSeedCatalog.level4SchoolFairContract;
       default:
         return NovaSeedCatalog.level1VillageMorningContract;
     }

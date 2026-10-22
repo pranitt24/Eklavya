@@ -46,6 +46,3 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
-
-# Local Secret API Keys
-lib/core/config/local_api_keys.dart

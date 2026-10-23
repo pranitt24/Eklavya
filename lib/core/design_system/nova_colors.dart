@@ -62,4 +62,15 @@ class NovaColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+
+  // High contrast theme tokens (WCAG AAA)
+  static const Color hcBackground = Color(0xFF000000);
+  static const Color hcCard = Color(0xFF121212);
+  static const Color hcText = Color(0xFFFFFFFF);
+  static const Color hcTextSecondary = Color(0xFFFFFFB0);
+  static const Color hcYellow = Color(0xFFFFEB3B);
+  static const Color hcMint = Color(0xFF00FF88);
+  static const Color hcCoral = Color(0xFFFF7B7B);
+  static const Color hcSky = Color(0xFF64D2FF);
+  static const Color hcBorder = Color(0xFFFFFFFF);
 }

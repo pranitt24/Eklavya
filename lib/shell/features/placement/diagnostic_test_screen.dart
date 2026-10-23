@@ -309,7 +309,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
                                 ),
                                 child: ClipOval(
                                   child: Image.asset(
-                                    'assets/images/characters/nova.png',
+                                    'assets/nova/characters/char_nova_standing.webp',
                                     fit: BoxFit.cover,
                                     errorBuilder: (c, e, s) =>
                                         Image.asset(

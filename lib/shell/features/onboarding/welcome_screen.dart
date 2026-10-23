@@ -347,7 +347,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                                 ),
                                                 child: ClipOval(
                                                   child: Image.asset(
-                                                    'assets/images/characters/nova.png',
+                                                    'assets/nova/characters/char_nova_standing.webp',
                                                     fit: BoxFit.cover,
                                                     errorBuilder: (c2, e2, s2) => Image.asset(
                                                       'assets/full_body_3d_pixar_style_cute_friendly_chubby_blue_robot_character_named_nova/screen.png',

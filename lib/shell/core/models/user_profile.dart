@@ -58,7 +58,7 @@ class UserProfile extends ChangeNotifier {
       id: 'nova',
       nameMarathi: 'नोव्हा',
       nameEnglish: 'NOVA',
-      assetPath: 'assets/images/characters/nova.png',
+      assetPath: 'assets/nova/characters/char_nova_standing.webp',
       accentColor: Color(0xFF38BDF8),
       emoji: '🤖',
     ),

@@ -547,7 +547,7 @@ class _SagaMapScreenState extends State<SagaMapScreen>
             ),
             child: ClipOval(
               child: Image.asset(
-                'assets/images/characters/nova.png',
+                'assets/nova/characters/char_nova_standing.webp',
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => const Center(
                   child: Text('🤖', style: TextStyle(fontSize: 24)),

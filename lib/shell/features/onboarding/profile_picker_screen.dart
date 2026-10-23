@@ -96,7 +96,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
                           ),
                           child: ClipOval(
                             child: Image.asset(
-                              'assets/images/characters/nova.png',
+                              'assets/nova/characters/char_nova_standing.webp',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   Image.asset(
@@ -435,7 +435,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
                             )
                           : avatar.id == 'nova'
                               ? Image.asset(
-                                  'assets/images/characters/nova.png',
+                                  'assets/nova/characters/char_nova_standing.webp',
                                   fit: BoxFit.cover,
                                   errorBuilder: (c2, e2, s2) => Text(
                                       avatar.emoji,

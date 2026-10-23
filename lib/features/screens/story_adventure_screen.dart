@@ -7,7 +7,7 @@ import '../../core/design_system/nova_spacing.dart';
 import '../../core/routing/orientation_helper.dart';
 import '../../core/services/nova_audio_service.dart';
 import 'package:lottie/lottie.dart';
-import '../../nova_main/demo/demo_controls.dart';
+import '../demo/demo_controls.dart';
 import '../../core/widgets/nova/nova_button.dart';
 import '../../core/widgets/nova/nova_matching_chip.dart';
 import '../../core/widgets/nova/nova_matching_bezier_painter.dart';

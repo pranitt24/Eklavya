@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/services/haptics_service.dart';
-import '../../../nova_main/demo/demo_fab.dart';
+import '../../demo/demo_fab.dart';
 import '../../../nova_main/services/app_state.dart';
 import '../../../nova_main/theme/app_colors.dart';
 import '../../../nova_main/theme/app_spacing.dart';

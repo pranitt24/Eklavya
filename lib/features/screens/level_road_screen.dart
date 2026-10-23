@@ -8,7 +8,7 @@ import '../../core/services/nova_audio_service.dart';
 import 'package:lottie/lottie.dart';
 import '../../core/widgets/nova/nova_button.dart';
 import '../../core/widgets/nova/nova_speaker_button.dart';
-import '../../nova_main/demo/demo_controls.dart';
+import '../demo/demo_controls.dart';
 import '../../nova_main/services/app_state.dart';
 import '../../core/models/nova_schema_models.dart';
 import '../../core/services/llm_game_master_service.dart';

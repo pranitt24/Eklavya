@@ -8,7 +8,7 @@ import '../../core/services/nova_audio_service.dart';
 import '../../core/widgets/nova/nova_avatar.dart';
 import '../../core/widgets/nova/nova_button.dart';
 import '../../core/widgets/nova/nova_speaker_button.dart';
-import '../../nova_main/demo/demo_controls.dart';
+import '../demo/demo_controls.dart';
 import '../../nova_main/services/app_state.dart';
 import 'home_hub_screen.dart';
 

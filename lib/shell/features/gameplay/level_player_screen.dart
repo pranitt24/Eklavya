@@ -7,9 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
+import '../../../core/services/level_api.dart';
 import '../../../features/scene/level_models.dart';
 import '../../../features/scene/level_player.dart';
 import '../../../features/scene/nova_assets.dart';
@@ -30,6 +30,7 @@ class LevelPlayerScreen extends StatefulWidget {
 }
 
 class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
+  final LevelApi _levelApi = LevelApi();
   final FlutterTts _flutterTts = FlutterTts();
 
   LevelSpec? _level;
@@ -87,19 +88,14 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     try {
       final assets = await NovaAssets.load();
 
-      // (a) Try GET http://127.0.0.1:8000/levels?grade=1
+      // (a) Try GET http://127.0.0.1:8000/levels?grade=1 via LevelApi
       LevelSpec? chosenLevel;
       try {
-        final uri = Uri.parse('http://127.0.0.1:8000/levels?grade=1');
-        final response = await http.get(uri).timeout(const Duration(seconds: 3));
-        if (response.statusCode == 200) {
-          final data = jsonDecode(utf8.decode(response.bodyBytes));
-          if (data is List && data.isNotEmpty) {
-            final maps = data.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
-            final randomIndex = Random().nextInt(maps.length);
-            chosenLevel = LevelSpec.fromJson(maps[randomIndex]);
-            debugPrint('Loaded level from server: ${chosenLevel.levelId}');
-          }
+        final serverLevels = await _levelApi.listLevels(grade: 1, timeout: const Duration(seconds: 3));
+        if (serverLevels.isNotEmpty) {
+          final randomIndex = Random().nextInt(serverLevels.length);
+          chosenLevel = LevelSpec.fromJson(serverLevels[randomIndex]);
+          debugPrint('Loaded level from server: ${chosenLevel.levelId}');
         }
       } catch (netErr) {
         debugPrint('Backend server unreachable or error: $netErr');

@@ -218,51 +218,97 @@ class _LevelPlayerState extends State<LevelPlayer> {
 
     final scene = _scene;
     final q = _question;
-    return Column(
-      children: <Widget>[
-        Expanded(
-          flex: 11,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: SceneStage(
-              key: ValueKey<int>(_i),
-              scene: scene,
-              assets: widget.assets,
-              expressions: _expressions,
-              plays: _plays,
-            ),
+
+    Widget buildStoryPanel() {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                localizeDigits(scene.text.of(_lang), _lang),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, fontFamilyFallback: kNovaFontFallback),
+              ),
+              const SizedBox(height: 12),
+              if (q == null)
+                AnswerButton(label: _t('पुढे', 'Next'), onTap: _next)
+              else if (_showQuestion && !_answered)
+                (q.type == 'voice_input' && widget.voiceBuilder != null)
+                    ? widget.voiceBuilder!(q, _lang, _submit)
+                    : QuestionPanel(question: q, lang: _lang, onResult: _submit)
+              else if (_revealed && q.answer != null)
+                Text(
+                  '${_t('उत्तर', 'Answer')}: ${localizeDigits(q.answer.toString(), _lang)}',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamilyFallback: kNovaFontFallback),
+                ),
+            ],
           ),
         ),
-        Expanded(
-          flex: 9,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    localizeDigits(scene.text.of(_lang), _lang),
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, fontFamilyFallback: kNovaFontFallback),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        if (isLandscape) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                flex: 12,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(24)),
+                  child: SceneStage(
+                    key: ValueKey<int>(_i),
+                    scene: scene,
+                    assets: widget.assets,
+                    expressions: _expressions,
+                    plays: _plays,
                   ),
-                  const SizedBox(height: 12),
-                  if (q == null)
-                    AnswerButton(label: _t('पुढे', 'Next'), onTap: _next)
-                  else if (_showQuestion && !_answered)
-                    (q.type == 'voice_input' && widget.voiceBuilder != null)
-                        ? widget.voiceBuilder!(q, _lang, _submit)
-                        : QuestionPanel(question: q, lang: _lang, onResult: _submit)
-                  else if (_revealed && q.answer != null)
-                    Text(
-                      '${_t('उत्तर', 'Answer')}: ${localizeDigits(q.answer.toString(), _lang)}',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamilyFallback: kNovaFontFallback),
-                    ),
-                ],
+                ),
+              ),
+              Expanded(
+                flex: 9,
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(8, 8, 12, 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFDF5),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFFFB300), width: 3.5),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x2E000000), blurRadius: 12, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: buildStoryPanel(),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          children: <Widget>[
+            Expanded(
+              flex: 11,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SceneStage(
+                  key: ValueKey<int>(_i),
+                  scene: scene,
+                  assets: widget.assets,
+                  expressions: _expressions,
+                  plays: _plays,
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+            Expanded(
+              flex: 9,
+              child: buildStoryPanel(),
+            ),
+          ],
+        );
+      },
     );
   }
 }

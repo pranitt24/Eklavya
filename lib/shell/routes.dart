@@ -6,7 +6,7 @@ import 'features/onboarding/profile_picker_screen.dart';
 import 'features/placement/diagnostic_test_screen.dart';
 import 'features/saga_map/saga_map_screen.dart';
 import 'features/gameplay/rotate_phone_screen.dart';
-import 'features/gameplay/story_level_screen.dart';
+import 'features/gameplay/level_player_screen.dart';
 import 'features/gameplay/celebration_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -85,7 +85,7 @@ final GoRouter appRouter = GoRouter(
       name: 'gameplay',
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const StoryLevelScreen(),
+        child: const LevelPlayerScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

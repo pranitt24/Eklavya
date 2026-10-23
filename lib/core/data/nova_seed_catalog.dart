@@ -10,6 +10,135 @@ class NovaSeedCatalog {
   // 1. GAME ASSETS CATALOG (Approved Lottie & 3D Artwork Assets)
   // ===========================================================================
   static final List<GameAssetRecord> gameAssets = [
+    // Nova Sprites (7 poses)
+    GameAssetRecord(
+      assetId: 'char_nova_standing',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_standing.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_happy',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_happy.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_thinking',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_thinking.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_pointing',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_pointing.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_reading',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_reading.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_namaste',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_namaste.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'char_nova_waving',
+      assetType: 'character',
+      tags: ['guide', 'nova', 'robot'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/characters/char_nova_waving.webp',
+    ),
+
+    // Countable Props (11 items)
+    GameAssetRecord(
+      assetId: 'prop_apple',
+      assetType: 'prop',
+      tags: ['countable', 'fruit'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_apple.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_ball',
+      assetType: 'prop',
+      tags: ['countable', 'toy'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_ball.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_banana',
+      assetType: 'prop',
+      tags: ['countable', 'fruit'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_banana.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_basket',
+      assetType: 'prop',
+      tags: ['countable', 'container'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_basket.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_book',
+      assetType: 'prop',
+      tags: ['countable', 'school'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_book.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_chocolate',
+      assetType: 'prop',
+      tags: ['countable', 'sweet'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_chocolate.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_flower',
+      assetType: 'prop',
+      tags: ['countable', 'nature'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_flower.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_laddu',
+      assetType: 'prop',
+      tags: ['countable', 'sweet'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_laddu.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_mango_webp',
+      assetType: 'prop',
+      tags: ['countable', 'fruit'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_mango.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_pencil',
+      assetType: 'prop',
+      tags: ['countable', 'school'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_pencil.webp',
+    ),
+    GameAssetRecord(
+      assetId: 'prop_star',
+      assetType: 'prop',
+      tags: ['countable', 'reward'],
+      unlockCost: 0,
+      localAssetPath: 'assets/nova/props/prop_star.webp',
+    ),
     // Characters
     GameAssetRecord(
       assetId: 'char_nova',

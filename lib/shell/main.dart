@@ -11,11 +11,11 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
   SoundService.instance.init();
-  runApp(const MajheGaonApp());
+  runApp(const ShellApp());
 }
 
-class MajheGaonApp extends StatelessWidget {
-  const MajheGaonApp({super.key});
+class ShellApp extends StatelessWidget {
+  const ShellApp({super.key});
 
   @override
   Widget build(BuildContext context) {

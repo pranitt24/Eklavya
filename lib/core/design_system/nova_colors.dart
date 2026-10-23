@@ -9,17 +9,24 @@ class NovaColors {
   static const Color cream = Color(0xFFFFFDF5); // Warm rural off-white / parchment background
   static const Color creamAlt = Color(0xFFFEFBF3);
   static const Color cardWhite = Color(0xFFFFFFFF);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color borderLight = Color(0xFFE2E8F4);
+  static const Color softGrey = Color(0xFFEAEFF8);
+  static const Color disabledGrey = Color(0xFFB0B7C3);
 
-  // Primary Purples
+  // Primary Purples & Deep Blues
   static const Color purple = Color(0xFF6C47FF); // Primary button, active border, branding
   static const Color purpleDark = Color(0xFF5432DE); // 3D button bevel shadow
   static const Color purpleLight = Color(0xFFF3E8FF); // Banner and speaker background
   static const Color purpleBorder = Color(0xFFDDD6FE); // Soft border for cards and containers
+  static const Color navy = Color(0xFF1F2A6B); // Deep navy token for contrast
+  static const Color indigo = Color(0xFF3F4BB8);
 
   // Golds / Sunshine
   static const Color gold = Color(0xFFFBBF24); // Stars, selection pills, level 1 node
   static const Color goldDark = Color(0xFFD97706); // Gold 3D button bevel & curve lines
   static const Color goldLight = Color(0xFFFEF3C7); // Gold card tint, replay button
+  static const Color sunYellow = Color(0xFFFFD66B); // Sunshine yellow for mascot & highlights
 
   // Mint / Semantic Greens
   static const Color mint = Color(0xFFDCFCE7); // Success container & completion background

@@ -1,3 +1,6 @@
+export 'package:majhe_gaon/core/models/mascot_mood.dart';
+import 'package:majhe_gaon/core/models/mascot_mood.dart';
+
 /// Background themes for story screens.
 enum SceneType {
   observatory,
@@ -7,18 +10,6 @@ enum SceneType {
   cave,
   treasure,
   general,
-}
-
-/// Mascot mood states driving animations and facial expressions.
-enum NovaMood {
-  happy,
-  excited,
-  thinking,
-  encouraging,
-  sleepy,
-  listening,
-  speaking,
-  celebrating,
 }
 
 /// Optional interactive touch activity embedded in a story beat.

@@ -37,6 +37,14 @@ class NovaSpacing {
     ),
   ];
 
+  static const List<BoxShadow> softShadow = [
+    BoxShadow(
+      color: Color(0x0F1F2A6B),
+      blurRadius: 16,
+      offset: Offset(0, 6),
+    ),
+  ];
+
   static const List<BoxShadow> buttonShadow = [
     BoxShadow(
       color: Color(0x1F271C44),

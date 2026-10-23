@@ -1,14 +1,5 @@
-enum VisualType {
-  none,
-  numberTiles,
-  customShapes,
-  fractionCircles,
-  fractionBars,
-  pizza,
-  patternStrip,
-  arrayDots,
-  groupedDots,
-}
+export 'package:majhe_gaon/core/models/visual_type.dart';
+import 'package:majhe_gaon/core/models/visual_type.dart';
 
 enum OptionState {
   idle,

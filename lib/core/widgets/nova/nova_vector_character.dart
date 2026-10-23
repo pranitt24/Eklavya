@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../../../nova_main/widgets/mascot_widget.dart';
-import '../../../nova_main/models/story_beat.dart';
+import '../../models/mascot_mood.dart';
+import 'mascot_widget.dart';
 
 enum CharacterIdentity {
   nova,

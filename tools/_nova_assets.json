@@ -1,0 +1,65 @@
+[
+ {
+  "id": "char_nova_happy",
+  "group": "characters",
+  "file": "characters/char_nova_happy.webp",
+  "w": 108,
+  "h": 184,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_standing",
+  "group": "characters",
+  "file": "characters/char_nova_standing.webp",
+  "w": 78,
+  "h": 183,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_thinking",
+  "group": "characters",
+  "file": "characters/char_nova_thinking.webp",
+  "w": 71,
+  "h": 184,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_pointing",
+  "group": "characters",
+  "file": "characters/char_nova_pointing.webp",
+  "w": 91,
+  "h": 185,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_reading",
+  "group": "characters",
+  "file": "characters/char_nova_reading.webp",
+  "w": 90,
+  "h": 189,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_namaste",
+  "group": "characters",
+  "file": "characters/char_nova_namaste.webp",
+  "w": 71,
+  "h": 189,
+  "low_res": true,
+  "bg_fixed": false
+ },
+ {
+  "id": "char_nova_waving",
+  "group": "characters",
+  "file": "characters/char_nova_waving.webp",
+  "w": 94,
+  "h": 189,
+  "low_res": true,
+  "bg_fixed": false
+ }
+]

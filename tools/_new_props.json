@@ -1,0 +1,112 @@
+[
+ {
+  "id": "prop_apple",
+  "group": "props",
+  "file": "props/prop_apple.webp",
+  "w": 81,
+  "h": 88,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_ball",
+  "group": "props",
+  "file": "props/prop_ball.webp",
+  "w": 88,
+  "h": 88,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_banana",
+  "group": "props",
+  "file": "props/prop_banana.webp",
+  "w": 96,
+  "h": 83,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_basket",
+  "group": "props",
+  "file": "props/prop_basket.webp",
+  "w": 96,
+  "h": 98,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_book",
+  "group": "props",
+  "file": "props/prop_book.webp",
+  "w": 79,
+  "h": 83,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_chocolate",
+  "group": "props",
+  "file": "props/prop_chocolate.webp",
+  "w": 94,
+  "h": 97,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_flower",
+  "group": "props",
+  "file": "props/prop_flower.webp",
+  "w": 62,
+  "h": 98,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_laddu",
+  "group": "props",
+  "file": "props/prop_laddu.webp",
+  "w": 110,
+  "h": 110,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_mango",
+  "group": "props",
+  "file": "props/prop_mango.webp",
+  "w": 82,
+  "h": 88,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_pencil",
+  "group": "props",
+  "file": "props/prop_pencil.webp",
+  "w": 86,
+  "h": 94,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ },
+ {
+  "id": "prop_star",
+  "group": "props",
+  "file": "props/prop_star.webp",
+  "w": 92,
+  "h": 87,
+  "low_res": true,
+  "bg_fixed": false,
+  "countable": true
+ }
+]

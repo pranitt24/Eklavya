@@ -1,0 +1,116 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M2_MONEY_T1_courtyard_003",
+  "skill_id": "M1_ADD_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "courtyard_pots",
+  "title": {
+    "mr": "आईची मडकी",
+    "en": "Mother's Pots"
+  },
+  "summary": {
+    "mr": "आईने मडकी मोजली.",
+    "en": "Mother counted the pots."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "आई अंगणात मडकी ठेवते.",
+        "en": "Mother keeps pots in the courtyard."
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_mother",
+          "slot": "center",
+          "expression": "idle",
+          "enter": "fade_in"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_pots",
+          "slot": "ground_right",
+          "count": 4,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "आईकडे ४ मडकी आहेत. तिला आणखी १ मडके मिळाले. आता किती मडकी?",
+        "en": "Mother has 4 pots. She got 1 more pot. How many pots now?"
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_mother",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_girl",
+          "slot": "center",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_pots",
+          "slot": "ground_right",
+          "count": 5,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 3.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "Q1",
+      "on_correct": {
+        "actor": "char_mother",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_girl",
+        "expression": "encouraging",
+        "play": "head_tilt"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "type": "fill_blanks",
+      "prompt": {
+        "mr": "४ + १ = ?",
+        "en": "4 + 1 = ?"
+      },
+      "options": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "answer": 5,
+      "counts_prop": "prop_pots"
+    }
+  ]
+}

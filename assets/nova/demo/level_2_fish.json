@@ -1,0 +1,115 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_river_002",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "river_fish",
+  "title": {
+    "mr": "नदीतले मासे",
+    "en": "Fish in the River"
+  },
+  "summary": {
+    "mr": "मुलाने मासे मोजले.",
+    "en": "The boy counted the fish."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "मुलगा नदीकाठी आला.",
+        "en": "The boy came to the river bank."
+      },
+      "backdrop": "bg_river_bank",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "पाण्यात मासे पोहतात! किती मासे आहेत?",
+        "en": "Fish swim in the water! How many fish are there?"
+      },
+      "backdrop": "bg_river_bank",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "animal_dog",
+          "slot": "right",
+          "expression": "idle",
+          "loop": "idle_bounce"
+        }
+      ],
+      "props": [
+        {
+          "id": "animal_fish_smiling",
+          "slot": "ground_center",
+          "count": 3,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "point_at",
+          "actor": "char_boy",
+          "play": "point_at"
+        },
+        {
+          "at": 2.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "Q1",
+      "on_correct": {
+        "actor": "char_boy",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_boy",
+        "expression": "surprised",
+        "play": "shake"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "type": "spot_item",
+      "prompt": {
+        "mr": "किती मासे आहेत?",
+        "en": "How many fish are there?"
+      },
+      "options": [
+        2,
+        3,
+        4
+      ],
+      "answer": 3,
+      "counts_prop": "animal_fish_smiling"
+    }
+  ]
+}

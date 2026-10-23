@@ -1,0 +1,717 @@
+{
+  "subject": "math",
+  "grades": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "skills": [
+    {
+      "skill_id": "M1_COUNT_10",
+      "grade": 1,
+      "order": 1,
+      "name": {
+        "en": "Count objects up to 10",
+        "mr": "१० पर्यंत वस्तू मोजणे"
+      },
+      "prerequisites": [],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "range": [
+            1,
+            5
+          ]
+        },
+        {
+          "tier": 2,
+          "range": [
+            1,
+            8
+          ]
+        },
+        {
+          "tier": 3,
+          "range": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M1_NUM_20",
+      "grade": 1,
+      "order": 2,
+      "name": {
+        "en": "Read and write numbers up to 20",
+        "mr": "२० पर्यंत संख्या वाचणे व लिहिणे"
+      },
+      "prerequisites": [
+        "M1_COUNT_10"
+      ],
+      "question_type": "fill_blanks",
+      "tiers": [
+        {
+          "tier": 1,
+          "range": [
+            1,
+            10
+          ]
+        },
+        {
+          "tier": 2,
+          "range": [
+            1,
+            15
+          ]
+        },
+        {
+          "tier": 3,
+          "range": [
+            1,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M1_COMPARE_20",
+      "grade": 1,
+      "order": 3,
+      "name": {
+        "en": "Compare numbers up to 20",
+        "mr": "२० पर्यंत संख्यांची तुलना"
+      },
+      "prerequisites": [
+        "M1_NUM_20"
+      ],
+      "question_type": "spot_item",
+      "tiers": [
+        {
+          "tier": 1,
+          "range": [
+            1,
+            10
+          ]
+        },
+        {
+          "tier": 2,
+          "range": [
+            1,
+            15
+          ]
+        },
+        {
+          "tier": 3,
+          "range": [
+            1,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M1_ADD_10",
+      "grade": 1,
+      "order": 4,
+      "name": {
+        "en": "Add within 10",
+        "mr": "१० च्या आत बेरीज"
+      },
+      "prerequisites": [
+        "M1_COUNT_10"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "max_sum": 5
+        },
+        {
+          "tier": 2,
+          "max_sum": 8
+        },
+        {
+          "tier": 3,
+          "max_sum": 10
+        }
+      ]
+    },
+    {
+      "skill_id": "M1_SUB_10",
+      "grade": 1,
+      "order": 5,
+      "name": {
+        "en": "Subtract within 10",
+        "mr": "१० च्या आत वजाबाकी"
+      },
+      "prerequisites": [
+        "M1_ADD_10"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "minuend_max": 5
+        },
+        {
+          "tier": 2,
+          "minuend_max": 8
+        },
+        {
+          "tier": 3,
+          "minuend_max": 10
+        }
+      ]
+    },
+    {
+      "skill_id": "M1_ADD_20",
+      "grade": 1,
+      "order": 6,
+      "name": {
+        "en": "Add within 20",
+        "mr": "२० च्या आत बेरीज"
+      },
+      "prerequisites": [
+        "M1_ADD_10",
+        "M1_NUM_20"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "max_sum": 15,
+          "carry": false
+        },
+        {
+          "tier": 2,
+          "max_sum": 20,
+          "carry": false
+        },
+        {
+          "tier": 3,
+          "max_sum": 20,
+          "carry": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M2_NUM_100",
+      "grade": 2,
+      "order": 7,
+      "name": {
+        "en": "Numbers up to 100 (tens and ones)",
+        "mr": "१०० पर्यंत संख्या (दशक व एकक)"
+      },
+      "prerequisites": [
+        "M1_NUM_20"
+      ],
+      "question_type": "fill_blanks",
+      "tiers": [
+        {
+          "tier": 1,
+          "range": [
+            1,
+            50
+          ]
+        },
+        {
+          "tier": 2,
+          "range": [
+            1,
+            100
+          ]
+        },
+        {
+          "tier": 3,
+          "range": [
+            1,
+            100
+          ],
+          "place_value": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M2_SKIP_COUNT",
+      "grade": 2,
+      "order": 8,
+      "name": {
+        "en": "Skip counting by 2, 5, 10",
+        "mr": "२, ५, १० च्या उड्या"
+      },
+      "prerequisites": [
+        "M2_NUM_100"
+      ],
+      "question_type": "fill_blanks",
+      "tiers": [
+        {
+          "tier": 1,
+          "steps": [
+            10
+          ]
+        },
+        {
+          "tier": 2,
+          "steps": [
+            5,
+            10
+          ]
+        },
+        {
+          "tier": 3,
+          "steps": [
+            2,
+            5,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M2_ADD_2D",
+      "grade": 2,
+      "order": 9,
+      "name": {
+        "en": "Add two-digit numbers",
+        "mr": "दोन अंकी संख्यांची बेरीज"
+      },
+      "prerequisites": [
+        "M1_ADD_20",
+        "M2_NUM_100"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "digits": 2,
+          "carry": false
+        },
+        {
+          "tier": 2,
+          "digits": 2,
+          "carry": "once"
+        },
+        {
+          "tier": 3,
+          "digits": 2,
+          "carry": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M2_SUB_2D",
+      "grade": 2,
+      "order": 10,
+      "name": {
+        "en": "Subtract two-digit numbers",
+        "mr": "दोन अंकी संख्यांची वजाबाकी"
+      },
+      "prerequisites": [
+        "M1_SUB_10",
+        "M2_NUM_100"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "digits": 2,
+          "borrow": false
+        },
+        {
+          "tier": 2,
+          "digits": 2,
+          "borrow": "once"
+        },
+        {
+          "tier": 3,
+          "digits": 2,
+          "borrow": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M2_MONEY",
+      "grade": 2,
+      "order": 11,
+      "name": {
+        "en": "Money: coins and notes (Rs)",
+        "mr": "पैसे: नाणी व नोटा (रु.)"
+      },
+      "prerequisites": [
+        "M2_ADD_2D"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "max_total": 20
+        },
+        {
+          "tier": 2,
+          "max_total": 50
+        },
+        {
+          "tier": 3,
+          "max_total": 100
+        }
+      ]
+    },
+    {
+      "skill_id": "M3_ADD_3D",
+      "grade": 3,
+      "order": 12,
+      "name": {
+        "en": "Add three-digit numbers",
+        "mr": "तीन अंकी संख्यांची बेरीज"
+      },
+      "prerequisites": [
+        "M2_ADD_2D"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "digits": 3,
+          "carry": false
+        },
+        {
+          "tier": 2,
+          "digits": 3,
+          "carry": "once"
+        },
+        {
+          "tier": 3,
+          "digits": 3,
+          "carry": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M3_SUB_3D",
+      "grade": 3,
+      "order": 13,
+      "name": {
+        "en": "Subtract three-digit numbers",
+        "mr": "तीन अंकी संख्यांची वजाबाकी"
+      },
+      "prerequisites": [
+        "M2_SUB_2D"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "digits": 3,
+          "borrow": false
+        },
+        {
+          "tier": 2,
+          "digits": 3,
+          "borrow": "once"
+        },
+        {
+          "tier": 3,
+          "digits": 3,
+          "borrow": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M3_MUL_TABLES",
+      "grade": 3,
+      "order": 14,
+      "name": {
+        "en": "Multiplication tables",
+        "mr": "गुणाकाराचे पाढे"
+      },
+      "prerequisites": [
+        "M2_SKIP_COUNT"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "tables": [
+            2,
+            5,
+            10
+          ]
+        },
+        {
+          "tier": 2,
+          "tables": [
+            2,
+            3,
+            4,
+            5,
+            10
+          ]
+        },
+        {
+          "tier": 3,
+          "tables": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M3_DIV_BASIC",
+      "grade": 3,
+      "order": 15,
+      "name": {
+        "en": "Division as sharing equally",
+        "mr": "भागाकार: समान वाटणी"
+      },
+      "prerequisites": [
+        "M3_MUL_TABLES"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "divisors": [
+            2,
+            5,
+            10
+          ],
+          "remainder": false
+        },
+        {
+          "tier": 2,
+          "divisors": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "remainder": false
+        },
+        {
+          "tier": 3,
+          "divisors": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "remainder": false
+        }
+      ]
+    },
+    {
+      "skill_id": "M3_FRAC_INTRO",
+      "grade": 3,
+      "order": 16,
+      "name": {
+        "en": "Fractions: half, quarter, third",
+        "mr": "अपूर्णांक: अर्धा, पाव, एक तृतीयांश"
+      },
+      "prerequisites": [
+        "M3_DIV_BASIC"
+      ],
+      "question_type": "match_following",
+      "tiers": [
+        {
+          "tier": 1,
+          "denominators": [
+            2
+          ]
+        },
+        {
+          "tier": 2,
+          "denominators": [
+            2,
+            4
+          ]
+        },
+        {
+          "tier": 3,
+          "denominators": [
+            2,
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "skill_id": "M4_MUL_2DX1D",
+      "grade": 4,
+      "order": 17,
+      "name": {
+        "en": "Multiply 2-digit by 1-digit",
+        "mr": "दोन अंकी × एक अंकी गुणाकार"
+      },
+      "prerequisites": [
+        "M3_MUL_TABLES",
+        "M3_ADD_3D"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "carry": false
+        },
+        {
+          "tier": 2,
+          "carry": "once"
+        },
+        {
+          "tier": 3,
+          "carry": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M4_DIV_LONG",
+      "grade": 4,
+      "order": 18,
+      "name": {
+        "en": "Division with remainder",
+        "mr": "बाकीसह भागाकार"
+      },
+      "prerequisites": [
+        "M3_DIV_BASIC",
+        "M4_MUL_2DX1D"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "dividend_digits": 2,
+          "remainder": false
+        },
+        {
+          "tier": 2,
+          "dividend_digits": 2,
+          "remainder": true
+        },
+        {
+          "tier": 3,
+          "dividend_digits": 3,
+          "remainder": true
+        }
+      ]
+    },
+    {
+      "skill_id": "M4_FRAC_COMPARE",
+      "grade": 4,
+      "order": 19,
+      "name": {
+        "en": "Compare and add like fractions",
+        "mr": "अपूर्णांकांची तुलना व बेरीज"
+      },
+      "prerequisites": [
+        "M3_FRAC_INTRO"
+      ],
+      "question_type": "match_following",
+      "tiers": [
+        {
+          "tier": 1,
+          "denominators": [
+            2,
+            4
+          ],
+          "op": "compare"
+        },
+        {
+          "tier": 2,
+          "denominators": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "op": "compare"
+        },
+        {
+          "tier": 3,
+          "denominators": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            8
+          ],
+          "op": "add_like"
+        }
+      ]
+    },
+    {
+      "skill_id": "M4_PERIMETER",
+      "grade": 4,
+      "order": 20,
+      "name": {
+        "en": "Perimeter of rectangles and squares",
+        "mr": "आयत व चौरसाची परिमिती"
+      },
+      "prerequisites": [
+        "M3_ADD_3D",
+        "M3_MUL_TABLES"
+      ],
+      "question_type": "voice_input",
+      "tiers": [
+        {
+          "tier": 1,
+          "shape": "square",
+          "side_max": 10
+        },
+        {
+          "tier": 2,
+          "shape": "rectangle",
+          "side_max": 10
+        },
+        {
+          "tier": 3,
+          "shape": "rectangle",
+          "side_max": 25
+        }
+      ]
+    },
+    {
+      "skill_id": "M4_TIME",
+      "grade": 4,
+      "order": 21,
+      "name": {
+        "en": "Telling time and duration",
+        "mr": "वेळ व कालावधी"
+      },
+      "prerequisites": [
+        "M2_ADD_2D"
+      ],
+      "question_type": "spot_item",
+      "tiers": [
+        {
+          "tier": 1,
+          "step_min": 60
+        },
+        {
+          "tier": 2,
+          "step_min": 30
+        },
+        {
+          "tier": 3,
+          "step_min": 5
+        }
+      ]
+    }
+  ]
+}

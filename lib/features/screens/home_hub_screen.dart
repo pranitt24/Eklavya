@@ -13,7 +13,7 @@ import '../../core/widgets/nova/nova_robot_mascot.dart';
 import '../../features/duel/duel_lobby_screen.dart';
 import 'package:lottie/lottie.dart';
 import '../../nova_main/demo/demo_controls.dart';
-import '../../nova_main/screens/accessibility/accessibility_settings_screen.dart';
+import '../accessibility/presentation/accessibility_settings_screen.dart';
 import '../../nova_main/services/app_state.dart';
 import 'class_selection_screen.dart';
 import 'level_road_screen.dart';

@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nova/level_v2",
+  "title": "Nova level contract v2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "level_id",
+    "skill_id",
+    "grade",
+    "difficulty_tier",
+    "theme",
+    "title",
+    "summary",
+    "scenes",
+    "questions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "level_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skill_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "grade": {
+      "enum": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "difficulty_tier": {
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    "theme": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "summary": {
+      "$ref": "#/$defs/text"
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/scene"
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/question"
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "object",
+      "required": [
+        "mr",
+        "en"
+      ],
+      "properties": {
+        "mr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "motion": {
+      "enum": [
+        "walk_in_left",
+        "walk_in_right",
+        "slide_in",
+        "pop_in_staggered",
+        "fade_in",
+        "idle_bounce",
+        "jump",
+        "head_tilt",
+        "shake",
+        "wave",
+        "point_at"
+      ]
+    },
+    "expression": {
+      "enum": [
+        "idle",
+        "happy",
+        "curious",
+        "encouraging",
+        "surprised"
+      ]
+    },
+    "scene": {
+      "type": "object",
+      "required": [
+        "scene_id",
+        "text",
+        "backdrop"
+      ],
+      "properties": {
+        "scene_id": {
+          "type": "integer"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "backdrop": {
+          "enum": [
+            "bg_banyan_tree",
+            "bg_cowshed",
+            "bg_farm",
+            "bg_handpump",
+            "bg_house_courtyard",
+            "bg_mango_trees",
+            "bg_market",
+            "bg_river",
+            "bg_river_bank",
+            "bg_school",
+            "bg_temple",
+            "bg_village_overview",
+            "bg_village_road"
+          ]
+        },
+        "actors": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "slot"
+            ],
+            "properties": {
+              "id": {
+                "enum": [
+                  "animal_cow",
+                  "animal_dog",
+                  "char_boy",
+                  "char_father",
+                  "char_girl",
+                  "char_grandfather",
+                  "char_grandmother",
+                  "char_mother",
+                  "char_postman",
+                  "char_shopkeeper"
+                ]
+              },
+              "slot": {
+                "enum": [
+                  "left",
+                  "center",
+                  "right"
+                ]
+              },
+              "expression": {
+                "$ref": "#/$defs/expression"
+              },
+              "enter": {
+                "$ref": "#/$defs/motion"
+              },
+              "loop": {
+                "$ref": "#/$defs/motion"
+              }
+            }
+          }
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "slot"
+            ],
+            "properties": {
+              "id": {
+                "enum": [
+                  "animal_fish_normal",
+                  "animal_fish_smiling",
+                  "animal_parrot_perched",
+                  "animal_sparrow_perched",
+                  "env_banyan_tree",
+                  "env_bus_back",
+                  "env_bus_front",
+                  "env_bus_side",
+                  "env_bus_side2",
+                  "env_bus_side_back",
+                  "env_handpump",
+                  "env_tractor_back",
+                  "env_tractor_front",
+                  "env_tractor_side",
+                  "env_well",
+                  "prop_bench",
+                  "prop_board_marathi",
+                  "prop_bookstand",
+                  "prop_cart",
+                  "prop_coin_gold",
+                  "prop_coins_large",
+                  "prop_coins_medium",
+                  "prop_coins_small",
+                  "prop_globe",
+                  "prop_lantern",
+                  "prop_note_10",
+                  "prop_note_100",
+                  "prop_note_50",
+                  "prop_note_500",
+                  "prop_noticeboard",
+                  "prop_pots"
+                ]
+              },
+              "slot": {
+                "enum": [
+                  "ground_left",
+                  "ground_center",
+                  "ground_right",
+                  "sky",
+                  "hand"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "enter": {
+                "$ref": "#/$defs/motion"
+              }
+            }
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "at",
+              "do"
+            ],
+            "properties": {
+              "at": {
+                "type": "number",
+                "minimum": 0
+              },
+              "do": {
+                "enum": [
+                  "narrate",
+                  "show_question",
+                  "point_at",
+                  "play",
+                  "set_expression"
+                ]
+              },
+              "actor": {
+                "type": "string"
+              },
+              "play": {
+                "$ref": "#/$defs/motion"
+              },
+              "target": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "question_ref": {
+          "type": "string"
+        },
+        "on_correct": {
+          "$ref": "#/$defs/reaction"
+        },
+        "on_wrong": {
+          "$ref": "#/$defs/reaction"
+        }
+      }
+    },
+    "reaction": {
+      "type": "object",
+      "required": [
+        "actor"
+      ],
+      "properties": {
+        "actor": {
+          "type": "string"
+        },
+        "expression": {
+          "$ref": "#/$defs/expression"
+        },
+        "play": {
+          "$ref": "#/$defs/motion"
+        },
+        "sfx": {
+          "enum": [
+            "sfx_cheer",
+            "sfx_oops",
+            "sfx_pop",
+            "sfx_whoosh"
+          ]
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "prompt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "voice_input",
+            "match_following",
+            "spot_item",
+            "fill_blanks"
+          ]
+        },
+        "prompt": {
+          "$ref": "#/$defs/text"
+        },
+        "answer": {},
+        "options": {
+          "type": "array"
+        },
+        "pairs": {
+          "type": "array"
+        },
+        "counts_prop": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

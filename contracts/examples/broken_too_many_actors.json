@@ -1,0 +1,121 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_market_001",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "village_market",
+  "title": {
+    "mr": "मीनाची नाणी",
+    "en": "Meena's Coins"
+  },
+  "summary": {
+    "mr": "मीनाने नाणी मोजायला शिकले.",
+    "en": "Meena learned to count coins."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "मीना आजीसोबत बाजारात आली.",
+        "en": "Meena came to the market with Grandma."
+      },
+      "backdrop": "bg_market",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "encouraging",
+          "enter": "walk_in_right"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "आजीने मीनाला नाणी दिली! किती नाणी आहेत?",
+        "en": "Grandma gave Meena some coins! How many coins are there?"
+      },
+      "backdrop": "bg_market",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left"
+        },
+        {
+          "id": "char_boy",
+          "slot": "center"
+        },
+        {
+          "id": "char_mother",
+          "slot": "right"
+        },
+        {
+          "id": "char_father",
+          "slot": "right"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_coin_gold",
+          "slot": "ground_center",
+          "count": 5,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "point_at",
+          "actor": "char_grandmother",
+          "play": "point_at"
+        },
+        {
+          "at": 3.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "Q1",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging",
+        "play": "head_tilt"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "किती नाणी आहेत?",
+        "en": "How many coins are there?"
+      },
+      "answer": 5,
+      "counts_prop": "prop_coin_gold"
+    }
+  ]
+}

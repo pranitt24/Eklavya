@@ -81,6 +81,13 @@ flutter:
     - assets/Design System/NOVA/
     - assets/Potrait screens/
     - assets/Landscape Story/
+    - assets/nova/manifest.json
+    - assets/nova/backgrounds/
+    - assets/nova/characters/
+    - assets/nova/animals/
+    - assets/nova/props/
+    - assets/nova/environment/
+    - assets/nova/demo/
 
   fonts:
     - family: Baloo 2

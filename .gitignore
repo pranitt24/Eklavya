@@ -3,6 +3,8 @@
 *.log
 *.pyc
 *.swp
+*.zip
+countable_pack/
 .DS_Store
 .atom/
 .build/

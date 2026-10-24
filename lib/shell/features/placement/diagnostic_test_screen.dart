@@ -363,11 +363,14 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: ClipOval(
-                                    child: Image.asset(
-                                      'assets/nova/characters/char_nova_thinking.webp',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (c, e, s) => const Center(
-                                        child: Text('🤖', style: TextStyle(fontSize: 32)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Image.asset(
+                                        'assets/nova/characters/char_nova_thinking.webp',
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (c, e, s) => const Center(
+                                          child: Text('🤖', style: TextStyle(fontSize: 32)),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -528,11 +531,14 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: ClipOval(
-                    child: Image.asset(
-                      'assets/nova/characters/char_nova_happy.webp',
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => const Center(
-                        child: Text('🤖', style: TextStyle(fontSize: 40)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Image.asset(
+                        'assets/nova/characters/char_nova_happy.webp',
+                        fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => const Center(
+                          child: Text('🤖', style: TextStyle(fontSize: 40)),
+                        ),
                       ),
                     ),
                   ),

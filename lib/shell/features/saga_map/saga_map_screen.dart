@@ -469,11 +469,14 @@ class _SagaMapScreenState extends State<SagaMapScreen>
                           ],
                         ),
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/nova/characters/char_nova_waving.webp',
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => const Center(
-                              child: Text('🤖', style: TextStyle(fontSize: 26)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Image.asset(
+                              'assets/nova/characters/char_nova_waving.webp',
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => const Center(
+                                child: Text('🤖', style: TextStyle(fontSize: 26)),
+                              ),
                             ),
                           ),
                         ),
@@ -675,11 +678,14 @@ class _SagaMapScreenState extends State<SagaMapScreen>
               shape: BoxShape.circle,
             ),
             child: ClipOval(
-              child: Image.asset(
-                'assets/nova/characters/char_nova_pointing.webp',
-                fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => const Center(
-                  child: Text('🤖', style: TextStyle(fontSize: 24)),
+              child: Padding(
+                padding: const EdgeInsets.all(3),
+                child: Image.asset(
+                  'assets/nova/characters/char_nova_pointing.webp',
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => const Center(
+                    child: Text('🤖', style: TextStyle(fontSize: 24)),
+                  ),
                 ),
               ),
             ),

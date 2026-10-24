@@ -55,9 +55,11 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     super.initState();
     _lockLandscape();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) NovaTtsService.instance.init(context);
+      if (mounted) {
+        NovaTtsService.instance.init(context);
+        _loadLevelAndAssets();
+      }
     });
-    _loadLevelAndAssets();
   }
 
   @override
@@ -87,18 +89,24 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   }
 
   Future<void> _loadLevelAndAssets() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    final routerExtra = GoRouterState.of(context).extra;
+    Object? routerExtra;
+    try {
+      routerExtra = GoRouterState.of(context).extra;
+    } catch (e) {
+      debugPrint('Note reading GoRouterState extra: $e');
+    }
 
     try {
       final assets = await NovaAssets.load();
       if (!mounted) return;
 
-      // (a) Try router extra or GameState selectedLevelData
+      // (a) Try router extra or GameState selectedLevelData (fastest in-memory path)
       LevelSpec? chosenLevel;
       try {
         if (routerExtra is Map && routerExtra['selectedLevel'] != null) {
@@ -124,7 +132,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
           final prefs = await SharedPreferences.getInstance();
           final studentId = prefs.getInt('current_student_id') ?? UserProfile.instance.studentId;
           if (studentId != null) {
-            final studentLevels = await _levelApi.getStudentLevels(studentId, timeout: const Duration(seconds: 3));
+            final studentLevels = await _levelApi.getStudentLevels(studentId, timeout: const Duration(milliseconds: 1500));
             if (studentLevels.isNotEmpty) {
               final lvlIdx = (GameState.instance.currentLevelIndex - 1).clamp(0, studentLevels.length - 1);
               chosenLevel = LevelSpec.fromJson(studentLevels[lvlIdx]);
@@ -139,7 +147,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
       // (c) Try GET http://127.0.0.1:8000/levels?grade=1 via LevelApi
       if (chosenLevel == null) {
         try {
-          final serverLevels = await _levelApi.listLevels(grade: 1, timeout: const Duration(seconds: 3));
+          final serverLevels = await _levelApi.listLevels(grade: 1, timeout: const Duration(milliseconds: 1500));
           if (serverLevels.isNotEmpty) {
             final randomIndex = Random().nextInt(serverLevels.length);
             chosenLevel = LevelSpec.fromJson(serverLevels[randomIndex]);
@@ -153,13 +161,19 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
       // (d) Fallback to bundled demo levels if server unreachable or empty
       if (chosenLevel == null) {
         debugPrint('Falling back to bundled demo levels...');
-        final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
-        final List<dynamic> demoFiles = jsonDecode(idxString) as List<dynamic>;
-        if (demoFiles.isNotEmpty) {
-          final fileName = demoFiles.first.toString();
-          final jsonString = await rootBundle.loadString('assets/nova/demo/$fileName');
+        try {
+          final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
+          final List<dynamic> demoFiles = jsonDecode(idxString) as List<dynamic>;
+          if (demoFiles.isNotEmpty) {
+            final fileName = demoFiles.first.toString();
+            final jsonString = await rootBundle.loadString('assets/nova/demo/$fileName');
+            chosenLevel = LevelSpec.fromJsonString(jsonString);
+            debugPrint('Loaded fallback demo level: ${chosenLevel.levelId}');
+          }
+        } catch (demoErr) {
+          debugPrint('Demo index load note: $demoErr, trying level_1_coins directly');
+          final jsonString = await rootBundle.loadString('assets/nova/demo/level_1_coins.json');
           chosenLevel = LevelSpec.fromJsonString(jsonString);
-          debugPrint('Loaded fallback demo level: ${chosenLevel.levelId}');
         }
       }
 
@@ -179,6 +193,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
         });
       }
     } catch (e) {
+      debugPrint('LevelPlayerScreen load error: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;

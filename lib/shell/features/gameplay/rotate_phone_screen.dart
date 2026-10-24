@@ -140,45 +140,7 @@ class _RotatePhoneScreenState extends State<RotatePhoneScreen>
                             ),
 
                             // Main 3D Artwork (NOVA holding tablet)
-                            Container(
-                              width: 230,
-                              height: 230,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(28),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  width: 3,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black45,
-                                    blurRadius: 20,
-                                    offset: Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(25),
-                                child: Image.asset(
-                                  'assets/images/screens/screen_5_turn_your_phone_cartoon_full_height_fixed.png',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c, e, s) => Image.asset(
-                                    'assets/screen_5_turn_your_phone_cartoon_full_height_fixed/screen.png',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (c1, e1, s1) => Container(
-                                      color: GameColors.electricPurple,
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.screen_rotation_rounded,
-                                          size: 80,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            _buildTabletIllustration(),
 
                             // Orbiting Dashed Ring with 90° Badge
                             RotationTransition(
@@ -300,6 +262,128 @@ class _RotatePhoneScreenState extends State<RotatePhoneScreen>
                     ],
                   ),
                 ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabletIllustration() {
+    return Container(
+      width: 230,
+      height: 160,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: const Color(0xFF38BDF8),
+          width: 3.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.4),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+          const BoxShadow(
+            color: Colors.black54,
+            blurRadius: 16,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(7),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF0F766E),
+                    Color(0xFF1E1B4B),
+                    Color(0xFF312E81),
+                  ],
+                ),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Positioned(top: 8, left: 14, child: Text('✨', style: TextStyle(fontSize: 14))),
+                  const Positioned(top: 10, right: 18, child: Text('⭐', style: TextStyle(fontSize: 15))),
+                  const Positioned(bottom: 8, left: 18, child: Text('🌿', style: TextStyle(fontSize: 15))),
+                  const Positioned(bottom: 8, right: 18, child: Text('🌸', style: TextStyle(fontSize: 15))),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Image.asset(
+                      'assets/nova/characters/char_nova_waving.webp',
+                      fit: BoxFit.contain,
+                      errorBuilder: (c, e, s) => Image.asset(
+                        'assets/nova/characters/char_nova_standing.webp',
+                        fit: BoxFit.contain,
+                        errorBuilder: (c2, e2, s2) => const Icon(
+                          Icons.smart_toy_rounded,
+                          size: 70,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    bottom: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.stay_primary_landscape_rounded, size: 13, color: GameColors.activeGold),
+                          SizedBox(width: 4),
+                          Text(
+                            'आडवा पडदा',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 1,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 4,
+                height: 4,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF64748B),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),

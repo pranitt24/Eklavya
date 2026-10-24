@@ -305,16 +305,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                               ],
                                             ),
                                             child: ClipOval(
-                                              child: Image.asset(
-                                                'assets/nova/characters/char_nova_waving.webp',
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (c, e, s) => Image.asset(
-                                                  'assets/nova/characters/char_nova_standing.webp',
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (c2, e2, s2) => const Icon(
-                                                    Icons.smart_toy_rounded,
-                                                    size: 70,
-                                                    color: GameColors.robotBlue,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(6),
+                                                child: Image.asset(
+                                                  'assets/nova/characters/char_nova_waving.webp',
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (c, e, s) => Image.asset(
+                                                    'assets/nova/characters/char_nova_standing.webp',
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder: (c2, e2, s2) => const Icon(
+                                                      Icons.smart_toy_rounded,
+                                                      size: 70,
+                                                      color: GameColors.robotBlue,
+                                                    ),
                                                   ),
                                                 ),
                                               ),

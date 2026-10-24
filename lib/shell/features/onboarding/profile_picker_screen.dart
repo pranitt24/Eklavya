@@ -201,11 +201,14 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/nova/characters/char_nova_standing.webp',
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => const Center(
-                              child: Text('🤖', style: TextStyle(fontSize: 24)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Image.asset(
+                              'assets/nova/characters/char_nova_standing.webp',
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => const Center(
+                                child: Text('🤖', style: TextStyle(fontSize: 24)),
+                              ),
                             ),
                           ),
                         ),
@@ -309,11 +312,14 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
                           border: Border.all(color: GameColors.robotBlue, width: 2),
                         ),
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/nova/characters/char_nova_happy.webp',
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => const Center(
-                              child: Text('👦🏽', style: TextStyle(fontSize: 26)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Image.asset(
+                              'assets/nova/characters/char_nova_happy.webp',
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => const Center(
+                                child: Text('👦🏽', style: TextStyle(fontSize: 26)),
+                              ),
                             ),
                           ),
                         ),

@@ -18,10 +18,12 @@ import '../../../features/voice_engine/voice_answer_matcher.dart';
 import '../../core/audio/sound_service.dart';
 import '../../theme.dart';
 
-/// LevelPlayerScreen: Boots a real level from backend or demo fallback,
-/// locks landscape orientation, plays with the scene renderer, provides
-/// Marathi TTS + SpeechToText with a large tap fallback, and navigates
-/// to /celebration upon success.
+/// LevelPlayerScreen: Multi-task story level player:
+/// 1. Plays all scenes in order (intro -> 3 question scenes -> wrap scene).
+/// 2. Narrates scene text, shows questions, accepts voice or tap fallback.
+/// 3. Wrong answer allows child to retry once before revealing answer.
+/// 4. Counts correct answers across all questions.
+/// 5. Only after the final scene completes does it navigate to /celebration.
 class LevelPlayerScreen extends StatefulWidget {
   const LevelPlayerScreen({super.key});
 
@@ -32,13 +34,19 @@ class LevelPlayerScreen extends StatefulWidget {
 class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   final LevelApi _levelApi = LevelApi();
   final FlutterTts _flutterTts = FlutterTts();
+  final String _language = 'mr';
 
   LevelSpec? _level;
   NovaAssets? _assets;
-  final String _language = 'mr';
   bool _isLoading = true;
   String? _errorMessage;
   bool _navigatingToCelebration = false;
+
+  // Multi-task story answer tracking
+  int _correctCount = 0;
+  int _totalQuestions = 0;
+  final Set<String> _attemptedQuestions = <String>{};
+  final Set<String> _correctQuestions = <String>{};
 
   @override
   void initState() {
@@ -72,8 +80,9 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   Future<void> _initTts() async {
     try {
       await _flutterTts.setLanguage('mr-IN');
-      await _flutterTts.setSpeechRate(0.45);
+      await _flutterTts.setSpeechRate(0.40);
       await _flutterTts.setVolume(1.0);
+      await _flutterTts.awaitSpeakCompletion(true);
     } catch (e) {
       debugPrint('TTS init error: $e');
     }
@@ -95,7 +104,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
         if (serverLevels.isNotEmpty) {
           final randomIndex = Random().nextInt(serverLevels.length);
           chosenLevel = LevelSpec.fromJson(serverLevels[randomIndex]);
-          debugPrint('Loaded level from server: ${chosenLevel.levelId}');
+          debugPrint('Loaded level from server: ${chosenLevel.levelId} (${chosenLevel.scenes.length} scenes, ${chosenLevel.questions.length} questions)');
         }
       } catch (netErr) {
         debugPrint('Backend server unreachable or error: $netErr');
@@ -107,7 +116,6 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
         final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
         final List<dynamic> demoFiles = jsonDecode(idxString) as List<dynamic>;
         if (demoFiles.isNotEmpty) {
-          // Level 1 has a counting voice_input question
           final fileName = demoFiles.first.toString();
           final jsonString = await rootBundle.loadString('assets/nova/demo/$fileName');
           chosenLevel = LevelSpec.fromJsonString(jsonString);
@@ -123,6 +131,10 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
         setState(() {
           _assets = assets;
           _level = chosenLevel;
+          _totalQuestions = chosenLevel?.questions.length ?? 0;
+          _correctCount = 0;
+          _attemptedQuestions.clear();
+          _correctQuestions.clear();
           _isLoading = false;
         });
       }
@@ -158,41 +170,56 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
 
   void _onAnswer(String questionId, bool correct, int responseMs) {
     debugPrint('LevelPlayer onAnswer: $questionId, correct=$correct in ${responseMs}ms');
+    _attemptedQuestions.add(questionId);
+
     if (correct) {
+      if (!_correctQuestions.contains(questionId)) {
+        _correctQuestions.add(questionId);
+        setState(() => _correctCount++);
+      }
       SoundService.instance.playDingChime();
       Confetti.launch(
         context,
         options: const ConfettiOptions(
-          particleCount: 90,
-          spread: 85,
+          particleCount: 85,
+          spread: 80,
           y: 0.5,
         ),
       );
-
-      // (e) after a correct answer go to /celebration (context.go)
-      if (!_navigatingToCelebration) {
-        _navigatingToCelebration = true;
-        Future.delayed(const Duration(milliseconds: 1700), () {
-          if (mounted) {
-            context.go('/celebration');
-          }
-        });
-      }
+      // In multi-task stories, answering one question does NOT navigate to celebration.
+      // The scene reaction plays, then LevelPlayer advances to the next scene.
     } else {
       SoundService.instance.playBoingBloop();
     }
   }
 
   void _onFinished() {
-    debugPrint('LevelPlayer onFinished');
-    if (!_navigatingToCelebration) {
-      _navigatingToCelebration = true;
-      context.go('/celebration');
-    }
+    debugPrint('LevelPlayer onFinished: $_correctCount / $_totalQuestions correct');
+    if (_navigatingToCelebration) return;
+    _navigatingToCelebration = true;
+
+    final total = _totalQuestions > 0 ? _totalQuestions : 3;
+    final earnedStars = (_correctCount == total)
+        ? 3
+        : (_correctCount >= (total / 2.0).ceil())
+            ? 2
+            : 1;
+    final coins = _correctCount * 20;
+
+    // Only after the final scene go to /celebration
+    context.go(
+      '/celebration',
+      extra: {
+        'completedLevelNumber': 1,
+        'earnedStars': earnedStars,
+        'coinsAwarded': coins,
+      },
+    );
   }
 
   Widget _buildVoiceQuestion(QuestionSpec q, String lang, void Function(bool correct) submit) {
     return _VoiceWithTapFallbackWidget(
+      key: ValueKey<String>(q.id),
       question: q,
       lang: lang,
       flutterTts: _flutterTts,
@@ -220,7 +247,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
               const CircularProgressIndicator(color: GameColors.activeGold),
               const SizedBox(height: 20),
               Text(
-                'खेळ सुरू होत आहे... ✨\nLoading Story Level...',
+                'गोष्ट सुरू होत आहे... ✨\nLoading Multi-task Story...',
                 textAlign: TextAlign.center,
                 style: GameTypography.marathiHeadingLarge(color: Colors.white).copyWith(fontSize: 22),
               ),
@@ -298,28 +325,54 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
               voiceBuilder: _buildVoiceQuestion,
             ),
 
-            // Top HUD Overlay: Back to Saga Map & Language Switch
+            // Top HUD Overlay: Back to Saga Map & Score Badge
             Positioned(
               top: 8,
               left: 12,
-              child: GestureDetector(
-                onTap: _exitToSagaMap,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: Colors.white24, width: 1.5),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: _exitToSagaMap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white24, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                          SizedBox(width: 4),
+                          Text('नकाशा', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 4),
-                      Text('नकाशा', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
+                  if (_totalQuestions > 0) ...[
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: GameColors.sunflowerGold.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('⭐', style: TextStyle(fontSize: 14)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$_correctCount / $_totalQuestions',
+                            style: const TextStyle(color: Color(0xFF3E2723), fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
@@ -343,7 +396,7 @@ List<int> _buildNumberOptions(int answer) {
 }
 
 /// Rich interactive question asking widget with Marathi Speech-to-Text,
-/// TTS prompt repeat button, and prominent tap fallback buttons.
+/// TTS prompt repeat button, retry on 1st wrong attempt, and prominent tap fallback buttons.
 class _VoiceWithTapFallbackWidget extends StatefulWidget {
   final QuestionSpec question;
   final String lang;
@@ -351,6 +404,7 @@ class _VoiceWithTapFallbackWidget extends StatefulWidget {
   final void Function(bool correct) onSubmit;
 
   const _VoiceWithTapFallbackWidget({
+    super.key,
     required this.question,
     required this.lang,
     required this.flutterTts,
@@ -368,7 +422,10 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
   bool _isListening = false;
   String _recognizedWords = '';
   String? _sttError;
+
+  int _wrongAttempts = 0;
   bool _submitted = false;
+  String? _feedbackMessage;
 
   late final AnimationController _pulseController;
   late final Animation<double> _pulseScale;
@@ -450,7 +507,6 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
     });
 
     try {
-      // Find Marathi locale if available, else default
       String? targetLocale = 'mr_IN';
       try {
         final locales = await _speech.locales();
@@ -473,7 +529,6 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
             _speech.stop();
             _handleSubmit(true);
           } else if (result.finalResult && words.isNotEmpty) {
-            // Evaluated false on final result
             _speech.stop();
             _handleSubmit(false);
           }
@@ -489,9 +544,31 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
 
   void _handleSubmit(bool correct) {
     if (_submitted) return;
-    _submitted = true;
     _speech.stop();
-    widget.onSubmit(correct);
+
+    if (correct) {
+      _submitted = true;
+      setState(() {
+        _feedbackMessage = 'बरोबर उत्तर! 🌟 (Correct!)';
+      });
+      widget.onSubmit(true);
+    } else {
+      _wrongAttempts++;
+      if (_wrongAttempts == 1) {
+        // First wrong answer: allow child to retry once!
+        setState(() {
+          _feedbackMessage = 'चुकीचे उत्तर. पुन्हा प्रयत्न करा! 🔄 (Try again!)';
+        });
+        widget.onSubmit(false);
+      } else {
+        // Second wrong answer: moves on
+        _submitted = true;
+        setState(() {
+          _feedbackMessage = 'योग्य उत्तर पुढे दाखवले आहे...';
+        });
+        widget.onSubmit(false);
+      }
+    }
   }
 
   @override
@@ -538,6 +615,19 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
             ),
           ],
         ),
+
+        if (_feedbackMessage != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            _feedbackMessage!,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: _wrongAttempts == 1 ? Colors.orange.shade800 : Colors.green.shade800,
+              fontFamilyFallback: kNovaFontFallback,
+            ),
+          ),
+        ],
 
         const SizedBox(height: 10),
 

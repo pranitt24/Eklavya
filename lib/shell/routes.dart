@@ -94,14 +94,20 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/celebration',
       name: 'celebration',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const CelebrationScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: CelebrationScreen(
+            completedLevelNumber: extra?['completedLevelNumber'] ?? 1,
+            earnedStars: extra?['earnedStars'] ?? 3,
+            coinsAwarded: extra?['coinsAwarded'] ?? 50,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        );
+      },
     ),
   ],
 );
-

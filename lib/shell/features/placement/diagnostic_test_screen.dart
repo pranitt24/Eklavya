@@ -1,45 +1,23 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/services/level_api.dart';
+import '../../../core/services/nova_tts_service.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/models/level_progress.dart';
+import '../../core/models/user_profile.dart';
 import '../../core/widgets/celebration_overlay.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
 
-class DiagnosticQuestion {
-  final int questionNumber;
-  final String marathiPrompt;
-  final String englishPrompt;
-  final String visualEmoji;
-  final String visualDescription;
-  final List<DiagnosticOption> options;
-  final int correctOptionIndex;
-
-  const DiagnosticQuestion({
-    required this.questionNumber,
-    required this.marathiPrompt,
-    required this.englishPrompt,
-    required this.visualEmoji,
-    required this.visualDescription,
-    required this.options,
-    required this.correctOptionIndex,
-  });
-}
-
-class DiagnosticOption {
-  final String emoji;
-  final String titleMarathi;
-  final String titleEnglish;
-
-  const DiagnosticOption({
-    required this.emoji,
-    required this.titleMarathi,
-    required this.titleEnglish,
-  });
-}
-
-/// DiagnosticTestScreen: Adaptive placement quiz with 3 interactive questions,
-/// custom 3D placeholder database wireframe card, and automatic placement to Level 4.
+/// DiagnosticTestScreen (Placement Test):
+/// 1. Fetches 5 questions from GET /duel/questions
+/// 2. Nova asks each question (spoken in Marathi TTS).
+/// 3. Child taps an option card, tracking correct answers.
+/// 4. On finish, calls POST /students/:id/placement {correct, total}.
+/// 5. Shows celebration popup and assigned starting level, then opens /saga-map.
 class DiagnosticTestScreen extends StatefulWidget {
   const DiagnosticTestScreen({super.key});
 
@@ -47,131 +25,243 @@ class DiagnosticTestScreen extends StatefulWidget {
   State<DiagnosticTestScreen> createState() => _DiagnosticTestScreenState();
 }
 
-class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
-    with SingleTickerProviderStateMixin {
+class _DiagnosticTestScreenState extends State<DiagnosticTestScreen> {
+  final LevelApi _levelApi = LevelApi();
+
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _questions = [];
   int _currentQuestionIndex = 0;
-  int? _selectedOptionIndex;
-  bool _isAnswerCorrect = false;
-  int _starsEarned = 0;
-  bool _showPlacementDialog = false;
+  dynamic _selectedOption;
+  int _correctCount = 0;
 
-  final List<DiagnosticQuestion> _questions = const [
-    DiagnosticQuestion(
-      questionNumber: 1,
-      marathiPrompt: '३ कोपरे असणारा आकार कोणता? 🤔',
-      englishPrompt: 'Which shape has 3 corners?',
-      visualEmoji: '📐',
-      visualDescription: 'आकार ओळखा: ३ बाजू आणि ३ टोकदार कोपरे',
-      options: [
-        DiagnosticOption(
-          emoji: '🔺',
-          titleMarathi: 'त्रिकोण',
-          titleEnglish: 'Triangle',
-        ),
-        DiagnosticOption(
-          emoji: '🟦',
-          titleMarathi: 'चौकोन',
-          titleEnglish: 'Square',
-        ),
-        DiagnosticOption(
-          emoji: '🔴',
-          titleMarathi: 'वर्तुळ',
-          titleEnglish: 'Circle',
-        ),
-      ],
-      correctOptionIndex: 0,
-    ),
-    DiagnosticQuestion(
-      questionNumber: 2,
-      marathiPrompt: '१२ मासे + ३ मासे = किती? 🐟',
-      englishPrompt: '12 Fish + 3 Fish = How many?',
-      visualEmoji: '🌊',
-      visualDescription: 'नदीतील मासे मोजा: १२ + ३ = ?',
-      options: [
-        DiagnosticOption(
-          emoji: '🐟',
-          titleMarathi: '१४ मासे',
-          titleEnglish: '14 Fish',
-        ),
-        DiagnosticOption(
-          emoji: '🐟',
-          titleMarathi: '१५ मासे',
-          titleEnglish: '15 Fish',
-        ),
-        DiagnosticOption(
-          emoji: '🐟',
-          titleMarathi: '१६ मासे',
-          titleEnglish: '16 Fish',
-        ),
-      ],
-      correctOptionIndex: 1,
-    ),
-    DiagnosticQuestion(
-      questionNumber: 3,
-      marathiPrompt: 'पाण्यात न राहणारी वस्तू कोणती? 🌊',
-      englishPrompt: 'Which one does NOT belong in water?',
-      visualEmoji: '🏞️',
-      visualDescription: 'नदीकाठचा परिसर: प्राणी व वस्तू ओळखा',
-      options: [
-        DiagnosticOption(
-          emoji: '🐸',
-          titleMarathi: 'बेडूक',
-          titleEnglish: 'Frog',
-        ),
-        DiagnosticOption(
-          emoji: '🦆',
-          titleMarathi: 'बदक',
-          titleEnglish: 'Duck',
-        ),
-        DiagnosticOption(
-          emoji: '🪁',
-          titleMarathi: 'पतंग',
-          titleEnglish: 'Kite',
-        ),
-      ],
-      correctOptionIndex: 2,
-    ),
-  ];
+  bool _showPlacementModal = false;
+  int _assignedLevel = 1;
+  int _assignedGrade = 1;
 
-  DiagnosticQuestion get _currentQuestion => _questions[_currentQuestionIndex];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) NovaTtsService.instance.init(context);
+    });
+    _loadQuestions();
+  }
 
-  void _handleOptionSelect(int index) {
-    if (_selectedOptionIndex != null) return; // Prevent double tap
+  @override
+  void dispose() {
+    NovaTtsService.instance.stop();
+    super.dispose();
+  }
 
-    final isCorrect = index == _currentQuestion.correctOptionIndex;
+  Future<void> _loadQuestions() async {
+    setState(() => _isLoading = true);
+
+    final prefs = await SharedPreferences.getInstance();
+    final age = prefs.getInt('student_age') ?? UserProfile.instance.age;
+    final grade = (age - 5).clamp(1, 4);
+    final seed = Random().nextInt(10000) + 1;
+
+    List<Map<String, dynamic>> questions = [];
+    try {
+      questions = await _levelApi.getDuelQuestions(
+        seed: seed,
+        n: 5,
+        grade: grade,
+        timeout: const Duration(seconds: 4),
+      );
+    } catch (_) {}
+
+    if (questions.isEmpty) {
+      questions = _generateFallbackQuestions(grade, seed);
+    }
+
+    if (mounted) {
+      setState(() {
+        _questions = questions;
+        _isLoading = false;
+        _currentQuestionIndex = 0;
+        _correctCount = 0;
+        _selectedOption = null;
+      });
+      _speakCurrentQuestion();
+    }
+  }
+
+  List<Map<String, dynamic>> _generateFallbackQuestions(int grade, int seed) {
+    final rng = Random(seed);
+    final out = <Map<String, dynamic>>[];
+    for (int i = 0; i < 5; i++) {
+      final a = rng.nextInt(grade * 5) + 2;
+      final b = rng.nextInt(grade * 4) + 1;
+      final isSub = (grade >= 2 && rng.nextBool() && a >= b);
+      final ans = isSub ? a - b : a + b;
+      final sym = isSub ? '-' : '+';
+      final expr = '$a $sym $b = ?';
+      final opts = <int>{ans};
+      while (opts.length < 4) {
+        final delta = rng.nextInt(7) - 3;
+        if (delta != 0 && ans + delta >= 0) opts.add(ans + delta);
+      }
+      final optList = opts.toList()..shuffle(rng);
+      out.add({
+        'id': 'd${i + 1}',
+        'type': 'fill_blanks',
+        'prompt': {'mr': expr, 'en': expr},
+        'options': optList,
+        'answer': ans,
+      });
+    }
+    return out;
+  }
+
+  String _toMarathiDigits(String input) {
+    const map = {
+      '0': '०', '1': '१', '2': '२', '3': '३', '4': '४',
+      '5': '५', '6': '६', '7': '७', '8': '८', '9': '९',
+    };
+    var res = input;
+    map.forEach((en, mr) {
+      res = res.replaceAll(en, mr);
+    });
+    return res;
+  }
+
+  String _toMarathiSpokenMath(String expr) {
+    var spoken = expr
+        .replaceAll('+', ' अधिक ')
+        .replaceAll('-', ' वजा ')
+        .replaceAll('×', ' गुणिले ')
+        .replaceAll('*', ' गुणिले ')
+        .replaceAll('=', ' बरोबर ')
+        .replaceAll('?', ' किती ');
+    return _toMarathiDigits(spoken);
+  }
+
+  void _speakCurrentQuestion() {
+    if (_questions.isEmpty || _currentQuestionIndex >= _questions.length) return;
+    final q = _questions[_currentQuestionIndex];
+    final prompt = (q['prompt'] is Map ? q['prompt']['mr'] : q['prompt']).toString();
+    final spoken = _toMarathiSpokenMath(prompt);
+    NovaTtsService.instance.speak(spoken);
+  }
+
+  Future<void> _handleOptionSelected(dynamic option) async {
+    if (_selectedOption != null) return; // Prevent double tap
+
+    NovaTtsService.instance.stop();
+
+    final q = _questions[_currentQuestionIndex];
+    final correctAnswer = q['answer'];
+    final isCorrect = option.toString() == correctAnswer.toString();
+
     setState(() {
-      _selectedOptionIndex = index;
-      _isAnswerCorrect = isCorrect;
+      _selectedOption = option;
+      if (isCorrect) _correctCount++;
     });
 
     if (isCorrect) {
       CelebrationOverlay.show(context, type: CelebrationType.correctAnswer);
       GameState.instance.addCoins(10);
-      setState(() => _starsEarned++);
     } else {
       SoundService.instance.playBoingBloop();
     }
 
-    // Move to next question or complete quiz
-    Future.delayed(const Duration(milliseconds: 1100), () {
+    Future.delayed(const Duration(milliseconds: 1200), () async {
       if (!mounted) return;
       if (_currentQuestionIndex < _questions.length - 1) {
         setState(() {
           _currentQuestionIndex++;
-          _selectedOptionIndex = null;
-          _isAnswerCorrect = false;
+          _selectedOption = null;
         });
+        _speakCurrentQuestion();
       } else {
-        // Complete Diagnostic Test
-        CelebrationOverlay.show(context, type: CelebrationType.placementComplete);
-        GameState.instance.completeDiagnosticPlacement();
-        setState(() => _showPlacementDialog = true);
+        await _completePlacementTest();
       }
     });
   }
 
+  Future<void> _completePlacementTest() async {
+    final prefs = await SharedPreferences.getInstance();
+    final studentId = prefs.getInt('current_student_id') ?? UserProfile.instance.studentId;
+
+    int grade = 1;
+    int tier = 1;
+
+    if (studentId != null) {
+      try {
+        final res = await _levelApi.recordPlacement(
+          studentId,
+          correct: _correctCount,
+          total: _questions.length,
+        );
+        if (res != null) {
+          grade = (res['grade'] as int?) ?? 1;
+          tier = (res['tier'] as int?) ?? 1;
+        }
+      } catch (e) {
+        debugPrint('Placement record network fallback: $e');
+      }
+    } else {
+      // Local placement logic
+      final age = prefs.getInt('student_age') ?? UserProfile.instance.age;
+      final base = (age - 5).clamp(1, 4);
+      final ratio = _correctCount / _questions.length;
+      grade = ratio < 0.4 ? (base - 1).clamp(1, 4) : ratio >= 0.75 ? (base + 1).clamp(1, 4) : base;
+      tier = ratio >= 0.75 ? 2 : 1;
+    }
+
+    final startingLevel = ((grade - 1) * 2 + tier).clamp(1, 7);
+
+    await prefs.setInt('student_grade', grade);
+    await prefs.setInt('student_tier', tier);
+    await prefs.setInt('assigned_starting_level', startingLevel);
+
+    UserProfile.instance.setGrade(grade);
+    GameState.instance.completeDiagnosticPlacement();
+
+    if (mounted) {
+      CelebrationOverlay.show(context, type: CelebrationType.placementComplete);
+      setState(() {
+        _assignedGrade = grade;
+        _assignedLevel = startingLevel;
+        _showPlacementModal = true;
+      });
+    }
+  }
+
+  void _proceedToSagaMap() {
+    SoundService.instance.playPopClick();
+    context.go('/saga-map');
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF0F172A),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: GameColors.activeGold),
+              const SizedBox(height: 16),
+              Text(
+                'चाचणी तयार होत आहे... ✨\nLoading Placement Questions...',
+                textAlign: TextAlign.center,
+                style: GameTypography.marathiHeadingLarge(color: Colors.white).copyWith(fontSize: 20),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final q = _questions[_currentQuestionIndex];
+    final rawPrompt = (q['prompt'] is Map ? q['prompt']['mr'] : q['prompt']).toString();
+    final promptMarathi = _toMarathiDigits(rawPrompt);
+    final options = (q['options'] as List<dynamic>?) ?? [];
+    final correctAnswer = q['answer'];
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -182,439 +272,233 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
         ),
         child: Stack(
           children: [
-
-          SafeArea(
-            child: Column(
-              children: [
-                // Top HUD Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Exit / Back Button
-                      GestureDetector(
-                        onTap: () => context.go('/profile-picker'),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: GameColors.cardBorderLavender,
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: GameColors.inkGrape.withValues(alpha: 0.1),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.close_rounded,
-                            color: GameColors.electricPurple,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-
-                      // 3 Glowing Toy Star Slots
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: GameColors.activeGoldDark,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: GameColors.activeGoldDark.withValues(alpha: 0.2),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(3, (starIndex) {
-                            final isEarned = starIndex < _starsEarned;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 3),
-                              child: Text(
-                                isEarned ? '⭐' : '☆',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: isEarned
-                                      ? GameColors.activeGoldDark
-                                      : Colors.grey,
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-
-                      // Question Step Badge & Coins
-                      HudPillChip(
-                        icon: const Text('🪙', style: TextStyle(fontSize: 18)),
-                        label: '${GameState.instance.coins}',
-                        sublabel: 'प्रश्न ${_currentQuestionIndex + 1}/३',
-                        backgroundColor: GameColors.canvasCream,
-                        borderColor: GameColors.cardBorderAmber,
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Main Interactive Area
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+            SafeArea(
+              child: Column(
+                children: [
+                  // Top HUD Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const SizedBox(height: 6),
+                        // Exit Button
+                        GestureDetector(
+                          onTap: () => context.go('/profile-picker'),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: GameColors.cardBorderLavender, width: 2),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+                              ],
+                            ),
+                            child: const Icon(Icons.close_rounded, color: GameColors.electricPurple, size: 24),
+                          ),
+                        ),
 
-                        // NOVA Speech Prompt Card
+                        // Question Progress Tracker
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: GameColors.cardBorderLavender,
-                              width: 2.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: GameColors.electricPurple.withValues(alpha: 0.08),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: GameColors.activeGoldDark, width: 2),
                           ),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              // 3D NOVA Avatar
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFE0F2FE),
-                                  shape: BoxShape.circle,
+                              Text(
+                                'प्रश्न ${_toMarathiDigits('${_currentQuestionIndex + 1}')} / ${_toMarathiDigits('${_questions.length}')}',
+                                style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text('⭐', style: TextStyle(fontSize: 18)),
+                              const SizedBox(width: 4),
+                              Text(
+                                '$_correctCount',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: GameColors.inkGrape),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Main Content
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 8),
+
+                          // Nova Question Card
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: GameColors.cardBorderLavender, width: 2.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: GameColors.electricPurple.withValues(alpha: 0.1),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
                                 ),
-                                child: ClipOval(
-                                  child: Image.asset(
-                                    'assets/nova/characters/char_nova_thinking.webp',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (c, e, s) =>
-                                        Image.asset(
-                                      'assets/full_body_3d_pixar_style_cute_friendly_chubby_blue_robot_character_named_nova/screen.png',
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                // Nova Thinking Mascot
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFE0F2FE),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      'assets/nova/characters/char_nova_thinking.webp',
                                       fit: BoxFit.cover,
-                                      errorBuilder: (c1, e1, s1) => const Icon(
-                                        Icons.android_rounded,
-                                        color: GameColors.robotBlue,
-                                        size: 32,
+                                      errorBuilder: (c, e, s) => const Center(
+                                        child: Text('🤖', style: TextStyle(fontSize: 32)),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
+                                const SizedBox(width: 14),
 
-                              // Prompt Question
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _currentQuestion.marathiPrompt,
-                                      style: GameTypography.headline(
-                                        color: GameColors.inkGrape,
-                                      ).copyWith(fontSize: 18, height: 1.2),
+                                // Question Prompt Text
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        promptMarathi,
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: GameColors.electricPurple,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'उत्तर शोधा आणि योग्य पर्याय निवडा',
+                                        style: GameTypography.buttonSublabel(color: GameColors.inkMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Speaker Button to re-listen
+                                IconButton(
+                                  onPressed: () {
+                                    SoundService.instance.playPopClick();
+                                    _speakCurrentQuestion();
+                                  },
+                                  icon: const Icon(Icons.volume_up_rounded, color: GameColors.electricPurple, size: 28),
+                                  tooltip: 'पुन्हा ऐका (Listen again)',
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // 4 Tap-friendly Options
+                          Expanded(
+                            child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 14,
+                                childAspectRatio: 1.25,
+                              ),
+                              itemCount: options.length,
+                              itemBuilder: (context, idx) {
+                                final opt = options[idx];
+                                final isSelected = _selectedOption == opt;
+                                final isCorrect = opt.toString() == correctAnswer.toString();
+
+                                Color bgColor = Colors.white;
+                                Color borderColor = GameColors.cardBorderLavender;
+                                if (isSelected) {
+                                  bgColor = isCorrect ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2);
+                                  borderColor = isCorrect ? GameColors.emeraldGrass : GameColors.coralRed;
+                                }
+
+                                return GestureDetector(
+                                  onTap: () => _handleOptionSelected(opt),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    decoration: BoxDecoration(
+                                      color: bgColor,
+                                      borderRadius: BorderRadius.circular(22),
+                                      border: Border.all(color: borderColor, width: isSelected ? 3.5 : 2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: GameColors.inkGrape.withValues(alpha: 0.08),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _currentQuestion.englishPrompt,
-                                      style: GameTypography.buttonSublabel(
-                                        color: GameColors.inkMuted,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            _toMarathiDigits(opt.toString()),
+                                            style: const TextStyle(
+                                              fontSize: 34,
+                                              fontWeight: FontWeight.bold,
+                                              color: GameColors.inkGrape,
+                                            ),
+                                          ),
+                                          if (isSelected)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Icon(
+                                                isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                                                color: isCorrect ? GameColors.emeraldGrass : GameColors.coralRed,
+                                                size: 24,
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-
-                              // Speaker Tap Button
-                              SpeakerButton(
-                                size: 44,
-                                color: GameColors.activeGold,
-                                onPlay: () {
-                                  SoundService.instance.playDingChime();
-                                },
-                              ),
-                            ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // REUSABLE 3D PLACEHOLDER DATABASE WIREFRAME CARD
-                        _buildPlaceholderWireframeCard(_currentQuestion),
-
-                        const SizedBox(height: 14),
-
-                        // 3 CHUNKY INTERACTIVE SELECTION OPTIONS
-                        ...List.generate(
-                          _currentQuestion.options.length,
-                          (index) => _buildOptionCard(
-                            option: _currentQuestion.options[index],
-                            index: index,
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // CELEBRATION & AUTO-PLACEMENT DIALOG
-          if (_showPlacementDialog) _buildPlacementModal(context),
-        ],
-      ),
-    ),
-  );
-}
-
-  /// Reusable 3D Skeuomorphic Toy Container Frame matching
-  /// majhe_gaon_reusable_ui_placeholder_asset_component
-  Widget _buildPlaceholderWireframeCard(DiagnosticQuestion question) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF8B5CF6),
-            Color(0xFF6D28D9),
-            Color(0xFF4C1D95),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3B0764).withValues(alpha: 0.5),
-            offset: const Offset(0, 6),
-          ),
-          BoxShadow(
-            color: const Color(0xFF4C1D95).withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Container(
-        // Inner Gold Bevel Ring
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFDE047),
-              Color(0xFFF59E0B),
-              Color(0xFFD97706),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(26),
-        ),
-        padding: const EdgeInsets.all(5),
-        child: Container(
-          // Cream Slab Surface
-          decoration: BoxDecoration(
-            color: const Color(0xFFFAF5FF),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            children: [
-              // Header Tag (Dynamic DB Wireframe Slot)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: GameColors.purpleContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'चित्र / कृती • QUESTION CARD',
-                      style: GameTypography.buttonSublabel(
-                        color: GameColors.electricPurple,
-                      ).copyWith(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  const Text('✨', style: TextStyle(fontSize: 16)),
                 ],
               ),
-              const SizedBox(height: 10),
+            ),
 
-              // Dashed Inner Drop Slot (Visual Graphic for current question)
-              Container(
-                height: 120,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: const Color(0xFFA78BFA),
-                    width: 2,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        question.visualEmoji,
-                        style: const TextStyle(fontSize: 48),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        question.visualDescription,
-                        style: GameTypography.bodyMedium(
-                          color: GameColors.inkGrape,
-                        ).copyWith(fontWeight: FontWeight.w700),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            // Placement Result Modal Overlay
+            if (_showPlacementModal) _buildPlacementModal(context),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildOptionCard({
-    required DiagnosticOption option,
-    required int index,
-  }) {
-    final isSelected = _selectedOptionIndex == index;
-    final isCorrectOption = index == _currentQuestion.correctOptionIndex;
-
-    Color cardBg = Colors.white;
-    Color borderColor = GameColors.cardBorderLavender;
-    Color bevelColor = const Color(0xFFDDD6FE);
-
-    if (isSelected) {
-      if (_isAnswerCorrect) {
-        cardBg = const Color(0xFFDCFCE7); // Emerald success green
-        borderColor = GameColors.emeraldGrass;
-        bevelColor = GameColors.emeraldGrassDark;
-      } else {
-        cardBg = const Color(0xFFFFE4E6); // Rose wrong color
-        borderColor = Colors.redAccent;
-        bevelColor = Colors.red.shade700;
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: GestureDetector(
-        onTap: () => _handleOptionSelect(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 72,
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor, width: isSelected ? 3.0 : 2.0),
-            boxShadow: [
-              BoxShadow(
-                color: bevelColor,
-                offset: Offset(0, isSelected ? 2 : 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              // Icon Badge
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: GameColors.canvasCream,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: GameColors.cardBorderAmber, width: 2),
-                ),
-                child: Center(
-                  child: Text(
-                    option.emoji,
-                    style: const TextStyle(fontSize: 26),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-
-              // Title Labels
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      option.titleMarathi,
-                      style: GameTypography.buttonLabel(
-                        color: GameColors.inkGrape,
-                      ).copyWith(fontSize: 20),
-                    ),
-                    Text(
-                      option.titleEnglish,
-                      style: GameTypography.buttonSublabel(
-                        color: GameColors.inkMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Success checkmark or selection indicator
-              if (isSelected && isCorrectOption)
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: GameColors.emeraldGrass,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, color: Colors.white, size: 20),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Animated Placement Celebration Modal Popup
+  /// Placement completion modal showing assigned starting level
   Widget _buildPlacementModal(BuildContext context) {
     return Container(
-      color: Colors.black.withValues(alpha: 0.65),
+      color: Colors.black.withValues(alpha: 0.7),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -624,17 +508,18 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
               color: Colors.white,
               borderRadius: BorderRadius.circular(32),
               border: Border.all(color: GameColors.activeGold, width: 4),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: GameColors.activeGoldDark.withValues(alpha: 0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: Colors.black38,
+                  blurRadius: 24,
+                  offset: Offset(0, 10),
                 ),
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Nova Cheering Avatar
                 Container(
                   width: 90,
                   height: 90,
@@ -652,27 +537,24 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                const Text('🎉 🚀 🏆', style: TextStyle(fontSize: 32)),
                 const SizedBox(height: 8),
-                const Text('🎉 🚀 🏆', style: TextStyle(fontSize: 36)),
-                const SizedBox(height: 12),
+
                 Text(
                   'शाब्बास! छान खेळलास!',
-                  style: GameTypography.displayHero(
-                    color: GameColors.inkGrape,
-                  ).copyWith(fontSize: 28),
+                  style: GameTypography.displayHero(color: GameColors.inkGrape).copyWith(fontSize: 26),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
-                  'तुझा प्रवास टप्पा ४ पासून सुरू होत आहे!\n(Level 4 Unlocked!)',
-                  style: GameTypography.headline(
-                    color: GameColors.electricPurple,
-                  ).copyWith(fontSize: 18),
+                  'इयत्ता $_assignedGrade • तुझा प्रवास टप्पा $_assignedLevel पासून सुरू होत आहे!\n(Grade $_assignedGrade • Level $_assignedLevel Unlocked!)',
+                  style: GameTypography.headline(color: GameColors.electricPurple).copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
 
-                // Star & Coin Rewards Pill
+                // Score pill
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
@@ -682,26 +564,27 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text('⭐⭐⭐', style: TextStyle(fontSize: 20)),
-                      SizedBox(width: 8),
-                      Text('+३० 🪙 नाणी!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    children: [
+                      const Text('⭐⭐⭐', style: TextStyle(fontSize: 18)),
+                      const SizedBox(width: 8),
+                      Text(
+                        '+${_correctCount * 10} 🪙 नाणी!',
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 22),
 
                 // Primary CTA to Saga Map
                 Squishy3DButton(
-                  height: 64,
+                  height: 62,
                   backgroundColor: GameColors.emeraldGrass,
                   bevelColor: GameColors.emeraldGrassDark,
                   label: 'नकाशावर चला! ➔',
                   sublabel: 'EXPLORE VILLAGE SAGA MAP',
-                  onPressed: () {
-                    SoundService.instance.playPopClick();
-                    context.go('/saga-map');
-                  },
+                  onPressed: _proceedToSagaMap,
                 ),
               ],
             ),

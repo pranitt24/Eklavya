@@ -1,0 +1,279 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_sweets_004",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "village_home",
+  "title": {
+    "mr": "दिवाळीचे गोड लाडू",
+    "en": "Diwali Sweet Laddus"
+  },
+  "summary": {
+    "mr": "आईने बनवलेले स्वादिष्ट लाडू मोजले.",
+    "en": "Counted delicious sweet laddus made by Mother."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "दिवाळीच्या सणाला आईने अंगणात गोड लाडू बनवले.",
+        "en": "For Diwali, Mother prepared sweet laddus in the courtyard."
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_mother",
+          "slot": "right",
+          "expression": "happy",
+          "enter": "walk_in_right"
+        },
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "आईने ताटात ५ गोल गोल लाडू ठेवले!",
+        "en": "Mother kept 5 round laddus on the plate!"
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_mother",
+          "slot": "right",
+          "expression": "idle",
+          "loop": "idle_bounce"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_laddu",
+          "slot": "ground_center",
+          "count": 5,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.0,
+          "do": "point_at",
+          "actor": "char_mother",
+          "play": "point_at"
+        },
+        {
+          "at": 2.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q1",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_mother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 3,
+      "text": {
+        "mr": "आईने आणखी ४ ताजे लाडू ताटात ठेवले. आता एकूण किती लाडू झाले?",
+        "en": "Mother placed 4 more fresh laddus. How many laddus in total now?"
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy"
+        },
+        {
+          "id": "char_mother",
+          "slot": "right",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_laddu",
+          "slot": "ground_center",
+          "count": 9,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q2",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_mother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 4,
+      "text": {
+        "mr": "भावाने ३ लाडू खाल्ले! आता ताटात किती लाडू शिल्लक राहिले?",
+        "en": "Brother ate 3 laddus! How many laddus remain on the plate?"
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_mother",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_laddu",
+          "slot": "ground_center",
+          "count": 6,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q3",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_mother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 5,
+      "text": {
+        "mr": "शाब्बास! सर्वांनी मिळून सणाचा आनंद घेतला!",
+        "en": "Bravo! Everyone enjoyed the festive celebration together!"
+      },
+      "backdrop": "bg_house_courtyard",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "loop": "idle_bounce"
+        },
+        {
+          "id": "char_mother",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "ताटात किती लाडू आहेत?",
+        "en": "How many laddus are on the plate?"
+      },
+      "answer": 5,
+      "counts_prop": "prop_laddu",
+      "options": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "आता एकूण किती लाडू झाले?",
+        "en": "How many laddus in total now?"
+      },
+      "answer": 9,
+      "counts_prop": "prop_laddu",
+      "options": [
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "ताटात आता किती लाडू उरले?",
+        "en": "How many laddus are left on the plate?"
+      },
+      "answer": 6,
+      "counts_prop": "prop_laddu",
+      "options": [
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
+}

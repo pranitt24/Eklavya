@@ -165,10 +165,14 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
           final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
           final List<dynamic> demoFiles = jsonDecode(idxString) as List<dynamic>;
           if (demoFiles.isNotEmpty) {
-            final fileName = demoFiles.first.toString();
+            final currentLvlNum = (routerExtra is Map && routerExtra['levelNumber'] is int)
+                ? (routerExtra['levelNumber'] as int)
+                : GameState.instance.currentLevelIndex;
+            final fileIdx = (currentLvlNum - 1).clamp(0, demoFiles.length - 1);
+            final fileName = demoFiles[fileIdx].toString();
             final jsonString = await rootBundle.loadString('assets/nova/demo/$fileName');
             chosenLevel = LevelSpec.fromJsonString(jsonString);
-            debugPrint('Loaded fallback demo level: ${chosenLevel.levelId}');
+            debugPrint('Loaded fallback demo level for level $currentLvlNum (file $fileName): ${chosenLevel.levelId}');
           }
         } catch (demoErr) {
           debugPrint('Demo index load note: $demoErr, trying level_1_coins directly');

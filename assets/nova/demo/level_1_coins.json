@@ -10,15 +10,15 @@
     "en": "Meena's Coins"
   },
   "summary": {
-    "mr": "मीनाने नाणी मोजायला शिकले.",
-    "en": "Meena learned to count coins."
+    "mr": "मीनाने आजीसोबत बाजारात नाणी मोजायला शिकले.",
+    "en": "Meena learned to count coins with Grandma."
   },
   "scenes": [
     {
       "scene_id": 1,
       "text": {
-        "mr": "मीना आजीसोबत बाजारात आली.",
-        "en": "Meena came to the market with Grandma."
+        "mr": "मीना आणि नोव्हा आजीसोबत गावातील आठवडी बाजारात आले.",
+        "en": "Meena and Nova came to the weekly village market with Grandma."
       },
       "backdrop": "bg_market",
       "actors": [
@@ -46,8 +46,8 @@
     {
       "scene_id": 2,
       "text": {
-        "mr": "आजीने मीनाला नाणी दिली! किती नाणी आहेत?",
-        "en": "Grandma gave Meena some coins! How many coins are there?"
+        "mr": "आजीने मीनाला ४ चकचकीत नाणी दिली. नाणी मोजा!",
+        "en": "Grandma gave Meena 4 shiny coins. Count the coins!"
       },
       "backdrop": "bg_market",
       "actors": [
@@ -67,7 +67,7 @@
         {
           "id": "prop_coin_gold",
           "slot": "ground_center",
-          "count": 5,
+          "count": 4,
           "enter": "pop_in_staggered"
         }
       ],
@@ -77,17 +77,17 @@
           "do": "narrate"
         },
         {
-          "at": 1.5,
+          "at": 1.0,
           "do": "point_at",
           "actor": "char_grandmother",
           "play": "point_at"
         },
         {
-          "at": 3.0,
+          "at": 2.0,
           "do": "show_question"
         }
       ],
-      "question_ref": "Q1",
+      "question_ref": "q1",
       "on_correct": {
         "actor": "char_girl",
         "expression": "happy",
@@ -99,18 +99,182 @@
         "expression": "encouraging",
         "play": "head_tilt"
       }
+    },
+    {
+      "scene_id": 3,
+      "text": {
+        "mr": "आजीने कौतुकाने आणखी २ नाणी दिली! आता एकूण किती नाणी झाली?",
+        "en": "Grandma lovingly gave 2 more coins! How many coins in total now?"
+      },
+      "backdrop": "bg_market",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_coin_gold",
+          "slot": "ground_center",
+          "count": 6,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q2",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 4,
+      "text": {
+        "mr": "मीनाने ३ नाणी देऊन गोड जिलेबी घेतली. आता किती नाणी उरली?",
+        "en": "Meena spent 3 coins for sweet jalebi. How many coins are left?"
+      },
+      "backdrop": "bg_market",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "encouraging"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_coin_gold",
+          "slot": "ground_center",
+          "count": 3,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q3",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 5,
+      "text": {
+        "mr": "शाब्बास! मीनाने बाजारात छान खरेदी केली आणि नाणी मोजली!",
+        "en": "Bravo! Meena enjoyed shopping and counted all her coins!"
+      },
+      "backdrop": "bg_market",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "loop": "idle_bounce"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
     }
   ],
   "questions": [
     {
-      "id": "Q1",
+      "id": "q1",
       "type": "voice_input",
       "prompt": {
-        "mr": "किती नाणी आहेत?",
-        "en": "How many coins are there?"
+        "mr": "मीनाकडे किती नाणी आहेत?",
+        "en": "How many coins does Meena have?"
       },
-      "answer": 5,
-      "counts_prop": "prop_coin_gold"
+      "answer": 4,
+      "counts_prop": "prop_coin_gold",
+      "options": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "आता एकूण किती नाणी झाली?",
+        "en": "How many coins in total now?"
+      },
+      "answer": 6,
+      "counts_prop": "prop_coin_gold",
+      "options": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "मीनाकडे आता किती नाणी उरली?",
+        "en": "How many coins are left with Meena?"
+      },
+      "answer": 3,
+      "counts_prop": "prop_coin_gold",
+      "options": [
+        1,
+        2,
+        3,
+        4
+      ]
     }
   ]
 }

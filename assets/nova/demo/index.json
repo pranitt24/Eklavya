@@ -1,1 +1,9 @@
-["level_1_coins.json", "level_2_fish.json", "level_3_pots.json"]
+[
+  "level_1_coins.json",
+  "level_2_mangoes.json",
+  "level_3_fish.json",
+  "level_4_laddus.json",
+  "level_5_flowers.json",
+  "level_6_sparrows.json",
+  "level_7_pencils.json"
+]

@@ -1,0 +1,279 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_school_007",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "village_school",
+  "title": {
+    "mr": "शाळेतील रंगीत पेन्सिली",
+    "en": "School Colored Pencils"
+  },
+  "summary": {
+    "mr": "शाळेत मित्रांसोबत पेन्सिली मोजल्या आणि चित्रे काढली.",
+    "en": "Counted pencils with friends at school and drew pictures."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "राजू आणि मीना उत्साहाने गावातील शाळेत आले.",
+        "en": "Raju and Meena arrived enthusiastically at the village school."
+      },
+      "backdrop": "bg_school",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        },
+        {
+          "id": "char_girl",
+          "slot": "right",
+          "expression": "happy",
+          "enter": "walk_in_right"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "राजूच्या टेबलावर ५ चमकदार रंगीत पेन्सिली आहेत!",
+        "en": "There are 5 bright colored pencils on Raju's desk!"
+      },
+      "backdrop": "bg_school",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_girl",
+          "slot": "right",
+          "expression": "idle",
+          "loop": "idle_bounce"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_pencil",
+          "slot": "ground_center",
+          "count": 5,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.0,
+          "do": "point_at",
+          "actor": "char_girl",
+          "play": "point_at"
+        },
+        {
+          "at": 2.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q1",
+      "on_correct": {
+        "actor": "char_boy",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_girl",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 3,
+      "text": {
+        "mr": "शिक्षकांनी राजूच्या चांगल्या कामासाठी आणखी ३ पेन्सिली दिल्या! आता एकूण किती पेन्सिली झाल्या?",
+        "en": "Teacher gave 3 more pencils for good work! How many pencils now in total?"
+      },
+      "backdrop": "bg_school",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "happy"
+        },
+        {
+          "id": "char_girl",
+          "slot": "right",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_pencil",
+          "slot": "ground_center",
+          "count": 8,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q2",
+      "on_correct": {
+        "actor": "char_boy",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_girl",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 4,
+      "text": {
+        "mr": "राजूने २ पेन्सिली चित्र काढण्यासाठी मीनाला दिल्या. आता राजूजवळ किती पेन्सिली राहिल्या?",
+        "en": "Raju shared 2 pencils with Meena for drawing. How many pencils are left with Raju?"
+      },
+      "backdrop": "bg_school",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_girl",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_pencil",
+          "slot": "ground_center",
+          "count": 6,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q3",
+      "on_correct": {
+        "actor": "char_boy",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_girl",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 5,
+      "text": {
+        "mr": "उत्कृष्ट! सर्वांनी मिळून शाळेत सुंदर सुंदर चित्रे काढली!",
+        "en": "Outstanding! Everyone drew beautiful colorful pictures at school together!"
+      },
+      "backdrop": "bg_school",
+      "actors": [
+        {
+          "id": "char_boy",
+          "slot": "left",
+          "expression": "happy",
+          "loop": "idle_bounce"
+        },
+        {
+          "id": "char_girl",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "टेबलावर किती पेन्सिली आहेत?",
+        "en": "How many pencils are on the desk?"
+      },
+      "answer": 5,
+      "counts_prop": "prop_pencil",
+      "options": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "आता एकूण किती पेन्सिली झाल्या?",
+        "en": "How many pencils in total now?"
+      },
+      "answer": 8,
+      "counts_prop": "prop_pencil",
+      "options": [
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "राजूजवळ आता किती पेन्सिली उरल्या?",
+        "en": "How many pencils are left with Raju?"
+      },
+      "answer": 6,
+      "counts_prop": "prop_pencil",
+      "options": [
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
+}

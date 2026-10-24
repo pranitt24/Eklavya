@@ -43,15 +43,15 @@ class SceneStage extends StatelessWidget {
   static Alignment _propAlign(String slot) {
     switch (slot) {
       case 'ground_left':
-        return const Alignment(-0.55, 0.92);
+        return const Alignment(-0.55, 0.68);
       case 'ground_right':
-        return const Alignment(0.55, 0.92);
+        return const Alignment(0.55, 0.68);
       case 'sky':
         return const Alignment(0, -0.6);
       case 'hand':
         return const Alignment(0.2, 0.55);
       default:
-        return const Alignment(0, 0.95);
+        return const Alignment(0, 0.68);
     }
   }
 
@@ -70,27 +70,7 @@ class SceneStage extends StatelessWidget {
           fallback,
       ];
 
-      // Props first (behind actors).
-      for (final p in scene.props) {
-        final path = assets.propPath(p.id);
-        if (path == null) continue;
-        var size = math.min(h * 0.14, w * 0.12);
-        if (p.count > 10) size *= 0.75;
-        children.add(Positioned.fill(
-          child: Align(
-            alignment: _propAlign(p.slot),
-            child: PropGroup(
-              key: ValueKey<String>('prop_${p.id}_${p.slot}_${p.count}'),
-              assetPath: path,
-              count: p.count,
-              itemSize: size,
-              enter: p.enter,
-            ),
-          ),
-        ));
-      }
-
-      // Actors (max 3 by contract; extra ones are still drawn safely).
+      // 1. Actors (placed in background so countable items are never obscured).
       for (var i = 0; i < scene.actors.length; i++) {
         final a = scene.actors[i];
         final expr = expressions[a.id] ?? a.expression;
@@ -112,6 +92,32 @@ class SceneStage extends StatelessWidget {
                 playToken: play?.token ?? 0,
                 enterDelay: Duration(milliseconds: 250 * i),
               ),
+            ),
+          ),
+        ));
+      }
+
+      // 2. Countable Props (in front with high-contrast plate & large size so children can easily count).
+      for (final p in scene.props) {
+        final path = assets.propPath(p.id);
+        if (path == null) continue;
+        double size;
+        if (p.count <= 5) {
+          size = math.min(h * 0.22, w * 0.17).clamp(62.0, 92.0);
+        } else if (p.count <= 10) {
+          size = math.min(h * 0.17, w * 0.13).clamp(48.0, 72.0);
+        } else {
+          size = math.min(h * 0.13, w * 0.10).clamp(38.0, 54.0);
+        }
+        children.add(Positioned.fill(
+          child: Align(
+            alignment: _propAlign(p.slot),
+            child: PropGroup(
+              key: ValueKey<String>('prop_${p.id}_${p.slot}_${p.count}'),
+              assetPath: path,
+              count: p.count,
+              itemSize: size,
+              enter: p.enter,
             ),
           ),
         ));
@@ -172,13 +178,26 @@ class _PropGroupState extends State<PropGroup> with SingleTickerProviderStateMix
       child: Transform.scale(
         scale: scale,
         child: Padding(
-          padding: const EdgeInsets.all(2),
-          child: Image.asset(
-            widget.assetPath,
-            height: widget.itemSize,
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium,
-            errorBuilder: (context, e, s) => SizedBox(height: widget.itemSize, width: widget.itemSize),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Image.asset(
+              widget.assetPath,
+              height: widget.itemSize,
+              width: widget.itemSize,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+              errorBuilder: (context, e, s) => SizedBox(height: widget.itemSize, width: widget.itemSize),
+            ),
           ),
         ),
       ),
@@ -187,7 +206,7 @@ class _PropGroupState extends State<PropGroup> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final perRow = widget.count <= 5 ? widget.count : (widget.count <= 10 ? 5 : 7);
+    final perRow = widget.count <= 5 ? widget.count : (widget.count <= 10 ? 5 : 6);
     return AnimatedBuilder(
       animation: _c,
       builder: (context, _) {
@@ -196,10 +215,32 @@ class _PropGroupState extends State<PropGroup> with SingleTickerProviderStateMix
           final end = math.min(widget.count, start + perRow);
           rows.add(Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[for (var i = start; i < end; i++) _item(i)],
           ));
         }
-        return Column(mainAxisSize: MainAxisSize.min, children: rows);
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: const Color(0xFFFFB300),
+              width: 3.5,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: 14,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: rows,
+          ),
+        );
       },
     );
   }

@@ -1,0 +1,279 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_river_003",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "village_river",
+  "title": {
+    "mr": "नदीतील चतुर मासे",
+    "en": "Smart River Fish"
+  },
+  "summary": {
+    "mr": "मुलांनी नदीकाठी पोहणारे रंगीबेरंगी मासे मोजले.",
+    "en": "Children counted colorful fish swimming by the riverbank."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "मीना आणि राजू गावातील स्वच्छ नदीकाठी खेळायला गेले.",
+        "en": "Meena and Raju went to play by the clear village river."
+      },
+      "backdrop": "bg_river",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        },
+        {
+          "id": "char_boy",
+          "slot": "right",
+          "expression": "happy",
+          "enter": "walk_in_right"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "नदीच्या पाण्यात ३ सुंदर मासे पोहत आहेत!",
+        "en": "3 lovely fish are swimming in the river water!"
+      },
+      "backdrop": "bg_river",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_boy",
+          "slot": "right",
+          "expression": "idle",
+          "loop": "idle_bounce"
+        }
+      ],
+      "props": [
+        {
+          "id": "animal_fish_normal",
+          "slot": "ground_center",
+          "count": 3,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.0,
+          "do": "point_at",
+          "actor": "char_boy",
+          "play": "point_at"
+        },
+        {
+          "at": 2.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q1",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_boy",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 3,
+      "text": {
+        "mr": "पाण्यात आणखी ४ मासे उड्या मारत आले! आता एकूण किती मासे झाले?",
+        "en": "4 more fish came jumping in! How many fish in total now?"
+      },
+      "backdrop": "bg_river",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy"
+        },
+        {
+          "id": "char_boy",
+          "slot": "right",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "animal_fish_normal",
+          "slot": "ground_center",
+          "count": 7,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q2",
+      "on_correct": {
+        "actor": "char_boy",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_girl",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 4,
+      "text": {
+        "mr": "२ मासे खोल पाण्यात पोहून गेले. आता वर किती मासे दिसत आहेत?",
+        "en": "2 fish swam deep into the water. How many fish are visible now?"
+      },
+      "backdrop": "bg_river",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_boy",
+          "slot": "right",
+          "expression": "curious"
+        }
+      ],
+      "props": [
+        {
+          "id": "animal_fish_normal",
+          "slot": "ground_center",
+          "count": 5,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q3",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_boy",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 5,
+      "text": {
+        "mr": "छान! पाण्यातील मासे पाहायला खूप मजा आली!",
+        "en": "Great! Watching the swimming fish was so delightful!"
+      },
+      "backdrop": "bg_river",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "loop": "idle_bounce"
+        },
+        {
+          "id": "char_boy",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "पाण्यात किती मासे पोहत आहेत?",
+        "en": "How many fish are swimming in the water?"
+      },
+      "answer": 3,
+      "counts_prop": "animal_fish_normal",
+      "options": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "नदीत आता एकूण किती मासे झाले?",
+        "en": "How many fish in the river now in total?"
+      },
+      "answer": 7,
+      "counts_prop": "animal_fish_normal",
+      "options": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "आता किती मासे दिसत आहेत?",
+        "en": "How many fish are visible now?"
+      },
+      "answer": 5,
+      "counts_prop": "animal_fish_normal",
+      "options": [
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ]
+}

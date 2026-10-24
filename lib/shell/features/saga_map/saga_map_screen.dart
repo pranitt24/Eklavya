@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/services/level_api.dart';
@@ -85,7 +87,31 @@ class _SagaMapScreenState extends State<SagaMapScreen>
         }
       }
     } catch (e) {
-      debugPrint('Saga map levels load fallback: $e');
+      debugPrint('Saga map levels load note: $e');
+    }
+
+    // Fallback: If backend is offline or student levels empty, load all bundled 5-scene 3-question demo levels
+    if (_studentLevels.isEmpty) {
+      try {
+        final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
+        final List<dynamic> demoFiles = jsonDecode(idxString) as List<dynamic>;
+        final demoLevels = <Map<String, dynamic>>[];
+        for (final f in demoFiles) {
+          final s = await rootBundle.loadString('assets/nova/demo/$f');
+          demoLevels.add(Map<String, dynamic>.from(jsonDecode(s) as Map));
+        }
+        if (demoLevels.isNotEmpty && mounted) {
+          setState(() {
+            _studentLevels = demoLevels;
+            _gameState.setStudentLevels(demoLevels);
+            final lvlIdx = (_gameState.currentLevelIndex - 1).clamp(0, demoLevels.length - 1);
+            _gameState.setSelectedLevelData(demoLevels[lvlIdx]);
+          });
+          debugPrint('Loaded ${_studentLevels.length} bundled multi-task story demo levels into SagaMap');
+        }
+      } catch (fallbackErr) {
+        debugPrint('Fallback demo levels load note: $fallbackErr');
+      }
     }
   }
 

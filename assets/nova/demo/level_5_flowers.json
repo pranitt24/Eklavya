@@ -1,0 +1,279 @@
+{
+  "schema_version": "2.0",
+  "level_id": "L_M1_COUNT_10_T1_temple_005",
+  "skill_id": "M1_COUNT_10",
+  "grade": 1,
+  "difficulty_tier": 1,
+  "theme": "village_temple",
+  "title": {
+    "mr": "सुगंधी फुले",
+    "en": "Fragrant Flowers"
+  },
+  "summary": {
+    "mr": "मंदिराच्या बागेत फुले वेचली आणि हार बनवला.",
+    "en": "Gathered flowers in the temple garden and made a garland."
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "text": {
+        "mr": "सकाळच्या वेळी आजी आणि मीना मंदिराच्या बागेत आल्या.",
+        "en": "In the morning, Grandma and Meena came to the temple garden."
+      },
+      "backdrop": "bg_temple",
+      "actors": [
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "happy",
+          "enter": "walk_in_right"
+        },
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "enter": "walk_in_left"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "text": {
+        "mr": "मीनाने ६ सुंदर पिवळी फुले टोपलीत वेचली!",
+        "en": "Meena gathered 6 pretty yellow flowers into the basket!"
+      },
+      "backdrop": "bg_temple",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "idle",
+          "loop": "idle_bounce"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_flower",
+          "slot": "ground_center",
+          "count": 6,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.0,
+          "do": "point_at",
+          "actor": "char_grandmother",
+          "play": "point_at"
+        },
+        {
+          "at": 2.0,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q1",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 3,
+      "text": {
+        "mr": "आजीने आणखी २ सुगंधी फुले तोडली! आता एकूण किती फुले झाली?",
+        "en": "Grandma picked 2 more fragrant flowers! How many flowers now in total?"
+      },
+      "backdrop": "bg_temple",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "idle"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_flower",
+          "slot": "ground_center",
+          "count": 8,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q2",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 4,
+      "text": {
+        "mr": "त्यांनी ४ फुलांचा सुंदर हार केला. आता टोपलीत किती फुले उरली?",
+        "en": "They made a garland using 4 flowers. How many flowers are left in the basket?"
+      },
+      "backdrop": "bg_temple",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "curious"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_flower",
+          "slot": "ground_center",
+          "count": 4,
+          "enter": "pop_in_staggered"
+        }
+      ],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        },
+        {
+          "at": 1.5,
+          "do": "show_question"
+        }
+      ],
+      "question_ref": "q3",
+      "on_correct": {
+        "actor": "char_girl",
+        "expression": "happy",
+        "play": "jump",
+        "sfx": "sfx_cheer"
+      },
+      "on_wrong": {
+        "actor": "char_grandmother",
+        "expression": "encouraging"
+      }
+    },
+    {
+      "scene_id": 5,
+      "text": {
+        "mr": "खूप छान! सुंदर फुलांचा सुवास मंदिरात पसरला!",
+        "en": "Wonderful! Fragrance of flowers filled the temple!"
+      },
+      "backdrop": "bg_temple",
+      "actors": [
+        {
+          "id": "char_girl",
+          "slot": "left",
+          "expression": "happy",
+          "loop": "idle_bounce"
+        },
+        {
+          "id": "char_grandmother",
+          "slot": "right",
+          "expression": "happy"
+        }
+      ],
+      "props": [],
+      "timeline": [
+        {
+          "at": 0.0,
+          "do": "narrate"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "टोपलीत किती फुले आहेत?",
+        "en": "How many flowers are in the basket?"
+      },
+      "answer": 6,
+      "counts_prop": "prop_flower",
+      "options": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "आता एकूण किती फुले झाली?",
+        "en": "How many flowers in total now?"
+      },
+      "answer": 8,
+      "counts_prop": "prop_flower",
+      "options": [
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "voice_input",
+      "prompt": {
+        "mr": "टोपलीत आता किती फुले उरली?",
+        "en": "How many flowers are left in the basket?"
+      },
+      "answer": 4,
+      "counts_prop": "prop_flower",
+      "options": [
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ]
+}

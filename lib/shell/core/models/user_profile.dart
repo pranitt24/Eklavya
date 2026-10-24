@@ -24,19 +24,33 @@ class UserProfile extends ChangeNotifier {
   UserProfile._internal();
   static final UserProfile instance = UserProfile._internal();
 
+  int? _studentId;
   String _name = 'आरव';
   int _age = 6;
+  int _grade = 1;
   String _selectedAvatar = 'chintu';
   int _stars = 12;
   int _coins = 170;
   int _streakDays = 5;
 
+  int? get studentId => _studentId;
   String get name => _name;
   int get age => _age;
+  int get grade => _grade;
   String get selectedAvatar => _selectedAvatar;
   int get stars => _stars;
   int get coins => _coins;
   int get streakDays => _streakDays;
+
+  void setStudentId(int? id) {
+    _studentId = id;
+    notifyListeners();
+  }
+
+  void setGrade(int g) {
+    _grade = g;
+    notifyListeners();
+  }
 
   void setStreakDays(int days) {
     _streakDays = days;

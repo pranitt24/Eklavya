@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/services/level_api.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/models/user_profile.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
 
-/// ProfilePickerScreen: Onboarding screen where the child enters their name,
-/// chooses their age (5-8), and selects one of 6 fun companion avatars.
+/// ProfilePickerScreen: Allows picking an existing student profile or registering
+/// a new one with: name (required), age (5-10 stepper), school (optional),
+/// class (optional), gender (optional), language (Marathi default).
+/// Persists student ID in SharedPreferences and posts to backend /students.
 class ProfilePickerScreen extends StatefulWidget {
   const ProfilePickerScreen({super.key});
 
@@ -15,48 +20,149 @@ class ProfilePickerScreen extends StatefulWidget {
 }
 
 class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
+  final LevelApi _levelApi = LevelApi();
+  final _formKey = GlobalKey<FormState>();
+
   late final TextEditingController _nameController;
-  final UserProfile _profile = UserProfile.instance;
+  late final TextEditingController _schoolController;
+
+  bool _isLoading = true;
+  bool _isSubmitting = false;
+  bool _isCreatingNew = false;
+  List<Map<String, dynamic>> _students = [];
+  int? _savedStudentId;
+
+  // Form State
+  int _age = 7;
+  int? _selectedClass = 2;
+  String? _selectedGender;
+  final String _language = 'mr';
+
+  static const Map<int, String> _devanagariDigits = {
+    5: '५',
+    6: '६',
+    7: '७',
+    8: '८',
+    9: '९',
+    10: '१०',
+  };
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: _profile.name);
-    _nameController.addListener(() {
-      _profile.setName(_nameController.text);
-    });
+    _nameController = TextEditingController();
+    _schoolController = TextEditingController();
+    _loadProfiles();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _schoolController.dispose();
     super.dispose();
   }
 
-  void _onAgeSelected(int age) {
-    setState(() {
-      _profile.setAge(age);
-    });
-  }
+  Future<void> _loadProfiles() async {
+    setState(() => _isLoading = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _savedStudentId = prefs.getInt('current_student_id');
 
-  void _onAvatarSelected(String avatarId) {
-    setState(() {
-      _profile.setAvatar(avatarId);
-    });
-  }
-
-  void _submitProfile() {
-    if (_nameController.text.trim().isNotEmpty) {
-      _profile.setName(_nameController.text.trim());
+      final list = await _levelApi.listStudents(timeout: const Duration(seconds: 4));
+      if (mounted) {
+        setState(() {
+          _students = list;
+          _isLoading = false;
+          _isCreatingNew = list.isEmpty;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isCreatingNew = true;
+        });
+      }
     }
+  }
+
+  Future<void> _selectExistingStudent(Map<String, dynamic> student) async {
     SoundService.instance.playDingChime();
-    context.go('/diagnostic-test');
+    final id = student['id'] as int?;
+    final name = (student['name'] ?? 'विद्यार्थी').toString();
+    final age = (student['age'] as int?) ?? 7;
+    final grade = (student['grade'] as int?) ?? 1;
+
+    if (id != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('current_student_id', id);
+      await prefs.setString('student_name', name);
+      await prefs.setInt('student_age', age);
+      await prefs.setInt('student_grade', grade);
+
+      UserProfile.instance.setStudentId(id);
+      UserProfile.instance.setName(name);
+      UserProfile.instance.setAge(age);
+      UserProfile.instance.setGrade(grade);
+    }
+
+    if (mounted) {
+      context.go('/diagnostic-test');
+    }
+  }
+
+  Future<void> _submitNewStudent() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+    SoundService.instance.playPopClick();
+
+    final name = _nameController.text.trim();
+    final school = _schoolController.text.trim();
+
+    final payload = <String, dynamic>{
+      'name': name,
+      'age': _age,
+      'language': _language,
+      if (school.isNotEmpty) 'school': school,
+      if (_selectedClass != null) 'class_declared': _selectedClass,
+      if (_selectedGender != null) 'gender': _selectedGender,
+    };
+
+    int studentId = DateTime.now().millisecondsSinceEpoch % 100000;
+    int assignedGrade = 1;
+
+    try {
+      final created = await _levelApi.createStudent(payload);
+      if (created != null && created['id'] != null) {
+        studentId = created['id'] as int;
+        assignedGrade = (created['grade'] as int?) ?? 1;
+      }
+    } catch (e) {
+      debugPrint('Student creation network fallback: $e');
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('current_student_id', studentId);
+    await prefs.setString('student_name', name);
+    await prefs.setInt('student_age', _age);
+    await prefs.setInt('student_grade', assignedGrade);
+
+    UserProfile.instance.setStudentId(studentId);
+    UserProfile.instance.setName(name);
+    UserProfile.instance.setAge(_age);
+    UserProfile.instance.setGrade(assignedGrade);
+
+    SoundService.instance.playDingChime();
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      context.go('/diagnostic-test');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final devanagariAges = {5: '५', 6: '६', 7: '७', 8: '८'};
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -67,429 +173,496 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
         ),
         child: SafeArea(
           child: Column(
-              children: [
-                // Top Cloud Mascot Header Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: GameColors.inkGrape.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // NOVA Mini Peeker Avatar
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE0F2FE),
-                            shape: BoxShape.circle,
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/nova/characters/char_nova_standing.webp',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(
-                                'assets/full_body_3d_pixar_style_cute_friendly_chubby_blue_robot_character_named_nova/screen.png',
-                                fit: BoxFit.cover,
-                                errorBuilder: (c, e, s) => const Icon(
-                                  Icons.android_rounded,
-                                  color: GameColors.robotBlue,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Speech Text
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'तुझी ओळख निवड! 🎈',
-                                style: GameTypography.headline(
-                                  color: GameColors.electricPurple,
-                                ).copyWith(fontSize: 18),
-                              ),
-                              Text(
-                                'Create your profile!',
-                                style: GameTypography.buttonSublabel(
-                                  color: GameColors.inkMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Interactive Audio Speaker
-                        SpeakerButton(
-                          size: 42,
-                          color: GameColors.electricPurple,
-                          onPlay: () {
-                            SoundService.instance.playDingChime();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Main Scrollable Configuration Area
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 6),
-
-                        // 1. Name Input Field Card
-                        _buildSectionHeader(
-                          icon: Icons.edit_note_rounded,
-                          titleDevanagari: 'तुझे नाव लिहा',
-                          titleEnglish: 'Your Name',
-                          accentColor: GameColors.electricPurple,
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: GameColors.cardBorderLavender,
-                              width: 2.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: GameColors.electricPurple.withValues(alpha: 0.08),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _nameController,
-                            style: GameTypography.displayHero(
-                              color: GameColors.inkGrape,
-                            ).copyWith(fontSize: 24),
-                            decoration: InputDecoration(
-                              icon: const Text('🏷️', style: TextStyle(fontSize: 22)),
-                              border: InputBorder.none,
-                              hintText: 'नाव येथे लिहा...',
-                              hintStyle: GameTypography.bodyLarge(
-                                color: GameColors.inkLight,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 18),
-
-                        // 2. Age Selector ("वय निवडा")
-                        _buildSectionHeader(
-                          icon: Icons.cake_rounded,
-                          titleDevanagari: 'वय निवडा',
-                          titleEnglish: 'Select Age',
-                          accentColor: GameColors.activeGoldDark,
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: UserProfile.availableAges.map((age) {
-                            final isSelected = _profile.age == age;
-                            return Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: _buildAgeButton(
-                                  age: age,
-                                  devanagariNum: devanagariAges[age] ?? '$age',
-                                  isSelected: isSelected,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // 3. Friend Avatar Picker ("मित्र निवडा")
-                        _buildSectionHeader(
-                          icon: Icons.face_rounded,
-                          titleDevanagari: 'मित्र निवडा',
-                          titleEnglish: 'Pick an Avatar',
-                          accentColor: GameColors.emeraldGrassDark,
-                        ),
-                        const SizedBox(height: 10),
-
-                        // 2x3 Avatar Grid
-                        GridView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: UserProfile.availableAvatars.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.95,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                          ),
-                          itemBuilder: (context, index) {
-                            final avatar = UserProfile.availableAvatars[index];
-                            final isSelected =
-                                _profile.selectedAvatar == avatar.id;
-                            return _buildAvatarCard(avatar, isSelected);
-                          },
-                        ),
-
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Sticky Bottom CTA Zone
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.92),
-                    border: const Border(
-                      top: BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
-                    ),
-                  ),
-                  child: Squishy3DButton(
-                    height: 64,
-                    backgroundColor: GameColors.electricPurple,
-                    bevelColor: GameColors.electricPurpleDark,
-                    label: 'पुढे चला! 🚀',
-                    sublabel: 'CONTINUE TO DIAGNOSTIC ADVENTURE',
-                    onPressed: _submitProfile,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-    );
-  }
-
-  Widget _buildSectionHeader({
-    required IconData icon,
-    required String titleDevanagari,
-    required String titleEnglish,
-    required Color accentColor,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: accentColor, size: 20),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          titleDevanagari,
-          style: GameTypography.headline(color: GameColors.inkGrape)
-              .copyWith(fontSize: 18),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '($titleEnglish)',
-          style: GameTypography.buttonSublabel(color: GameColors.inkMuted),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAgeButton({
-    required int age,
-    required String devanagariNum,
-    required bool isSelected,
-  }) {
-    final bgColor = isSelected ? GameColors.activeGold : Colors.white;
-    final bevelColor =
-        isSelected ? GameColors.activeGoldDark : const Color(0xFFDDD6FE);
-    final textColor = isSelected ? Colors.white : GameColors.inkGrape;
-
-    return Squishy3DButton(
-      height: 72,
-      padding: EdgeInsets.zero,
-      backgroundColor: bgColor,
-      bevelColor: bevelColor,
-      onPressed: () => _onAgeSelected(age),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                devanagariNum,
-                style: GameTypography.displayHero(color: textColor).copyWith(
-                  fontSize: 26,
-                  height: 1.0,
+              // Top Mascot Header Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: GameColors.inkGrape.withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // NOVA Guide Avatar
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE0F2FE),
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/nova/characters/char_nova_standing.webp',
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => const Center(
+                              child: Text('🤖', style: TextStyle(fontSize: 24)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _isCreatingNew
+                                  ? 'नवीन प्रोफाईल तयार करा'
+                                  : 'विद्यार्थी निवडा',
+                              style: GameTypography.headline(color: GameColors.inkGrape)
+                                  .copyWith(fontSize: 17),
+                            ),
+                            Text(
+                              _isCreatingNew
+                                  ? 'Enter student details below'
+                                  : 'Select student profile to continue',
+                              style: GameTypography.buttonSublabel(color: GameColors.inkMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!_isCreatingNew && _students.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.person_add_rounded, color: GameColors.electricPurple),
+                          onPressed: () {
+                            SoundService.instance.playPopClick();
+                            setState(() => _isCreatingNew = true);
+                          },
+                          tooltip: 'नवीन प्रोफाईल (Add New)',
+                        ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '$age yrs',
-                style: GameTypography.buttonSublabel(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : GameColors.inkMuted,
-                ),
+
+              // Main Body
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(color: GameColors.activeGold),
+                      )
+                    : _isCreatingNew
+                        ? _buildRegistrationForm()
+                        : _buildStudentList(),
               ),
             ],
           ),
-          if (isSelected)
-            const Positioned(
-              top: -12,
-              child: Text('👑', style: TextStyle(fontSize: 18)),
-            ),
+        ),
+      ),
+    );
+  }
+
+  /// List of existing student profiles
+  Widget _buildStudentList() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ..._students.map((st) {
+            final id = st['id'] as int?;
+            final name = (st['name'] ?? 'विद्यार्थी').toString();
+            final age = st['age'] != null ? '${st['age']} वर्षे' : '';
+            final school = (st['school'] ?? '').toString();
+            final isSaved = id != null && id == _savedStudentId;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: GestureDetector(
+                onTap: () => _selectExistingStudent(st),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSaved ? GameColors.activeGoldDark : GameColors.cardBorderLavender,
+                      width: isSaved ? 3 : 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: GameColors.inkGrape.withValues(alpha: 0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2FE),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: GameColors.robotBlue, width: 2),
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/nova/characters/char_nova_happy.webp',
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => const Center(
+                              child: Text('👦🏽', style: TextStyle(fontSize: 26)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  name,
+                                  style: GameTypography.headline(color: GameColors.inkGrape)
+                                      .copyWith(fontSize: 18),
+                                ),
+                                if (isSaved) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFEF3C7),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Text('सध्याचे (Active)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              [age, if (school.isNotEmpty) school].join(' • '),
+                              style: GameTypography.buttonSublabel(color: GameColors.inkMuted),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: GameColors.electricPurple, size: 20),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          const SizedBox(height: 12),
+
+          // Add New Profile Button
+          Squishy3DButton(
+            height: 58,
+            backgroundColor: GameColors.electricPurple,
+            bevelColor: GameColors.electricPurpleDark,
+            icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
+            label: 'नवीन विद्यार्थी जोडा',
+            sublabel: '+ ADD NEW PROFILE',
+            onPressed: () {
+              SoundService.instance.playPopClick();
+              setState(() => _isCreatingNew = true);
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAvatarCard(AvatarItem avatar, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        SoundService.instance.playPopClick();
-        _onAvatarSelected(avatar.id);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutQuad,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: isSelected ? GameColors.activeGold : Colors.transparent,
-            width: isSelected ? 3.5 : 1.0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? GameColors.activeGoldDark.withValues(alpha: 0.35)
-                  : GameColors.inkGrape.withValues(alpha: 0.08),
-              blurRadius: isSelected ? 12 : 6,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+  /// Student Registration Form
+  Widget _buildRegistrationForm() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Form(
+        key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Character Portrait with Glow Ring
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        avatar.accentColor.withValues(alpha: 0.3),
-                        avatar.accentColor,
+            // Back button if existing students exist
+            if (_students.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    SoundService.instance.playPopClick();
+                    setState(() => _isCreatingNew = false);
+                  },
+                  icon: const Icon(Icons.arrow_back_rounded, color: GameColors.electricPurple, size: 18),
+                  label: const Text('मागील प्रोफाईल दाखवा (Back to Profiles)', style: TextStyle(color: GameColors.electricPurple)),
+                ),
+              ),
+
+            // Form Container Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: GameColors.cardBorderLavender, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: GameColors.inkGrape.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Name Field (Required)
+                  Text(
+                    'विद्यार्थ्याचे नाव (Student Name) *',
+                    style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _nameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: 'उदा. आरव, सई, रोहन...',
+                      prefixIcon: const Icon(Icons.badge_rounded, color: GameColors.electricPurple),
+                      filled: true,
+                      fillColor: GameColors.canvasCream,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'कृपया नाव प्रविष्ट करा (Please enter name)';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 2. Age Stepper (5 to 10)
+                  Text(
+                    'वय (Age: 5-10 वर्षे)',
+                    style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: GameColors.canvasCream,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: GameColors.cardBorderAmber, width: 1.5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Minus Button
+                        IconButton(
+                          onPressed: _age > 5
+                              ? () {
+                                  SoundService.instance.playPopClick();
+                                  setState(() => _age--);
+                                }
+                              : null,
+                          icon: const Icon(Icons.remove_circle_rounded, size: 32),
+                          color: GameColors.electricPurple,
+                          disabledColor: Colors.grey.shade300,
+                        ),
+
+                        // Age Label Display
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${_devanagariDigits[_age] ?? _age} वर्षे',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: GameColors.inkGrape,
+                              ),
+                            ),
+                            Text(
+                              '($_age years old)',
+                              style: const TextStyle(fontSize: 12, color: GameColors.inkMuted),
+                            ),
+                          ],
+                        ),
+
+                        // Plus Button
+                        IconButton(
+                          onPressed: _age < 10
+                              ? () {
+                                  SoundService.instance.playPopClick();
+                                  setState(() => _age++);
+                                }
+                              : null,
+                          icon: const Icon(Icons.add_circle_rounded, size: 32),
+                          color: GameColors.electricPurple,
+                          disabledColor: Colors.grey.shade300,
+                        ),
                       ],
                     ),
                   ),
-                  padding: const EdgeInsets.all(3),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Center(
-                      child: avatar.id == 'chintu'
-                          ? Image.asset(
-                              'assets/images/characters/chintu.png',
-                              fit: BoxFit.cover,
-                              errorBuilder: (c1, e1, s1) =>
-                                  Text(avatar.emoji, style: const TextStyle(fontSize: 36)),
-                            )
-                          : avatar.id == 'nova'
-                              ? Image.asset(
-                                  'assets/nova/characters/char_nova_standing.webp',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c2, e2, s2) => Text(
-                                      avatar.emoji,
-                                      style: const TextStyle(fontSize: 36)),
-                                )
-                              : Text(
-                                  avatar.emoji,
-                                  style: const TextStyle(fontSize: 38),
-                                ),
+
+                  const SizedBox(height: 18),
+
+                  // 3. Class (Optional: 1 to 5)
+                  Text(
+                    'इयत्ता (Class / Standard - Optional)',
+                    style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [1, 2, 3, 4, 5].map((c) {
+                      final isSelected = _selectedClass == c;
+                      final devanagariClasses = {1: '१ली', 2: '२री', 3: '३री', 4: '४थी', 5: '५वी'};
+                      return ChoiceChip(
+                        label: Text(devanagariClasses[c] ?? 'इयत्ता $c'),
+                        selected: isSelected,
+                        selectedColor: GameColors.electricPurple,
+                        backgroundColor: GameColors.canvasCream,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : GameColors.inkGrape,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSelected: (sel) {
+                          SoundService.instance.playPopClick();
+                          setState(() => _selectedClass = sel ? c : null);
+                        },
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 4. Gender (Optional)
+                  Text(
+                    'लिंग (Gender - Optional)',
+                    style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ChoiceChip(
+                          label: const Center(child: Text('मुलगा 👦 (Boy)')),
+                          selected: _selectedGender == 'boy',
+                          selectedColor: const Color(0xFF38BDF8),
+                          backgroundColor: GameColors.canvasCream,
+                          labelStyle: TextStyle(
+                            color: _selectedGender == 'boy' ? Colors.white : GameColors.inkGrape,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onSelected: (sel) {
+                            SoundService.instance.playPopClick();
+                            setState(() => _selectedGender = sel ? 'boy' : null);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ChoiceChip(
+                          label: const Center(child: Text('मुलगी 👧 (Girl)')),
+                          selected: _selectedGender == 'girl',
+                          selectedColor: const Color(0xFFF472B6),
+                          backgroundColor: GameColors.canvasCream,
+                          labelStyle: TextStyle(
+                            color: _selectedGender == 'girl' ? Colors.white : GameColors.inkGrape,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onSelected: (sel) {
+                            SoundService.instance.playPopClick();
+                            setState(() => _selectedGender = sel ? 'girl' : null);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 5. School (Optional)
+                  Text(
+                    'शाळा (School Name - Optional)',
+                    style: GameTypography.headline(color: GameColors.inkGrape).copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _schoolController,
+                    decoration: InputDecoration(
+                      hintText: 'उदा. जि. प. प्राथमिक शाळा',
+                      prefixIcon: const Icon(Icons.school_rounded, color: GameColors.electricPurple),
+                      filled: true,
+                      fillColor: GameColors.canvasCream,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
-                ),
 
-                // Checkmark Badge when Selected
-                if (isSelected)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        color: GameColors.emeraldGrass,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                  const SizedBox(height: 14),
+
+                  // 6. Language Indicator (Default Marathi)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.language_rounded, color: Color(0xFFD97706), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'भाषा: मराठी (Language: Marathi)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF92400E),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            // Name Labels
-            Text(
-              '${avatar.nameMarathi} ${avatar.emoji}',
-              style: GameTypography.buttonLabel(
-                color: isSelected
-                    ? GameColors.electricPurple
-                    : GameColors.inkGrape,
-              ).copyWith(fontSize: 16),
-            ),
-            Text(
-              avatar.nameEnglish,
-              style: GameTypography.buttonSublabel(
-                color: isSelected
-                    ? GameColors.electricPurple
-                    : GameColors.inkMuted,
+                ],
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            // Submit Button
+            Squishy3DButton(
+              height: 64,
+              backgroundColor: GameColors.emeraldGrass,
+              bevelColor: GameColors.emeraldGrassDark,
+              icon: _isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                    )
+                  : const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 26),
+              label: 'सुरू करा! (START)',
+              sublabel: 'SAVE PROFILE & TAKE TEST',
+              onPressed: _isSubmitting ? null : _submitNewStudent,
+            ),
+
+            const SizedBox(height: 16),
           ],
         ),
       ),

@@ -282,106 +282,51 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                                 child: Stack(
                                   children: [
-                                    Row(
-                                      children: [
-                                        // 1. Chintu Circular Toy Badge
-                                        Expanded(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                width: 110,
-                                                height: 110,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                    color: GameColors.activeGoldDark,
-                                                    width: 4.5,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: GameColors.activeGoldDark.withValues(alpha: 0.35),
-                                                      blurRadius: 10,
-                                                      offset: const Offset(0, 4),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ClipOval(
-                                                  child: Image.asset(
-                                                    'assets/images/characters/chintu.png',
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (c1, e1, s1) => Image.asset(
-                                                      'assets/full_body_3d_pixar_animation_style_cute_6_year_old_indian_village_boy_character/screen.png',
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (c, e, s) => const Icon(
-                                                        Icons.face,
-                                                        size: 60,
-                                                        color: GameColors.activeGoldDark,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              _buildMascotTag(
-                                                color: GameColors.activeGoldDark,
-                                                name: 'चिंटू (CHINTU)',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: 8),
-
-                                        // 2. NOVA Circular Toy Badge
-                                        Expanded(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                width: 110,
-                                                height: 110,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.white,
-                                                  border: Border.all(
-                                                    color: GameColors.robotBlue,
-                                                    width: 4.5,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: GameColors.robotBlue.withValues(alpha: 0.35),
-                                                      blurRadius: 10,
-                                                      offset: const Offset(0, 4),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ClipOval(
-                                                  child: Image.asset(
-                                                    'assets/nova/characters/char_nova_standing.webp',
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (c2, e2, s2) => Image.asset(
-                                                      'assets/full_body_3d_pixar_style_cute_friendly_chubby_blue_robot_character_named_nova/screen.png',
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (c, e, s) => const Icon(
-                                                        Icons.android,
-                                                        size: 60,
-                                                        color: GameColors.robotBlue,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              _buildMascotTag(
+                                    Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 130,
+                                            height: 130,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                              border: Border.all(
                                                 color: GameColors.robotBlue,
-                                                name: 'नोव्हा (NOVA)',
+                                                width: 4.5,
                                               ),
-                                            ],
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: GameColors.robotBlue.withValues(alpha: 0.35),
+                                                  blurRadius: 12,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: ClipOval(
+                                              child: Image.asset(
+                                                'assets/nova/characters/char_nova_waving.webp',
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (c, e, s) => Image.asset(
+                                                  'assets/nova/characters/char_nova_standing.webp',
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (c2, e2, s2) => const Icon(
+                                                    Icons.smart_toy_rounded,
+                                                    size: 70,
+                                                    color: GameColors.robotBlue,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(height: 10),
+                                          _buildMascotTag(
+                                            color: GameColors.robotBlue,
+                                            name: 'नोव्हा (NOVA)',
+                                          ),
+                                        ],
+                                      ),
                                     ),
 
                                     // Speaker Audio Button

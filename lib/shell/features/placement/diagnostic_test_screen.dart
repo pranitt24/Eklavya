@@ -309,7 +309,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
                                 ),
                                 child: ClipOval(
                                   child: Image.asset(
-                                    'assets/nova/characters/char_nova_standing.webp',
+                                    'assets/nova/characters/char_nova_thinking.webp',
                                     fit: BoxFit.cover,
                                     errorBuilder: (c, e, s) =>
                                         Image.asset(
@@ -633,7 +633,25 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('🎉 🚀 🏆', style: TextStyle(fontSize: 48)),
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE0F2FE),
+                    shape: BoxShape.circle,
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/nova/characters/char_nova_happy.webp',
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => const Center(
+                        child: Text('🤖', style: TextStyle(fontSize: 40)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text('🎉 🚀 🏆', style: TextStyle(fontSize: 36)),
                 const SizedBox(height: 12),
                 Text(
                   'शाब्बास! छान खेळलास!',

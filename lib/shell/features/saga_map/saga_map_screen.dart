@@ -177,13 +177,14 @@ class _SagaMapScreenState extends State<SagaMapScreen>
                       child: _buildRoadsideNova(),
                     ),
 
-                    // Roadside Guiding Mascot: Desi Calf near Level 1
+                    // Roadside Guiding Mascot: NOVA welcoming with Namaste near Level 1
                     Positioned(
-                      right: 24,
-                      top: 1560,
-                      child: _buildRoadsideAnimal(
-                        emoji: '🐮',
-                        label: 'गोठा',
+                      right: 18,
+                      top: 1540,
+                      child: _buildRoadsideNovaGuide(
+                        pose: 'assets/nova/characters/char_nova_namaste.webp',
+                        title: 'सुरू करा! 🌟',
+                        subtitle: "Let's start!",
                       ),
                     ),
 
@@ -384,14 +385,14 @@ class _SagaMapScreenState extends State<SagaMapScreen>
                       ),
                       const SizedBox(height: 4),
 
-                      // Chintu Head Pin
+                      // Nova Guide Head Pin
                       Container(
                         width: 52,
                         height: 52,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: GameColors.activeGold,
-                          border: Border.all(color: Colors.white, width: 3),
+                          color: const Color(0xFFE0F2FE),
+                          border: Border.all(color: GameColors.robotBlue, width: 3),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -402,10 +403,10 @@ class _SagaMapScreenState extends State<SagaMapScreen>
                         ),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/characters/chintu.png',
+                            'assets/nova/characters/char_nova_waving.webp',
                             fit: BoxFit.cover,
                             errorBuilder: (c, e, s) => const Center(
-                              child: Text('👦🏽', style: TextStyle(fontSize: 26)),
+                              child: Text('🤖', style: TextStyle(fontSize: 26)),
                             ),
                           ),
                         ),
@@ -519,6 +520,67 @@ class _SagaMapScreenState extends State<SagaMapScreen>
     }).toList();
   }
 
+  /// Roadside Nova Mascot guide element with customizable pose & speech
+  Widget _buildRoadsideNovaGuide({
+    required String pose,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: GameColors.robotBlue, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE0F2FE),
+              shape: BoxShape.circle,
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                pose,
+                fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => const Center(
+                  child: Text('🤖', style: TextStyle(fontSize: 22)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: GameTypography.headline(color: GameColors.electricPurple)
+                    .copyWith(fontSize: 13),
+              ),
+              Text(
+                subtitle,
+                style: GameTypography.buttonSublabel(color: GameColors.inkMuted),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   /// NOVA mascot roadside element
   Widget _buildRoadsideNova() {
     return Container(
@@ -547,7 +609,7 @@ class _SagaMapScreenState extends State<SagaMapScreen>
             ),
             child: ClipOval(
               child: Image.asset(
-                'assets/nova/characters/char_nova_standing.webp',
+                'assets/nova/characters/char_nova_pointing.webp',
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => const Center(
                   child: Text('🤖', style: TextStyle(fontSize: 24)),

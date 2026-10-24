@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/services/nova_tts_service.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
@@ -30,16 +31,27 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.06).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await NovaTtsService.instance.init(context);
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (mounted) {
+        NovaTtsService.instance.speak('नमस्ते मित्रा! चल खेळूया!');
+      }
+    });
   }
 
   @override
   void dispose() {
+    NovaTtsService.instance.stop();
     _pulseController.dispose();
     super.dispose();
   }
 
   void _triggerAudioToast() {
     SoundService.instance.playDingChime();
+    NovaTtsService.instance.speak('नमस्ते मित्रा! चल खेळूया!');
     setState(() => _showToast = true);
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _showToast = false);

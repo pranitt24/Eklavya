@@ -5,11 +5,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../../core/services/level_api.dart';
+import '../../../core/services/nova_tts_service.dart';
 import '../../../features/scene/level_models.dart';
 import '../../../features/scene/level_player.dart';
 import '../../../features/scene/nova_assets.dart';
@@ -33,7 +33,6 @@ class LevelPlayerScreen extends StatefulWidget {
 
 class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   final LevelApi _levelApi = LevelApi();
-  final FlutterTts _flutterTts = FlutterTts();
   final String _language = 'mr';
 
   LevelSpec? _level;
@@ -52,13 +51,15 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   void initState() {
     super.initState();
     _lockLandscape();
-    _initTts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) NovaTtsService.instance.init(context);
+    });
     _loadLevelAndAssets();
   }
 
   @override
   void dispose() {
-    _flutterTts.stop();
+    NovaTtsService.instance.stop();
     _restorePortrait();
     super.dispose();
   }
@@ -77,15 +78,9 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     ]);
   }
 
-  Future<void> _initTts() async {
-    try {
-      await _flutterTts.setLanguage('mr-IN');
-      await _flutterTts.setSpeechRate(0.40);
-      await _flutterTts.setVolume(1.0);
-      await _flutterTts.awaitSpeakCompletion(true);
-    } catch (e) {
-      debugPrint('TTS init error: $e');
-    }
+  void _onNarrate(String text) {
+    if (text.isEmpty) return;
+    NovaTtsService.instance.speak(text);
   }
 
   Future<void> _loadLevelAndAssets() async {
@@ -148,16 +143,6 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     }
   }
 
-  void _onNarrate(String text) {
-    if (text.isEmpty) return;
-    try {
-      _flutterTts.stop();
-      _flutterTts.speak(text);
-    } catch (e) {
-      debugPrint('Narration TTS error: $e');
-    }
-  }
-
   void _onSfx(String sfxId) {
     if (sfxId.contains('cheer')) {
       SoundService.instance.playDingChime();
@@ -171,6 +156,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
   void _onAnswer(String questionId, bool correct, int responseMs) {
     debugPrint('LevelPlayer onAnswer: $questionId, correct=$correct in ${responseMs}ms');
     _attemptedQuestions.add(questionId);
+    NovaTtsService.instance.stop();
 
     if (correct) {
       if (!_correctQuestions.contains(questionId)) {
@@ -222,7 +208,6 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
       key: ValueKey<String>(q.id),
       question: q,
       lang: lang,
-      flutterTts: _flutterTts,
       onSubmit: submit,
     );
   }
@@ -400,14 +385,12 @@ List<int> _buildNumberOptions(int answer) {
 class _VoiceWithTapFallbackWidget extends StatefulWidget {
   final QuestionSpec question;
   final String lang;
-  final FlutterTts flutterTts;
   final void Function(bool correct) onSubmit;
 
   const _VoiceWithTapFallbackWidget({
     super.key,
     required this.question,
     required this.lang,
-    required this.flutterTts,
     required this.onSubmit,
   });
 
@@ -449,15 +432,14 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
   void dispose() {
     _pulseController.dispose();
     _speech.stop();
+    NovaTtsService.instance.stop();
     super.dispose();
   }
 
   Future<void> _speakPrompt() async {
     final text = widget.question.prompt.of(widget.lang);
     if (text.isNotEmpty) {
-      try {
-        await widget.flutterTts.speak(text);
-      } catch (_) {}
+      await NovaTtsService.instance.speak(text);
     }
   }
 
@@ -493,6 +475,7 @@ class _VoiceWithTapFallbackWidgetState extends State<_VoiceWithTapFallbackWidget
   Future<void> _startListening() async {
     if (_submitted) return;
     SoundService.instance.playPopClick();
+    NovaTtsService.instance.stop();
 
     if (!_speechAvailable) {
       await _initSpeech();

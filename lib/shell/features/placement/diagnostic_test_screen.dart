@@ -217,7 +217,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen> {
     await prefs.setInt('assigned_starting_level', startingLevel);
 
     UserProfile.instance.setGrade(grade);
-    GameState.instance.completeDiagnosticPlacement();
+    GameState.instance.completeDiagnosticPlacement(startingLevel: startingLevel);
 
     if (mounted) {
       CelebrationOverlay.show(context, type: CelebrationType.placementComplete);

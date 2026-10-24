@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/services/level_api.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/models/level_progress.dart';
+import '../../core/models/user_profile.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
 
@@ -23,6 +26,8 @@ class _SagaMapScreenState extends State<SagaMapScreen>
   final GameState _gameState = GameState.instance;
 
   static const double _mapHeight = 1800.0;
+  final LevelApi _levelApi = LevelApi();
+  List<Map<String, dynamic>> _studentLevels = [];
 
   @override
   void initState() {
@@ -39,7 +44,9 @@ class _SagaMapScreenState extends State<SagaMapScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Initial scroll position: center on active Level 4 (Y ≈ 900)
+    _loadStudentLevelsAndProgress();
+
+    // Initial scroll position: center on active Level (Y ≈ 900)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -49,6 +56,37 @@ class _SagaMapScreenState extends State<SagaMapScreen>
         );
       }
     });
+  }
+
+  Future<void> _loadStudentLevelsAndProgress() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final studentId = prefs.getInt('current_student_id') ?? UserProfile.instance.studentId;
+      if (studentId != null) {
+        final levels = await _levelApi.getStudentLevels(studentId, timeout: const Duration(seconds: 4));
+        if (levels.isNotEmpty && mounted) {
+          setState(() {
+            _studentLevels = levels;
+            _gameState.setStudentLevels(levels);
+          });
+        }
+
+        // Fetch student level progress and update unlocked levels
+        final progress = await _levelApi.getStudentProgress(studentId, timeout: const Duration(seconds: 4));
+        for (final p in progress) {
+          final levelId = p['level_id'] as String?;
+          final stars = (p['stars'] as int?) ?? 1;
+          if (levels.isNotEmpty && levelId != null) {
+            final idx = levels.indexWhere((l) => l['level_id'] == levelId);
+            if (idx != -1) {
+              _gameState.completeLevel(idx + 1, stars, 0);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Saga map levels load fallback: $e');
+    }
   }
 
   void _onGameStateChanged() {
@@ -64,10 +102,29 @@ class _SagaMapScreenState extends State<SagaMapScreen>
   }
 
   void _onLevelTapped(int levelNumber) {
+    final availableCount = _studentLevels.isNotEmpty ? _studentLevels.length : 7;
+    if (levelNumber > availableCount) {
+      SoundService.instance.playBoingBloop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'टप्पा $levelNumber अजून उपलब्ध नाही! 🔒',
+            style: GameTypography.buttonLabel(color: Colors.white).copyWith(fontSize: 16),
+          ),
+          backgroundColor: GameColors.inkGrape,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (_gameState.isLevelUnlocked(levelNumber)) {
       SoundService.instance.playPopClick();
       setState(() {
         _gameState.setCurrentLevel(levelNumber);
+        if (_studentLevels.isNotEmpty && levelNumber - 1 < _studentLevels.length) {
+          _gameState.setSelectedLevelData(_studentLevels[levelNumber - 1]);
+        }
       });
     } else {
       SoundService.instance.playBoingBloop();
@@ -86,7 +143,16 @@ class _SagaMapScreenState extends State<SagaMapScreen>
 
   void _playSelectedLevel() {
     SoundService.instance.playPopClick();
-    context.go('/rotate-phone');
+    final lvlIdx = _gameState.currentLevelIndex - 1;
+    final lvlData = (_studentLevels.isNotEmpty && lvlIdx >= 0 && lvlIdx < _studentLevels.length)
+        ? _studentLevels[lvlIdx]
+        : _gameState.selectedLevelData;
+    _gameState.setSelectedLevelData(lvlData);
+
+    context.go('/rotate-phone', extra: {
+      'selectedLevel': lvlData,
+      'levelNumber': _gameState.currentLevelIndex,
+    });
   }
 
   @override
@@ -330,10 +396,11 @@ class _SagaMapScreenState extends State<SagaMapScreen>
       final y = pos['y'] as double;
       final x = screenWidth * xRatio;
 
-      final isCompleted = _gameState.isLevelCompleted(level);
-      final isActiveHero = level == _gameState.currentLevelIndex;
-      final isLocked = !_gameState.isLevelUnlocked(level);
-      final stars = _gameState.getStarsForLevel(level);
+      final isOutOfRange = _studentLevels.isNotEmpty && (level - 1 >= _studentLevels.length);
+      final isCompleted = !isOutOfRange && _gameState.isLevelCompleted(level);
+      final isActiveHero = !isOutOfRange && level == _gameState.currentLevelIndex;
+      final isLocked = isOutOfRange || !_gameState.isLevelUnlocked(level);
+      final stars = isOutOfRange ? 0 : _gameState.getStarsForLevel(level);
 
       return Positioned(
         left: x - (isActiveHero ? 44.0 : 34.0),
@@ -710,13 +777,31 @@ class _SagaMapScreenState extends State<SagaMapScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'टप्पा ${currentInfo.levelNumber}: ${currentInfo.titleMarathi}',
+                      () {
+                        final idx = _gameState.currentLevelIndex - 1;
+                        if (_studentLevels.isNotEmpty && idx >= 0 && idx < _studentLevels.length) {
+                          final lvl = _studentLevels[idx];
+                          if (lvl['title'] is Map && lvl['title']['mr'] != null) {
+                            return 'टप्पा ${_gameState.currentLevelIndex}: ${lvl['title']['mr']}';
+                          }
+                        }
+                        return 'टप्पा ${currentInfo.levelNumber}: ${currentInfo.titleMarathi}';
+                      }(),
                       style: GameTypography.headline(
                         color: GameColors.inkGrape,
-                      ).copyWith(fontSize: 18),
+                      ).copyWith(fontSize: 17),
                     ),
                     Text(
-                      'Level ${currentInfo.levelNumber}: ${currentInfo.titleEnglish}',
+                      () {
+                        final idx = _gameState.currentLevelIndex - 1;
+                        if (_studentLevels.isNotEmpty && idx >= 0 && idx < _studentLevels.length) {
+                          final lvl = _studentLevels[idx];
+                          if (lvl['title'] is Map && lvl['title']['en'] != null) {
+                            return 'Level ${_gameState.currentLevelIndex}: ${lvl['title']['en']}';
+                          }
+                        }
+                        return 'Level ${currentInfo.levelNumber}: ${currentInfo.titleEnglish}';
+                      }(),
                       style: GameTypography.buttonSublabel(
                         color: GameColors.inkMuted,
                       ),

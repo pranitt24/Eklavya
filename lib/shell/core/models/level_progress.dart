@@ -22,13 +22,13 @@ class GameState extends ChangeNotifier {
   GameState._internal();
   static final GameState instance = GameState._internal();
 
-  int _currentLevelIndex = 4;
+  int _currentLevelIndex = 1;
   final Map<int, int> _unlockedLevels = {
-    1: 3, // Level 1 Completed with 3 Stars
-    2: 3, // Level 2 Completed with 3 Stars
-    3: 3, // Level 3 Completed with 3 Stars
-    4: 0, // Level 4 Unlocked & Active (Hero Target)
+    1: 0, // Level 1 Unlocked by default
   };
+
+  List<Map<String, dynamic>> _studentLevels = [];
+  Map<String, dynamic>? _selectedLevelData;
 
   int _coins = 170;
   int _streakDays = 3;
@@ -37,9 +37,21 @@ class GameState extends ChangeNotifier {
   // Getters
   int get currentLevelIndex => _currentLevelIndex;
   Map<int, int> get unlockedLevels => Map.unmodifiable(_unlockedLevels);
+  List<Map<String, dynamic>> get studentLevels => _studentLevels;
+  Map<String, dynamic>? get selectedLevelData => _selectedLevelData;
   int get coins => _coins;
   int get streakDays => _streakDays;
   bool get isStreakFrozen => _isStreakFrozen;
+
+  void setStudentLevels(List<Map<String, dynamic>> levels) {
+    _studentLevels = levels;
+    notifyListeners();
+  }
+
+  void setSelectedLevelData(Map<String, dynamic>? data) {
+    _selectedLevelData = data;
+    notifyListeners();
+  }
 
   void setStreakDays(int days) {
     _streakDays = days;
@@ -122,13 +134,13 @@ class GameState extends ChangeNotifier {
   }
 
   /// Triggered after diagnostic placement to reward the student
-  /// and place them directly on Level 4 with Levels 1-3 mastered.
-  void completeDiagnosticPlacement() {
-    _unlockedLevels[1] = 3;
-    _unlockedLevels[2] = 3;
-    _unlockedLevels[3] = 3;
-    _unlockedLevels[4] = 0;
-    _currentLevelIndex = 4;
+  /// and place them on their assigned starting level.
+  void completeDiagnosticPlacement({int startingLevel = 1}) {
+    for (int i = 1; i < startingLevel; i++) {
+      _unlockedLevels[i] = 3;
+    }
+    _unlockedLevels[startingLevel] = 0;
+    _currentLevelIndex = startingLevel;
     _coins += 30; // +10 per quiz question
     notifyListeners();
   }

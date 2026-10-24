@@ -223,6 +223,27 @@ class LevelApi {
     return null;
   }
 
+  /// GET `/students/<id>/progress`
+  Future<List<Map<String, dynamic>>> getStudentProgress(
+    int id, {
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
+    final uri = Uri.parse('$baseUrl/students/$id/progress');
+    try {
+      final response = await _client.get(uri).timeout(timeout);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    return <Map<String, dynamic>>[];
+  }
+
   /// GET `/duel/questions?seed=...&n=...&grade=...`
   Future<List<Map<String, dynamic>>> getDuelQuestions({
     int seed = 1,

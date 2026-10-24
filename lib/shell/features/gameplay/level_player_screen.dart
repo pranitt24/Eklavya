@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../../core/services/level_api.dart';
@@ -15,6 +16,8 @@ import '../../../features/scene/nova_assets.dart';
 import '../../../features/scene/question_panel.dart';
 import '../../../features/voice_engine/voice_answer_matcher.dart';
 import '../../core/audio/sound_service.dart';
+import '../../core/models/level_progress.dart';
+import '../../core/models/user_profile.dart';
 import '../../core/widgets/celebration_overlay.dart';
 import '../../theme.dart';
 
@@ -89,23 +92,65 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
       _errorMessage = null;
     });
 
+    final routerExtra = GoRouterState.of(context).extra;
+
     try {
       final assets = await NovaAssets.load();
+      if (!mounted) return;
 
-      // (a) Try GET http://127.0.0.1:8000/levels?grade=1 via LevelApi
+      // (a) Try router extra or GameState selectedLevelData
       LevelSpec? chosenLevel;
       try {
-        final serverLevels = await _levelApi.listLevels(grade: 1, timeout: const Duration(seconds: 3));
-        if (serverLevels.isNotEmpty) {
-          final randomIndex = Random().nextInt(serverLevels.length);
-          chosenLevel = LevelSpec.fromJson(serverLevels[randomIndex]);
-          debugPrint('Loaded level from server: ${chosenLevel.levelId} (${chosenLevel.scenes.length} scenes, ${chosenLevel.questions.length} questions)');
+        if (routerExtra is Map && routerExtra['selectedLevel'] != null) {
+          chosenLevel = LevelSpec.fromJson(Map<String, dynamic>.from(routerExtra['selectedLevel'] as Map));
+          debugPrint('Loaded level from GoRouter extra: ${chosenLevel.levelId}');
         }
-      } catch (netErr) {
-        debugPrint('Backend server unreachable or error: $netErr');
+      } catch (e) {
+        debugPrint('Router extra level parse note: $e');
       }
 
-      // Fallback to bundled demo levels if server unreachable or empty
+      if (chosenLevel == null && GameState.instance.selectedLevelData != null) {
+        try {
+          chosenLevel = LevelSpec.fromJson(GameState.instance.selectedLevelData!);
+          debugPrint('Loaded level from GameState: ${chosenLevel.levelId}');
+        } catch (e) {
+          debugPrint('GameState level parse note: $e');
+        }
+      }
+
+      // (b) Try GET /students/<id>/levels via LevelApi
+      if (chosenLevel == null) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final studentId = prefs.getInt('current_student_id') ?? UserProfile.instance.studentId;
+          if (studentId != null) {
+            final studentLevels = await _levelApi.getStudentLevels(studentId, timeout: const Duration(seconds: 3));
+            if (studentLevels.isNotEmpty) {
+              final lvlIdx = (GameState.instance.currentLevelIndex - 1).clamp(0, studentLevels.length - 1);
+              chosenLevel = LevelSpec.fromJson(studentLevels[lvlIdx]);
+              debugPrint('Loaded level from student levels: ${chosenLevel.levelId}');
+            }
+          }
+        } catch (netErr) {
+          debugPrint('Student levels fetch note: $netErr');
+        }
+      }
+
+      // (c) Try GET http://127.0.0.1:8000/levels?grade=1 via LevelApi
+      if (chosenLevel == null) {
+        try {
+          final serverLevels = await _levelApi.listLevels(grade: 1, timeout: const Duration(seconds: 3));
+          if (serverLevels.isNotEmpty) {
+            final randomIndex = Random().nextInt(serverLevels.length);
+            chosenLevel = LevelSpec.fromJson(serverLevels[randomIndex]);
+            debugPrint('Loaded level from server: ${chosenLevel.levelId}');
+          }
+        } catch (netErr) {
+          debugPrint('Backend server unreachable or error: $netErr');
+        }
+      }
+
+      // (d) Fallback to bundled demo levels if server unreachable or empty
       if (chosenLevel == null) {
         debugPrint('Falling back to bundled demo levels...');
         final idxString = await rootBundle.loadString('assets/nova/demo/index.json');
@@ -171,7 +216,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     }
   }
 
-  void _onFinished() {
+  Future<void> _onFinished() async {
     debugPrint('LevelPlayer onFinished: $_correctCount / $_totalQuestions correct');
     if (_navigatingToCelebration) return;
     _navigatingToCelebration = true;
@@ -179,22 +224,47 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     CelebrationOverlay.show(context, type: CelebrationType.levelComplete);
 
     final total = _totalQuestions > 0 ? _totalQuestions : 3;
-    final earnedStars = (_correctCount == total)
+    int earnedStars = (_correctCount == total)
         ? 3
         : (_correctCount >= (total / 2.0).ceil())
             ? 2
             : 1;
     final coins = _correctCount * 20;
+    final completedLevelNum = GameState.instance.currentLevelIndex;
 
-    // Only after the final scene go to /celebration
-    context.go(
-      '/celebration',
-      extra: {
-        'completedLevelNumber': 1,
-        'earnedStars': earnedStars,
-        'coinsAwarded': coins,
-      },
-    );
+    // POST /students/<id>/progress {level_id, correct, total}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final studentId = prefs.getInt('current_student_id') ?? UserProfile.instance.studentId;
+      if (studentId != null && _level != null) {
+        final res = await _levelApi.recordProgress(
+          studentId,
+          levelId: _level!.levelId,
+          correct: _correctCount,
+          total: total,
+          timeout: const Duration(seconds: 3),
+        );
+        if (res != null && res['stars'] != null) {
+          earnedStars = res['stars'] as int;
+          debugPrint('Progress posted! Stars from backend: $earnedStars');
+        }
+      }
+    } catch (e) {
+      debugPrint('Progress recording note (offline fallback): $e');
+    }
+
+    GameState.instance.completeLevel(completedLevelNum, earnedStars, coins);
+
+    if (mounted) {
+      context.go(
+        '/celebration',
+        extra: {
+          'completedLevelNumber': completedLevelNum,
+          'earnedStars': earnedStars,
+          'coinsAwarded': coins,
+        },
+      );
+    }
   }
 
   Widget _buildVoiceQuestion(QuestionSpec q, String lang, void Function(bool correct) submit) {

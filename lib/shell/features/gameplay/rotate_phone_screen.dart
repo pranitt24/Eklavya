@@ -41,7 +41,7 @@ class _RotatePhoneScreenState extends State<RotatePhoneScreen>
       DeviceOrientation.landscapeRight,
     ]);
     if (mounted) {
-      context.go('/gameplay');
+      context.go('/gameplay', extra: GoRouterState.of(context).extra);
     }
   }
 

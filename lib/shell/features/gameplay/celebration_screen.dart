@@ -2,10 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/models/level_progress.dart';
+import '../../core/widgets/celebration_overlay.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
 
@@ -68,20 +68,11 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
       widget.coinsAwarded,
     );
 
-    // Launch confetti explosion
+    // Launch celebration pop-up (balloons + confetti + cheer)
     if (widget.autoLaunchConfetti) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          try {
-            Confetti.launch(
-              context,
-              options: const ConfettiOptions(
-                particleCount: 100,
-                spread: 85,
-                y: 0.45,
-              ),
-            );
-          } catch (_) {}
+          CelebrationOverlay.show(context, type: CelebrationType.levelComplete);
         }
       });
     }

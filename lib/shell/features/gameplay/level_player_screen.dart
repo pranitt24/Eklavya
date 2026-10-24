@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_confetti/flutter_confetti.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -16,6 +15,7 @@ import '../../../features/scene/nova_assets.dart';
 import '../../../features/scene/question_panel.dart';
 import '../../../features/voice_engine/voice_answer_matcher.dart';
 import '../../core/audio/sound_service.dart';
+import '../../core/widgets/celebration_overlay.dart';
 import '../../theme.dart';
 
 /// LevelPlayerScreen: Multi-task story level player:
@@ -163,15 +163,7 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
         _correctQuestions.add(questionId);
         setState(() => _correctCount++);
       }
-      SoundService.instance.playDingChime();
-      Confetti.launch(
-        context,
-        options: const ConfettiOptions(
-          particleCount: 85,
-          spread: 80,
-          y: 0.5,
-        ),
-      );
+      CelebrationOverlay.show(context, type: CelebrationType.correctAnswer);
       // In multi-task stories, answering one question does NOT navigate to celebration.
       // The scene reaction plays, then LevelPlayer advances to the next scene.
     } else {
@@ -183,6 +175,8 @@ class _LevelPlayerScreenState extends State<LevelPlayerScreen> {
     debugPrint('LevelPlayer onFinished: $_correctCount / $_totalQuestions correct');
     if (_navigatingToCelebration) return;
     _navigatingToCelebration = true;
+
+    CelebrationOverlay.show(context, type: CelebrationType.levelComplete);
 
     final total = _totalQuestions > 0 ? _totalQuestions : 3;
     final earnedStars = (_correctCount == total)

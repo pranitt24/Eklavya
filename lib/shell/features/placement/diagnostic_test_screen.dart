@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/audio/sound_service.dart';
 import '../../core/models/level_progress.dart';
+import '../../core/widgets/celebration_overlay.dart';
 import '../../core/widgets/squishy_button.dart';
 import '../../theme.dart';
 
@@ -144,7 +145,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
     });
 
     if (isCorrect) {
-      SoundService.instance.playDingChime();
+      CelebrationOverlay.show(context, type: CelebrationType.correctAnswer);
       GameState.instance.addCoins(10);
       setState(() => _starsEarned++);
     } else {
@@ -162,6 +163,7 @@ class _DiagnosticTestScreenState extends State<DiagnosticTestScreen>
         });
       } else {
         // Complete Diagnostic Test
+        CelebrationOverlay.show(context, type: CelebrationType.placementComplete);
         GameState.instance.completeDiagnosticPlacement();
         setState(() => _showPlacementDialog = true);
       }

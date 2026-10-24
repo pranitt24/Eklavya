@@ -29,12 +29,12 @@ ACTOR_PAIRS = [("char_nova", "char_boy"), ("char_nova", "char_girl"), ("char_nov
 KINDS = ("count", "add", "sub", "mul")
 
 
-def kind_from_skill(skill_id):
+def kind_from_skill(skill_id, default="count"):
     s = (skill_id or "").upper()
     for key, kind in (("ADD", "add"), ("SUB", "sub"), ("MUL", "mul"), ("COUNT", "count")):
         if key in s:
             return kind
-    return "count"
+    return default
 
 
 def _limit(kind, grade, tier):
@@ -85,7 +85,8 @@ def fallback_text(kind, a, b, prop):
 
 def build_level(kind, grade, tier, skill_id, prop=None, seed=None, texts=None):
     rng = random.Random(seed)
-    prop = prop or rng.choice(THEMES)
+    _pick = rng.choice(THEMES)          # always draw, so passing prop= later does not shift the numbers
+    prop = prop or _pick
     a, b, ans = make_numbers(kind, grade, tier, rng)
     txt = texts or fallback_text(kind, a, b, prop)
     _, _, bg = PROPS_INFO[prop]
@@ -143,3 +144,79 @@ def duel_questions(seed, n=10, grade=2):
         out.append({"id": f"d{i+1}", "type": "fill_blanks", "prompt": {"mr": expr, "en": expr},
                     "options": opts, "answer": ans})
     return out
+
+
+# ---------------------------------------------------------------- multi-task STORY levels
+STORY_KINDS = {1: ("count", "add", "sub"), 2: ("add", "sub", "mul"), 3: ("add", "sub", "mul"), 4: ("add", "sub", "mul")}
+LEADS = [("चला सुरू करूया!", "Let us begin!"), ("छान! आता पुढे चला.", "Great! Now let us go on."),
+         ("शाब्बास! आणखी एक.", "Well done! One more."), ("शेवटचा प्रश्न!", "Last one!")]
+
+
+def fallback_story_text(facts, prop):
+    mr_n, en_n, _ = PROPS_INFO[prop]
+    tasks = []
+    for i, f in enumerate(facts):
+        q = fallback_text(f["kind"], f["a"], f["b"], prop)["question_scene"]
+        lm, le = LEADS[min(i, len(LEADS) - 1)]
+        tasks.append({"mr": f"{lm} {q['mr']}", "en": f"{le} {q['en']}"})
+    return {
+        "title": {"mr": f"नोव्हा आणि {mr_n}", "en": f"Nova and the {en_n}"},
+        "summary": {"mr": f"{mr_n} वापरून गोष्ट आणि गणित.", "en": f"A story and math with {en_n}."},
+        "intro": {"mr": f"आज नोव्हा आणि मित्र {mr_n} घेऊन गंमत करणार आहेत!",
+                  "en": f"Today Nova and a friend will have fun with {en_n}!"},
+        "tasks": tasks,
+        "wrap": {"mr": "शाब्बास! तुम्ही सगळे प्रश्न सोडवले.", "en": "Well done! You solved every question."},
+    }
+
+
+def _props_for(kind, a, b, prop):
+    """-> (props list, whether the visual count equals the answer)."""
+    mk = lambda slot, n: {"id": prop, "slot": slot, "count": n, "enter": "pop_in_staggered"}
+    if kind == "count":
+        return [mk("ground_center", a)], True
+    if kind == "add":
+        if a <= 20 and b <= 20:
+            return [mk("ground_left", a), mk("ground_right", b)], True
+        return [], False
+    if kind == "sub":
+        return ([mk("ground_center", a)] if a <= 20 else []), False
+    return ([mk("ground_center", b)] if b <= 20 else []), False
+
+
+def build_story_level(kinds, grade, tier, skill_id, prop=None, seed=None, texts=None):
+    """One story: intro scene, one scene per task (each with its own question), happy ending."""
+    rng = random.Random(seed)
+    _pick = rng.choice(THEMES)
+    prop = prop or _pick
+    left, right = rng.choice(ACTOR_PAIRS)
+    _, _, bg = PROPS_INFO[prop]
+    facts = []
+    for kind in kinds:
+        a, b, ans = make_numbers(kind, grade, tier, rng)
+        facts.append({"kind": kind, "a": a, "b": b, "answer": ans})
+    txt = texts or fallback_story_text(facts, prop)
+    actors = [{"id": left, "slot": "left", "expression": "idle", "enter": "walk_in_left", "loop": "idle_bounce"},
+              {"id": right, "slot": "right", "expression": "curious", "enter": "walk_in_right"}]
+    questions, scenes = [], [
+        {"scene_id": "s1", "text": txt["intro"], "backdrop": bg, "actors": actors, "props": [],
+         "timeline": [{"at": 0, "do": "narrate"}, {"at": 1.5, "do": "play", "actor": left, "play": "wave"}]}]
+    for i, f in enumerate(facts):
+        qid = f"q{i+1}"
+        props, linked = _props_for(f["kind"], f["a"], f["b"], prop)
+        q = {"id": qid, "type": "voice_input", "prompt": txt["tasks"][i], "answer": f["answer"]}
+        if linked:
+            q["counts_prop"] = prop
+        questions.append(q)
+        scenes.append({"scene_id": f"s{i+2}", "text": txt["tasks"][i], "backdrop": bg, "actors": actors,
+                       "props": props, "question_ref": qid,
+                       "timeline": [{"at": 0, "do": "narrate"}, {"at": 2.5, "do": "show_question"}],
+                       "on_correct": {"actor": left, "expression": "happy", "play": "jump", "sfx": "sfx_cheer"},
+                       "on_wrong": {"actor": left, "expression": "encouraging", "play": "head_tilt", "sfx": "sfx_oops"}})
+    scenes.append({"scene_id": f"s{len(facts)+2}", "text": txt["wrap"], "backdrop": bg, "actors": actors, "props": [],
+                   "timeline": [{"at": 0, "do": "narrate"},
+                                {"at": 1.0, "do": "set_expression", "actor": left, "expression": "happy"}]})
+    lid = f"{skill_id}_story_g{grade}t{tier}_{rng.randrange(10**6):06d}"
+    level = {"schema_version": "2.0", "level_id": lid, "skill_id": skill_id, "grade": grade,
+             "difficulty_tier": tier, "theme": prop, "title": txt["title"], "summary": txt["summary"],
+             "questions": questions, "scenes": scenes}
+    return level, {"facts": facts, "prop": prop}

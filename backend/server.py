@@ -7,12 +7,17 @@ Endpoints:
   GET  /levels/<level_id>                  one level
   POST /generate  {"skill_id","grade","tier","kind","prop","seed","use_llm"}  -> {"level","info"} (also stored)
   GET  /duel/questions?seed=42&n=10&grade=2   same seed => same questions on both phones
-  GET  /assets/countable                   countable prop ids"""
+  GET  /assets/countable                   countable prop ids
+  POST /students {name, age, gender?, school?, class_declared?, language?, avatar?}  -> student (with starting grade/tier)
+  GET  /students | /students/<id> | /students/<id>/levels | /students/<id>/progress
+  POST /students/<id>/placement {correct,total} -> {grade,tier}      (assigns the level from the placement test)
+  POST /students/<id>/progress  {level_id,correct,total} -> {stars}
+  /generate with no "kind" (or kind="story") builds a multi-task story; kind=count|add|sub|mul builds a single task"""
 import json, sqlite3, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
-from . import catalog as C, templates as T
+from . import catalog as C, templates as T, students as S
 from .pipeline import generate_level, load_env
 from .validator import validate_level
 
@@ -23,6 +28,7 @@ def db():
     con = sqlite3.connect(DB)
     con.execute("""CREATE TABLE IF NOT EXISTS levels(level_id TEXT PRIMARY KEY, skill_id TEXT, grade INT,
                    tier INT, json TEXT, source TEXT, created REAL)""")
+    S.init(con)
     return con
 
 
@@ -59,6 +65,25 @@ class H(BaseHTTPRequestHandler):
                 with db() as con:
                     rows = [json.loads(r[0]) for r in con.execute(sql + " ORDER BY created DESC", args)]
                 return self._send(200, rows)
+            if u.path == "/students":
+                with db() as con:
+                    return self._send(200, S.list_students(con))
+            if u.path.startswith("/students/"):
+                parts = u.path.strip("/").split("/")
+                sid = int(parts[1])
+                with db() as con:
+                    if len(parts) == 2:
+                        r = S.get_student(con, sid)
+                        return self._send(200, r) if r else self._send(404, {"error": "not found"})
+                    if parts[2] == "progress":
+                        return self._send(200, S.get_progress(con, sid))
+                    if parts[2] == "levels":   # levels for this student's assigned grade (and tier if present)
+                        st = S.get_student(con, sid)
+                        if not st:
+                            return self._send(404, {"error": "not found"})
+                        rows = [json.loads(r[0]) for r in con.execute(
+                            "SELECT json FROM levels WHERE grade=? ORDER BY ABS(tier-?), created DESC", (st["grade"], st["tier"]))]
+                        return self._send(200, rows)
             if u.path.startswith("/levels/"):
                 with db() as con:
                     r = con.execute("SELECT json FROM levels WHERE level_id=?", (u.path.split("/")[-1],)).fetchone()
@@ -68,7 +93,24 @@ class H(BaseHTTPRequestHandler):
             self._send(500, {"error": f"{type(e).__name__}: {e}"})
 
     def do_POST(self):
-        if urlparse(self.path).path != "/generate":
+        path = urlparse(self.path).path
+        if path.startswith("/students"):
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                b = json.loads(self.rfile.read(n) or b"{}")
+                parts = path.strip("/").split("/")
+                with db() as con:
+                    if len(parts) == 1:
+                        return self._send(200, S.create_student(con, b))
+                    sid = int(parts[1])
+                    if parts[2] == "placement":
+                        return self._send(200, S.record_placement(con, sid, b["correct"], b["total"]))
+                    if parts[2] == "progress":
+                        return self._send(200, S.record_progress(con, sid, b["level_id"], b["correct"], b["total"]))
+                return self._send(404, {"error": "no such route"})
+            except Exception as e:
+                return self._send(400, {"error": f"{type(e).__name__}: {e}"})
+        if path != "/generate":
             return self._send(404, {"error": "no such route"})
         try:
             n = int(self.headers.get("Content-Length", 0))

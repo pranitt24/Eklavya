@@ -8,14 +8,13 @@ from backend.server import store, db
 db().close()
 use_llm = "--no-llm" not in sys.argv
 n = 0
-for grade, tiers in ((1, (1, 2, 3)), (2, (1, 2)), (3, (1,)), (4, (1,))):
+for grade, tiers in ((1, (1, 2, 3)), (2, (1, 2, 3)), (3, (1, 2)), (4, (1, 2))):
     for tier in tiers:
-        for kind in ("count", "add", "sub", "mul"):
-            if kind == "mul" and grade < 2: continue
-            if kind == "count" and grade > 1: continue
+        for skill_kind in (None, "add", "sub"):      # None = mixed story for the grade
             for seed in range(2):
-                lv, info = generate_level(f"M{grade}_{kind.upper()}", grade, tier, kind, seed=grade*1000+tier*100+seed*10+n, use_llm=use_llm)
+                sid = f"M{grade}_STORY" if skill_kind is None else f"M{grade}_{skill_kind.upper()}"
+                lv, info = generate_level(sid, grade, tier, None, seed=grade*1000+tier*100+seed*10+n, use_llm=use_llm)
                 store(lv, info["source"]); n += 1
-                print(f"{lv['level_id']:40s} {info['source']}")
+                print(f"{lv['level_id']:40s} {info['source']:9s} {len(lv['questions'])} tasks")
                 if use_llm: time.sleep(1)
 print("stored", n, "levels")
